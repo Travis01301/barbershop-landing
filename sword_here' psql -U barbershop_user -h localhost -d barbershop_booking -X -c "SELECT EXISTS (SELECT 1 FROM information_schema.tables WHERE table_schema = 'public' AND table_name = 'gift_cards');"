@@ -1,0 +1,18 @@
+                    List of relations
+ Schema |         Name          | Type  |      Owner      
+--------+-----------------------+-------+-----------------
+ public | appointments          | table | barbershop_user
+ public | barber_schedules      | table | barbershop_user
+ public | business_hours        | table | postgres
+ public | customer_profiles     | table | barbershop_user
+ public | gift_card_redemptions | table | barbershop_user
+ public | gift_cards            | table | barbershop_user
+ public | payment_settings      | table | postgres
+ public | payments              | table | postgres
+ public | reviews               | table | postgres
+ public | services              | table | postgres
+ public | shops                 | table | barbershop_user
+ public | signups               | table | postgres
+ public | users                 | table | barbershop_user
+(13 rows)
+

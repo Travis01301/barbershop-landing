@@ -1,0 +1,20 @@
+                                           Table "public.barber_services"
+      Column      |            Type             | Collation | Nullable |                   Default                   
+------------------+-----------------------------+-----------+----------+---------------------------------------------
+ id               | integer                     |           | not null | nextval('barber_services_id_seq'::regclass)
+ barber_id        | integer                     |           | not null | 
+ service_id       | integer                     |           | not null | 
+ price            | numeric(10,2)               |           |          | 
+ duration_minutes | integer                     |           |          | 
+ available        | boolean                     |           |          | true
+ created_at       | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+ updated_at       | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+Indexes:
+    "barber_services_pkey" PRIMARY KEY, btree (id)
+    "barber_services_barber_id_service_id_key" UNIQUE CONSTRAINT, btree (barber_id, service_id)
+    "idx_barber_services_barber_id" btree (barber_id)
+    "idx_barber_services_service_id" btree (service_id)
+Foreign-key constraints:
+    "barber_services_barber_id_fkey" FOREIGN KEY (barber_id) REFERENCES users(id) ON DELETE CASCADE
+    "barber_services_service_id_fkey" FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
+
