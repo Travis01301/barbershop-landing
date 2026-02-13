@@ -45,7 +45,8 @@ describe('BookingForm Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    ;(global.fetch as jest.Mock).mockReset()
+    // Reset fetch mock and ensure it's a fresh jest.fn()
+    global.fetch = jest.fn()
   })
 
   describe('Initial Render', () => {
@@ -142,8 +143,11 @@ describe('BookingForm Component', () => {
 
   describe('Customer Lookup', () => {
     it('should fetch existing customer when email is valid', async () => {
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: async () => ({
+      const mockFetch = global.fetch as jest.Mock
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: jest.fn().mockResolvedValueOnce({
           success: true,
           customer: {
             id: 1,
@@ -167,8 +171,11 @@ describe('BookingForm Component', () => {
     })
 
     it('should show styling notes for returning customer', async () => {
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: async () => ({
+      const mockFetch = global.fetch as jest.Mock
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: jest.fn().mockResolvedValueOnce({
           success: true,
           customer: {
             name: 'Jane Smith',
@@ -224,8 +231,11 @@ describe('BookingForm Component', () => {
 
   describe('Available Slots', () => {
     it('should fetch available slots when barber and date are selected', async () => {
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: async () => ({
+      const mockFetch = global.fetch as jest.Mock
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: jest.fn().mockResolvedValueOnce({
           success: true,
           availableSlots: [
             { startTime: '2026-02-20T09:00:00Z' },
