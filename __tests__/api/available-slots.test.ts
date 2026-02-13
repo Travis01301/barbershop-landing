@@ -23,6 +23,8 @@ describe('GET /api/available-slots', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockQuery.mockReset()
+    // Default mock return if not overridden
+    mockQuery.mockResolvedValue({ rows: [], rowCount: 0 })
   })
 
   it('should return 400 when shopId is missing', async () => {
@@ -38,7 +40,8 @@ describe('GET /api/available-slots', () => {
     const data = await response.json()
 
     expect(response.status).toBe(400)
-    expect(data.error).toContain('required')
+    expect(data.error).toBe('Validation failed')
+    expect(data.details).toBeDefined()
   })
 
   it('should return 400 when barberId is missing', async () => {
@@ -54,7 +57,8 @@ describe('GET /api/available-slots', () => {
     const data = await response.json()
 
     expect(response.status).toBe(400)
-    expect(data.error).toContain('required')
+    expect(data.error).toBe('Validation failed')
+    expect(data.details).toBeDefined()
   })
 
   it('should return 400 when date is missing', async () => {
@@ -70,7 +74,8 @@ describe('GET /api/available-slots', () => {
     const data = await response.json()
 
     expect(response.status).toBe(400)
-    expect(data.error).toContain('required')
+    expect(data.error).toBe('Validation failed')
+    expect(data.details).toBeDefined()
   })
 
   it('should return 400 for invalid date format', async () => {
@@ -87,12 +92,14 @@ describe('GET /api/available-slots', () => {
     const data = await response.json()
 
     expect(response.status).toBe(400)
-    expect(data.error).toContain('Invalid date format')
+    expect(data.error).toBe('Validation failed')
+    expect(data.details).toBeDefined()
   })
 
   it('should return empty slots when barber has no schedule for the day', async () => {
-    ;(mockPool.query as jest.Mock).mockResolvedValueOnce({
+    mockQuery.mockResolvedValueOnce({
       rows: [], // No schedule found
+      rowCount: 0,
     })
 
     const url = new URL('http://localhost:3000/api/available-slots')
@@ -113,7 +120,7 @@ describe('GET /api/available-slots', () => {
   })
 
   it('should return empty slots when barber is not working on that day', async () => {
-    ;(mockPool.query as jest.Mock)
+    mockQuery
       .mockResolvedValueOnce({
         rows: [
           {
@@ -145,7 +152,7 @@ describe('GET /api/available-slots', () => {
   })
 
   it('should generate 30-minute slots for a working day', async () => {
-    ;(mockPool.query as jest.Mock)
+    mockQuery
       .mockResolvedValueOnce({
         rows: [
           {
@@ -183,7 +190,7 @@ describe('GET /api/available-slots', () => {
     const appointmentStart = new Date('2026-02-15T09:30:00Z')
     const appointmentEnd = new Date('2026-02-15T10:00:00Z')
 
-    ;(mockPool.query as jest.Mock)
+    mockQuery
       .mockResolvedValueOnce({
         rows: [
           {
@@ -221,7 +228,7 @@ describe('GET /api/available-slots', () => {
   })
 
   it('should handle multiple existing appointments', async () => {
-    ;(mockPool.query as jest.Mock)
+    mockQuery
       .mockResolvedValueOnce({
         rows: [
           {
@@ -266,7 +273,7 @@ describe('GET /api/available-slots', () => {
   })
 
   it('should return slots in ISO 8601 format', async () => {
-    ;(mockPool.query as jest.Mock)
+    mockQuery
       .mockResolvedValueOnce({
         rows: [
           {
