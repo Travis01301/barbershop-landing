@@ -45,8 +45,19 @@ describe('BookingForm Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    // Reset fetch mock and ensure it's a fresh jest.fn()
-    global.fetch = jest.fn()
+    // Create a fresh fetch mock that returns proper Response objects
+    global.fetch = jest.fn(async (url: string) => {
+      // Default: return empty customer/slots
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          customer: null,
+          availableSlots: [],
+        }),
+      }
+    })
   })
 
   describe('Initial Render', () => {
@@ -144,12 +155,12 @@ describe('BookingForm Component', () => {
   describe('Customer Lookup', () => {
     it('should fetch existing customer when email is valid', async () => {
       const mockFetch = global.fetch as jest.Mock
-      mockFetch.mockImplementationOnce(() =>
-        Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () =>
-            Promise.resolve({
+      mockFetch.mockImplementation(async (url: string) => ({
+        ok: true,
+        status: 200,
+        json: async () => {
+          if (url.includes('by-email')) {
+            return {
               success: true,
               customer: {
                 id: 1,
@@ -158,9 +169,11 @@ describe('BookingForm Component', () => {
                 phone: '(555) 987-6543',
                 styling_notes: 'Fade, no beard',
               },
-            }),
-        })
-      )
+            }
+          }
+          return { success: true, customer: null }
+        },
+      }))
 
       const user = userEvent.setup()
       render(<BookingForm {...mockProps} />)
@@ -178,20 +191,22 @@ describe('BookingForm Component', () => {
 
     it('should show styling notes for returning customer', async () => {
       const mockFetch = global.fetch as jest.Mock
-      mockFetch.mockImplementationOnce(() =>
-        Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () =>
-            Promise.resolve({
+      mockFetch.mockImplementation(async (url: string) => ({
+        ok: true,
+        status: 200,
+        json: async () => {
+          if (url.includes('by-email')) {
+            return {
               success: true,
               customer: {
                 name: 'Jane Smith',
                 styling_notes: 'Short on sides, long on top',
               },
-            }),
-        })
-      )
+            }
+          }
+          return { success: true, customer: null }
+        },
+      }))
 
       const user = userEvent.setup()
       render(<BookingForm {...mockProps} />)
@@ -244,21 +259,23 @@ describe('BookingForm Component', () => {
   describe('Available Slots', () => {
     it('should fetch available slots when barber and date are selected', async () => {
       const mockFetch = global.fetch as jest.Mock
-      mockFetch.mockImplementationOnce(() =>
-        Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () =>
-            Promise.resolve({
+      mockFetch.mockImplementation(async (url: string) => ({
+        ok: true,
+        status: 200,
+        json: async () => {
+          if (url.includes('available-slots')) {
+            return {
               success: true,
               availableSlots: [
                 { startTime: '2026-02-20T09:00:00Z' },
                 { startTime: '2026-02-20T09:30:00Z' },
                 { startTime: '2026-02-20T10:00:00Z' },
               ],
-            }),
-        })
-      )
+            }
+          }
+          return { success: true, availableSlots: [] }
+        },
+      }))
 
       const user = userEvent.setup()
       render(<BookingForm {...mockProps} />)
@@ -329,32 +346,22 @@ describe('BookingForm Component', () => {
 
     it('should enable submit button when all required fields are filled', async () => {
       const mockFetch = global.fetch as jest.Mock
-      // First call: customer lookup
-      mockFetch.mockImplementationOnce(() =>
-        Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () =>
-            Promise.resolve({
-              success: true,
-              customer: null,
-            }),
-        })
-      )
-      // Second call: available slots
-      mockFetch.mockImplementationOnce(() =>
-        Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () =>
-            Promise.resolve({
+      mockFetch.mockImplementation(async (url: string) => ({
+        ok: true,
+        status: 200,
+        json: async () => {
+          if (url.includes('available-slots')) {
+            return {
               success: true,
               availableSlots: [
                 { startTime: '2026-02-20T09:00:00Z' },
               ],
-            }),
-        })
-      )
+            }
+          }
+          // Customer lookup or other
+          return { success: true, customer: null }
+        },
+      }))
 
       const user = userEvent.setup()
       render(<BookingForm {...mockProps} />)
