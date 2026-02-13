@@ -25,6 +25,7 @@
     "recharts": "^3.7.0",
     "resend": "^6.9.1",
     "stripe": "^20.3.1",
+    "uuid": "^13.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { query } from '@/lib/db'
 import { jwtAuth } from '@/lib/jwt-auth'
+import { passwordService } from '@/lib/password-service'
+import { loginLimiter } from '@/lib/rate-limiter'
 import { validateInput } from '@/lib/validation'
 import { z } from 'zod'
 
@@ -9,12 +11,13 @@ const authLogger = logger.createChild('auth-login')
 
 const LoginSchema = z.object({
   email: z.string().email('Valid email required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(1, 'Password required'),
 })
 
 /**
  * POST /api/auth/login
  * Authenticate user and return JWT tokens
+ * Rate limited: 5 attempts per 15 minutes
  */
 export async function POST(request: NextRequest) {
   try {
@@ -32,21 +35,99 @@ export async function POST(request: NextRequest) {
 
     const { email, password } = validation.data!
 
+    // Rate limiting by email
+    const rateLimitCheck = loginLimiter.isAllowed(email)
+    if (!rateLimitCheck.allowed) {
+      authLogger.warn('Login rate limit exceeded', {
+        email,
+        resetAt: new Date(rateLimitCheck.resetAt),
+      })
+      return NextResponse.json(
+        {
+          error: 'Too many login attempts. Try again later.',
+          resetAt: new Date(rateLimitCheck.resetAt).toISOString(),
+        },
+        { status: 429 }
+      )
+    }
+
     authLogger.debug('Login attempt', { email })
 
-    // TODO: In production, implement proper password hashing (bcrypt)
-    // For now, this is a placeholder
-    // In real implementation:
-    // 1. Query user by email
-    // 2. Compare password hash using bcrypt.compare()
-    // 3. Return error if no match
-
-    // Placeholder: reject all logins
-    authLogger.warn('Login failed - password validation not implemented', { email })
-    return NextResponse.json(
-      { error: 'Invalid email or password' },
-      { status: 401 }
+    // Query user by email
+    const userResult = await query(
+      `SELECT id, email, password_hash, role, shop_id, created_at
+       FROM users WHERE email = $1 AND deleted_at IS NULL`,
+      [email]
     )
+
+    if (userResult.rowCount === 0) {
+      authLogger.warn('Login failed - user not found', { email })
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      )
+    }
+
+    const user = userResult.rows[0]
+
+    // Verify password
+    const passwordValid = await passwordService.verifyPassword(
+      password,
+      user.password_hash
+    )
+
+    if (!passwordValid) {
+      authLogger.warn('Login failed - invalid password', { email })
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      )
+    }
+
+    // Check if password needs rehashing (bcrypt cost increased)
+    const needsRehash = await passwordService.needsRehashing(user.password_hash)
+    if (needsRehash) {
+      authLogger.info('Password rehash needed', { userId: user.id })
+      const newHash = await passwordService.hashPassword(password)
+      await query(
+        `UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP
+         WHERE id = $2`,
+        [newHash, user.id]
+      )
+    }
+
+    // Generate JWT tokens
+    const tokens = await jwtAuth.generateTokenPair({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      shopId: user.shop_id,
+    })
+
+    // Update last login
+    await query(
+      `UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = $1`,
+      [user.id]
+    )
+
+    authLogger.info('Login successful', {
+      userId: user.id,
+      email,
+      role: user.role,
+    })
+
+    return NextResponse.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        shopId: user.shop_id,
+      },
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      expiresIn: tokens.expiresIn,
+    })
   } catch (error) {
     authLogger.error('Login error', error)
     return NextResponse.json(
