@@ -1,6 +1,7 @@
 import Stripe from 'stripe'
 import { logger } from './logger'
 import { query } from './db'
+import { emailService } from './email-service'
 
 const webhookLogger = logger.createChild('stripe-webhooks')
 
@@ -44,7 +45,7 @@ export async function handlePaymentIntentSucceeded(
   try {
     // Get the payment record
     const paymentResult = await query(
-      `SELECT appointment_id, stripe_payment_intent_id FROM payments 
+      `SELECT appointment_id, customer_email FROM payments 
        WHERE stripe_payment_intent_id = $1`,
       [paymentIntentId]
     )
@@ -56,6 +57,7 @@ export async function handlePaymentIntentSucceeded(
 
     const payment = paymentResult.rows[0]
     const appointmentId = payment.appointment_id
+    const customerEmail = payment.customer_email
 
     // Update payment status to confirmed
     await query(
@@ -70,6 +72,48 @@ export async function handlePaymentIntentSucceeded(
        WHERE id = $2`,
       ['confirmed', appointmentId]
     )
+
+    // Fetch appointment details for email
+    try {
+      const appointmentResult = await query(
+        `SELECT a.start_time, a.customer_name, b.name as barber_name, s.name as service_name, sh.name as shop_name
+         FROM appointments a
+         JOIN barbers b ON a.barber_id = b.id
+         LEFT JOIN barber_services s ON a.service_id = s.id
+         JOIN shops sh ON a.shop_id = sh.id
+         WHERE a.id = $1`,
+        [appointmentId]
+      )
+
+      if (appointmentResult.rowCount > 0) {
+        const apt = appointmentResult.rows[0]
+        const appointmentDate = new Date(apt.start_time).toLocaleDateString()
+        const appointmentTime = new Date(apt.start_time).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+
+        await emailService.sendBookingConfirmation({
+          customerName: apt.customer_name,
+          customerEmail,
+          barberName: apt.barber_name,
+          appointmentDate,
+          appointmentTime,
+          serviceName: apt.service_name || 'Haircut',
+          shopName: apt.shop_name,
+        })
+
+        webhookLogger.info('Booking confirmation email sent', {
+          appointmentId,
+          customerEmail,
+        })
+      }
+    } catch (emailError) {
+      webhookLogger.warn('Failed to send booking confirmation email', emailError, {
+        appointmentId,
+      })
+      // Don't throw - email is not critical to payment success
+    }
 
     webhookLogger.info('Payment confirmed and appointment marked as paid', {
       paymentIntentId,
