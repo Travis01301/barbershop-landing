@@ -347,8 +347,9 @@ END:VCALENDAR`
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-sm font-semibold text-slate-900 mb-2">Email Address</label>
+        <label htmlFor="email" className="block text-sm font-semibold text-slate-900 mb-2">Email Address</label>
         <input
+          id="email"
           type="email"
           required
           value={formData.customerEmail}
@@ -367,16 +368,16 @@ END:VCALENDAR`
 
       <div className="grid sm:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-semibold text-slate-900 mb-2">Barber</label>
-          <select required value={formData.barberId} onChange={(e) => setFormData({...formData, barberId: e.target.value})} className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+          <label htmlFor="barber" className="block text-sm font-semibold text-slate-900 mb-2">Barber</label>
+          <select id="barber" required value={formData.barberId} onChange={(e) => setFormData({...formData, barberId: e.target.value})} className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
             <option value="">Choose a barber</option>
             {barbers.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-900 mb-2">Date</label>
-          <input type="date" required value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} min={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" />
+          <label htmlFor="date" className="block text-sm font-semibold text-slate-900 mb-2">Date</label>
+          <input id="date" type="date" required value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} min={new Date().toISOString().split('T')[0]} className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" />
         </div>
       </div>
 
@@ -405,13 +406,13 @@ END:VCALENDAR`
 
       <div className="grid sm:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-semibold text-slate-900 mb-2">Full Name</label>
-          <input type="text" required value={formData.customerName} onChange={(e) => setFormData({...formData, customerName: e.target.value})} placeholder="John Smith" className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" />
+          <label htmlFor="fullName" className="block text-sm font-semibold text-slate-900 mb-2">Full Name</label>
+          <input id="fullName" type="text" required value={formData.customerName} onChange={(e) => setFormData({...formData, customerName: e.target.value})} placeholder="John Smith" className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-900 mb-2">Phone Number</label>
-          <input type="tel" required value={formData.customerPhone} onChange={(e) => setFormData({...formData, customerPhone: e.target.value})} placeholder="(555) 000-0000" className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" />
+          <label htmlFor="phone" className="block text-sm font-semibold text-slate-900 mb-2">Phone Number</label>
+          <input id="phone" type="tel" required value={formData.customerPhone} onChange={(e) => setFormData({...formData, customerPhone: e.target.value})} placeholder="(555) 000-0000" className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" />
         </div>
       </div>
 

@@ -78,7 +78,8 @@ describe('POST /api/payments/intent', () => {
     const data = await response.json()
 
     expect(response.status).toBe(400)
-    expect(data.error).toContain('Missing required fields')
+    expect(data.error).toBe('Validation failed')
+    expect(data.details).toBeDefined()
   })
 
   it('should return 400 when amount is missing', async () => {
@@ -95,7 +96,8 @@ describe('POST /api/payments/intent', () => {
     const data = await response.json()
 
     expect(response.status).toBe(400)
-    expect(data.error).toContain('Missing required fields')
+    expect(data.error).toBe('Validation failed')
+    expect(data.details.amount).toBeDefined()
   })
 
   it('should return 400 when email is missing', async () => {
@@ -112,7 +114,8 @@ describe('POST /api/payments/intent', () => {
     const data = await response.json()
 
     expect(response.status).toBe(400)
-    expect(data.error).toContain('Missing required fields')
+    expect(data.error).toBe('Validation failed')
+    expect(data.details.email).toBeDefined()
   })
 
   it('should convert amount to cents for Stripe', async () => {

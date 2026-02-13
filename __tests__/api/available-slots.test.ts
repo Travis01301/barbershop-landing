@@ -12,24 +12,18 @@
 import { GET } from '@/app/api/available-slots/route'
 import { NextRequest } from 'next/server'
 
-// Mock pg Pool
-jest.mock('pg', () => {
-  const mockPool = {
-    query: jest.fn(),
-  }
-  return {
-    Pool: jest.fn(() => mockPool),
-  }
-})
-
-import { Pool } from 'pg'
+// Mock lib/db
+const mockQuery = jest.fn()
+jest.mock('@/lib/db', () => ({
+  query: (...args: unknown[]) => mockQuery(...args),
+  getPool: jest.fn(),
+}))
 
 describe('GET /api/available-slots', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockQuery.mockReset()
   })
-
-  const mockPool = new Pool()
 
   it('should return 400 when shopId is missing', async () => {
     const url = new URL('http://localhost:3000/api/available-slots')
