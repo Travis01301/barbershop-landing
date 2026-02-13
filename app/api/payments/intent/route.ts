@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { logger } from '@/lib/logger'
 import { query } from '@/lib/db'
 import { validateInput, PaymentIntentSchema } from '@/lib/validation'
+import { withRetry } from '@/lib/retry'
 
 const paymentLogger = logger.createChild('PaymentIntent')
 
@@ -44,24 +45,32 @@ export async function POST(request: NextRequest) {
 
     const stripe = getStripe()
 
-    // Create payment intent
+    // Create payment intent with retry logic for rate limits
     paymentLogger.debug('Creating Stripe payment intent', {
       appointmentId,
       amountInCents: Math.round(amount * 100),
     })
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency: 'usd',
-      payment_method_types: ['card'],
-      description:
-        description ||
-        `Barbershop booking deposit - Appointment #${appointmentId}`,
-      receipt_email: email,
-      metadata: {
-        appointmentId: appointmentId.toString(),
-      },
-    })
+    const paymentIntent = await withRetry(
+      async () =>
+        stripe.paymentIntents.create({
+          amount: Math.round(amount * 100), // Convert to cents
+          currency: 'usd',
+          payment_method_types: ['card'],
+          description:
+            description ||
+            `Barbershop booking deposit - Appointment #${appointmentId}`,
+          receipt_email: email,
+          metadata: {
+            appointmentId: appointmentId.toString(),
+          },
+        }),
+      {
+        maxAttempts: 3,
+        initialDelayMs: 100,
+        maxDelayMs: 5000,
+      }
+    )
 
     // Store payment record in database
     try {
