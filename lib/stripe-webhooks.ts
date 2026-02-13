@@ -188,6 +188,43 @@ export async function handlePaymentIntentFailed(
 }
 
 /**
+ * Handle charge.refunded event
+ */
+export async function handleChargeRefunded(chargeId: string): Promise<void> {
+  webhookLogger.info('Processing charge.refunded', { chargeId })
+  try {
+    // Mark payment as refunded
+    await query(
+      `UPDATE payments SET status = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE stripe_charge_id = $2`,
+      ['refunded', chargeId]
+    )
+    webhookLogger.info('Payment refunded', { chargeId })
+  } catch (error) {
+    webhookLogger.error('Error processing refund', error)
+    throw error
+  }
+}
+
+/**
+ * Handle payment_intent.canceled event
+ */
+export async function handlePaymentIntentCanceled(paymentIntentId: string): Promise<void> {
+  webhookLogger.info('Processing payment_intent.canceled', { paymentIntentId })
+  try {
+    await query(
+      `UPDATE payments SET status = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE stripe_payment_intent_id = $2`,
+      ['cancelled', paymentIntentId]
+    )
+    webhookLogger.info('Payment cancelled', { paymentIntentId })
+  } catch (error) {
+    webhookLogger.error('Error processing cancellation', error)
+    throw error
+  }
+}
+
+/**
  * Handle invoice.paid event (for subscription payments)
  */
 export async function handleInvoicePaid(invoiceId: string): Promise<void> {
