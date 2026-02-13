@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -31,7 +25,7 @@ export async function GET(
     startDate.setDate(startDate.getDate() - parseInt(period))
 
     // Get shop ID from slug
-    const shopResult = await pool.query(
+    const shopResult = await query(
       'SELECT id FROM shops WHERE slug = $1',
       [shopSlug]
     )
@@ -61,7 +55,7 @@ export async function GET(
 
 async function getRevenueReport(shopId: number, startDate: Date) {
   // Daily revenue breakdown
-  const dailyRevenue = await pool.query(`
+  const dailyRevenue = await query(`
     SELECT 
       DATE(p.created_at) as date,
       COUNT(*) as total_transactions,
@@ -75,7 +69,7 @@ async function getRevenueReport(shopId: number, startDate: Date) {
   `, [shopId, startDate])
 
   // Monthly revenue
-  const monthlyRevenue = await pool.query(`
+  const monthlyRevenue = await query(`
     SELECT 
       DATE_TRUNC('month', p.created_at) as month,
       COALESCE(SUM(p.amount), 0)::float as deposits,
@@ -89,7 +83,7 @@ async function getRevenueReport(shopId: number, startDate: Date) {
   `, [shopId, startDate])
 
   // Summary totals
-  const totals = await pool.query(`
+  const totals = await query(`
     SELECT 
       COALESCE(SUM(p.amount), 0)::float as total_deposits,
       COALESCE(SUM(p.tip_amount), 0)::float as total_tips,
@@ -112,7 +106,7 @@ async function getRevenueReport(shopId: number, startDate: Date) {
 
 async function getTaxReport(shopId: number, startDate: Date) {
   // Tax-relevant transactions
-  const taxData = await pool.query(`
+  const taxData = await query(`
     SELECT 
       DATE_TRUNC('month', p.created_at) as period,
       COUNT(*) as total_transactions,
@@ -163,7 +157,7 @@ async function getTaxReport(shopId: number, startDate: Date) {
 
 async function getCustomerReport(shopId: number, startDate: Date) {
   // Customer metrics
-  const customerMetrics = await pool.query(`
+  const customerMetrics = await query(`
     SELECT 
       COUNT(DISTINCT c.id) as total_customers,
       COUNT(DISTINCT CASE WHEN a.created_at >= $2 THEN c.id ELSE NULL END) as new_customers,
@@ -175,7 +169,7 @@ async function getCustomerReport(shopId: number, startDate: Date) {
   `, [shopId, startDate])
 
   // Top customers by bookings
-  const topCustomers = await pool.query(`
+  const topCustomers = await query(`
     SELECT 
       c.id,
       c.name,
@@ -193,7 +187,7 @@ async function getCustomerReport(shopId: number, startDate: Date) {
   `, [shopId, startDate])
 
   // Customer lifetime value
-  const lifetimeValue = await pool.query(`
+  const lifetimeValue = await query(`
     SELECT 
       ROUND(AVG(total_spent)::numeric, 2) as avg_customer_value,
       MAX(total_spent)::float as max_customer_value,
@@ -221,7 +215,7 @@ async function getCustomerReport(shopId: number, startDate: Date) {
 
 async function getPaymentReport(shopId: number, startDate: Date) {
   // Payment method breakdown
-  const paymentMethods = await pool.query(`
+  const paymentMethods = await query(`
     SELECT 
       p.payment_method,
       COUNT(*) as transaction_count,
@@ -236,7 +230,7 @@ async function getPaymentReport(shopId: number, startDate: Date) {
   `, [shopId, startDate])
 
   // Failed payments
-  const failedPayments = await pool.query(`
+  const failedPayments = await query(`
     SELECT 
       COUNT(*) as failed_count,
       COALESCE(SUM(p.amount), 0)::float as failed_amount,
@@ -246,7 +240,7 @@ async function getPaymentReport(shopId: number, startDate: Date) {
   `, [shopId, startDate])
 
   // Refunds
-  const refunds = await pool.query(`
+  const refunds = await query(`
     SELECT 
       COUNT(*) as refund_count,
       COALESCE(SUM(p.amount), 0)::float as refund_amount,
@@ -266,7 +260,7 @@ async function getPaymentReport(shopId: number, startDate: Date) {
 
 async function getCancellationReport(shopId: number, startDate: Date) {
   // Cancellation analysis
-  const cancellationStats = await pool.query(`
+  const cancellationStats = await query(`
     SELECT 
       COUNT(*) as total_cancellations,
       ROUND(COUNT(*)::numeric / (SELECT COUNT(*) FROM appointments WHERE shop_id = $1 AND created_at >= $2)::numeric * 100, 2) as cancellation_rate,
@@ -276,7 +270,7 @@ async function getCancellationReport(shopId: number, startDate: Date) {
   `, [shopId, startDate])
 
   // Cancellation by day of week
-  const cancellationByDay = await pool.query(`
+  const cancellationByDay = await query(`
     SELECT 
       CASE 
         WHEN EXTRACT(DOW FROM a.start_time) = 0 THEN 'Sunday'
@@ -295,7 +289,7 @@ async function getCancellationReport(shopId: number, startDate: Date) {
   `, [shopId])
 
   // Cancellation reasons distribution (if stored)
-  const cancellationReasons = await pool.query(`
+  const cancellationReasons = await query(`
     SELECT 
       a.cancellation_reason,
       COUNT(*) as count,

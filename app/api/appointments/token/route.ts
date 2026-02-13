@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import crypto from 'crypto'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 // Generate a unique token for appointment management
 function generateToken(appointmentId: number, email: string): string {

@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 export async function GET(
   request: NextRequest,
@@ -17,7 +11,7 @@ export async function GET(
     const { id } = await params
 
     // Fetch appointment details
-    const appointmentResult = await pool.query(
+    const appointmentResult = await query(
       `SELECT a.*, s.name as shop_name, u.name as barber_name
        FROM appointments a
        JOIN shops s ON a.shop_id = s.id

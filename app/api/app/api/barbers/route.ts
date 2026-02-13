@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -23,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
 
-    const result = await pool.query(
+    const result = await query(
       'SELECT id, name, email, is_active FROM users WHERE shop_id = $1 AND role = $2 ORDER BY name',
       [decoded.shopId, 'barber']
     )
@@ -50,7 +44,7 @@ export async function POST(request: NextRequest) {
     const passwordHash = await bcrypt.hash(password, 10)
 
     // Insert barber
-    const result = await pool.query(
+    const result = await query(
       'INSERT INTO users (shop_id, name, email, password_hash, role, is_active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email',
       [decoded.shopId, name, email, passwordHash, 'barber', true]
     )
@@ -69,7 +63,7 @@ export async function POST(request: NextRequest) {
     ]
 
     for (const schedule of defaultSchedule) {
-      await pool.query(
+      await query(
         `INSERT INTO barber_schedules (barber_id, day_of_week, is_working, start_time, end_time)
          VALUES ($1, $2, $3, $4, $5)`,
         [barberId, schedule.dayOfWeek, schedule.isWorking, schedule.startTime || null, schedule.endTime || null]

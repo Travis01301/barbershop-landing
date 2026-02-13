@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -28,7 +22,7 @@ export async function GET(
     const customerId = parseInt(id)
 
     // Get customer profile
-    const customerResult = await pool.query(
+    const customerResult = await query(
       `SELECT * FROM customer_profiles
        WHERE id = $1 AND shop_id = $2`,
       [customerId, decoded.shopId]
@@ -41,7 +35,7 @@ export async function GET(
     const customer = customerResult.rows[0]
 
     // Get appointment history
-    const appointmentsResult = await pool.query(
+    const appointmentsResult = await query(
       `SELECT
         a.id,
         a.start_time as date,
@@ -85,7 +79,7 @@ export async function PUT(
     const updates = await request.json()
 
     // Verify customer belongs to shop
-    const checkResult = await pool.query(
+    const checkResult = await query(
       `SELECT id FROM customer_profiles WHERE id = $1 AND shop_id = $2`,
       [customerId, decoded.shopId]
     )
@@ -130,7 +124,7 @@ export async function PUT(
     updateValues.push(customerId)
     updateValues.push(decoded.shopId)
 
-    const result = await pool.query(
+    const result = await query(
       `UPDATE customer_profiles
        SET ${updateFields.join(', ')}
        WHERE id = $${paramIndex} AND shop_id = $${paramIndex + 1}

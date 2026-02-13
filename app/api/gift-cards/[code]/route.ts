@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -23,7 +17,7 @@ export async function GET(
     const shopSlug = searchParams.get('shopSlug')
 
     // Get shop ID from slug
-    const shopResult = await pool.query(
+    const shopResult = await query(
       'SELECT id FROM shops WHERE slug = $1',
       [shopSlug]
     )
@@ -33,7 +27,7 @@ export async function GET(
     const shopId = shopResult.rows[0].id
 
     // Check gift card
-    const result = await pool.query(
+    const result = await query(
       `SELECT id, code, amount, balance, recipient_name, is_active, expires_at, created_at, last_redeemed_at
        FROM gift_cards
        WHERE code = $1 AND shop_id = $2`,
@@ -86,7 +80,7 @@ export async function POST(
     const { shopSlug, appointmentId, amount, customerEmail } = await request.json()
 
     // Get shop ID
-    const shopResult = await pool.query(
+    const shopResult = await query(
       'SELECT id FROM shops WHERE slug = $1',
       [shopSlug]
     )
@@ -96,7 +90,7 @@ export async function POST(
     const shopId = shopResult.rows[0].id
 
     // Get gift card with lock
-    const giftCardResult = await pool.query(
+    const giftCardResult = await query(
       `SELECT id, balance, is_active, expires_at
        FROM gift_cards
        WHERE code = $1 AND shop_id = $2 AND is_active = true`,
@@ -119,7 +113,7 @@ export async function POST(
     }
 
     // Update gift card balance
-    const updateResult = await pool.query(
+    const updateResult = await query(
       `UPDATE gift_cards
        SET balance = balance - $1,
            last_redeemed_at = NOW(),
@@ -130,7 +124,7 @@ export async function POST(
     )
 
     // Record redemption
-    await pool.query(
+    await query(
       `INSERT INTO gift_card_redemptions (shop_id, gift_card_id, appointment_id, amount_redeemed, redeemed_by_email)
        VALUES ($1, $2, $3, $4, $5)`,
       [shopId, giftCard.id, appointmentId || null, amountToRedeem, customerEmail]

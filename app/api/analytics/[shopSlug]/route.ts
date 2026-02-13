@@ -1,9 +1,7 @@
 import { Pool } from 'pg'
 import { NextRequest } from 'next/server'
+import { query, getClient } from '@/lib/db'
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
 
 export async function GET(
   request: NextRequest,
@@ -15,7 +13,7 @@ export async function GET(
     const daysParam = searchParams.get('days') || '30'
     const days = parseInt(daysParam)
 
-    const client = await pool.connect()
+    const client = await getClient()
 
     try {
       // Get shop ID from slug

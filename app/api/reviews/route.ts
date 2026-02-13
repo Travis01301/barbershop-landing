@@ -1,9 +1,7 @@
 import { Pool } from 'pg'
 import { NextRequest } from 'next/server'
+import { query, getClient } from '@/lib/db'
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +16,7 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'Rating must be between 1 and 5' }, { status: 400 })
     }
 
-    const client = await pool.connect()
+    const client = await getClient()
 
     try {
       // Check if appointment exists and belongs to this customer
@@ -102,7 +100,7 @@ export async function GET(request: NextRequest) {
       return Response.json({ error: 'Shop ID required' }, { status: 400 })
     }
 
-    const client = await pool.connect()
+    const client = await getClient()
 
     try {
       let query = `

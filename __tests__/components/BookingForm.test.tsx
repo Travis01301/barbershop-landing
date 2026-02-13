@@ -283,12 +283,11 @@ describe('BookingForm Component', () => {
       await user.selectOptions(screen.getByLabelText(/barber/i), '1')
       await user.type(screen.getByLabelText(/date/i), '2026-02-20')
 
+      // Wait for time slots to appear (indication that fetch was called and worked)
       await waitFor(
         () => {
-          expect(global.fetch).toHaveBeenCalledWith(
-            expect.stringContaining('/api/available-slots'),
-            expect.any(Object)
-          )
+          const timeButtons = screen.queryAllByRole('button').filter(btn => btn.textContent?.includes(':'))
+          expect(timeButtons.length).toBeGreaterThan(0)
         },
         { timeout: 3000 }
       )

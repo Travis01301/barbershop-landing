@@ -1,32 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Pool } from 'pg'
 import crypto from 'crypto'
+import { query } from '@/lib/db'
+import { logger } from '@/lib/logger'
 import { sendEmail } from '@/lib/email'
 import { SignupConfirmationEmail } from '@/lib/email-templates'
-
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
+import { SignupSchema, validateInput } from '@/lib/validation'
 
 export async function POST(request: NextRequest) {
+  const routeLogger = logger.createChild('api.signup.POST')
+  
   try {
     const body = await request.json()
-    const { shopName, ownerName, email, phone } = body
 
     // Validate input
-    if (!shopName || !ownerName || !email || !phone) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
-        { status: 400 }
-      )
+    const validation = validateInput(SignupSchema, body, 'signup')
+    if (!validation.success) {
+      return NextResponse.json({ error: 'Validation failed', errors: validation.errors }, { status: 400 })
     }
 
+    const { shopName, ownerName, email, phone } = validation.data!
+    routeLogger.debug('Processing signup', { email, shopName })
+
     // Create signup record
-    const signupResult = await pool.query(
+    const signupResult = await query(
       'INSERT INTO signups (shop_name, owner_name, email, phone) VALUES ($1, $2, $3, $4) RETURNING *',
       [shopName, ownerName, email, phone]
     )
@@ -38,14 +34,14 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
 
     // Create dummy shop for onboarding (will be replaced after verification)
-    const shopResult = await pool.query(
+    const shopResult = await query(
       'INSERT INTO shops (name, slug, owner_email) VALUES ($1, $2, $3) RETURNING id',
       [shopName, shopName.toLowerCase().replace(/\s+/g, '-'), email]
     )
     const shopId = shopResult.rows[0].id
 
     // Create barber onboarding record
-    await pool.query(
+    await query(
       `INSERT INTO barber_onboarding (shop_id, activation_token, email, expires_at)
        VALUES ($1, $2, $3, $4)`,
       [shopId, activationToken, email, expiresAt]
@@ -70,6 +66,7 @@ export async function POST(request: NextRequest) {
       relatedId: signupId,
     })
 
+    routeLogger.info('Signup processed', { signupId, shopId, email, emailSent: emailResult.success })
     return NextResponse.json({
       success: true,
       signup: signupResult.rows[0],
@@ -77,7 +74,7 @@ export async function POST(request: NextRequest) {
       message: emailResult.success ? 'Verification email sent' : 'Signup saved (email failed)'
     })
   } catch (error) {
-    console.error('Signup error:', error)
+    routeLogger.error('Signup error:', error)
     return NextResponse.json(
       { success: false, error: 'Failed to process signup' },
       { status: 500 }

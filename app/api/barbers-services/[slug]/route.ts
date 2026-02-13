@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 // GET - Get barber and their services by shop slug
 export async function GET(
@@ -19,7 +13,7 @@ export async function GET(
     const barberId = searchParams.get('barberId')
 
     // Get shop by slug
-    const shopResult = await pool.query(
+    const shopResult = await query(
       'SELECT id, name FROM shops WHERE slug = $1',
       [params.slug]
     )
@@ -68,7 +62,7 @@ export async function GET(
 
     query += ' GROUP BY u.id, u.name, u.email, u.average_rating, u.review_count ORDER BY u.name'
 
-    const result = await pool.query(query, params_array)
+    const result = await query(query, params_array)
 
     if (barberId && result.rows.length === 0) {
       return NextResponse.json({ error: 'Barber not found' }, { status: 404 })

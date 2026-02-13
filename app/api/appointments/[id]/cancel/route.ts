@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import crypto from 'crypto'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 function generateToken(appointmentId: number, email: string): string {
   const data = `${appointmentId}:${email}:${process.env.TOKEN_SECRET || 'secret'}`
@@ -29,7 +23,7 @@ export async function PATCH(
     }
 
     // Get appointment first
-    const appointmentResult = await pool.query(
+    const appointmentResult = await query(
       `SELECT * FROM appointments WHERE id = $1`,
       [id]
     )
@@ -70,7 +64,7 @@ export async function PATCH(
     }
 
     // Update appointment status to cancelled
-    const updateResult = await pool.query(
+    const updateResult = await query(
       `UPDATE appointments 
        SET status = 'cancelled', updated_at = NOW(), notes = $1
        WHERE id = $2

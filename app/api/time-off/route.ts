@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -43,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     query += ' ORDER BY requested_at DESC'
 
-    const result = await pool.query(query, params)
+    const result = await query(query, params)
 
     return NextResponse.json({
       success: true,
@@ -94,7 +88,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Cannot request time-off in the past' }, { status: 400 })
     }
 
-    const result = await pool.query(
+    const result = await query(
       `INSERT INTO barber_time_off (shop_id, barber_id, start_date, end_date, reason, status)
        VALUES ($1, $2, $3, $4, $5, 'pending')
        RETURNING id, barber_id, start_date, end_date, reason, status, requested_at`,

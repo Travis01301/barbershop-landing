@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -43,10 +37,10 @@ export async function GET(request: NextRequest) {
 
     query += ' ORDER BY created_at DESC LIMIT 100'
 
-    const result = await pool.query(query, params)
+    const result = await query(query, params)
 
     // Calculate summary stats
-    const statsResult = await pool.query(`
+    const statsResult = await query(`
       SELECT
         COUNT(*) as total,
         COUNT(CASE WHEN is_active AND (expires_at IS NULL OR expires_at > NOW()) THEN 1 END) as active,
@@ -88,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     const code = generateGiftCardCode()
 
-    const result = await pool.query(
+    const result = await query(
       `INSERT INTO gift_cards (shop_id, code, amount, balance, recipient_name, recipient_email, message, expires_at, purchased_by_email)
        VALUES ($1, $2, $3, $3, $4, $5, $6, $7, $8)
        RETURNING id, code, amount, balance, created_at`,

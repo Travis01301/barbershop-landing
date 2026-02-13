@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -29,7 +23,7 @@ export async function PUT(
     const { price, duration_minutes, available } = await request.json()
 
     // Verify barber belongs to shop
-    const barber = await pool.query(
+    const barber = await query(
       'SELECT id FROM users WHERE id = $1 AND shop_id = $2 AND role = $3',
       [barberId, decoded.shopId, 'barber']
     )
@@ -39,7 +33,7 @@ export async function PUT(
     }
 
     // Verify assignment exists
-    const assignment = await pool.query(
+    const assignment = await query(
       `SELECT bs.id FROM barber_services bs
        JOIN services s ON s.id = bs.service_id
        WHERE bs.barber_id = $1 AND bs.service_id = $2 AND s.shop_id = $3`,
@@ -51,7 +45,7 @@ export async function PUT(
     }
 
     // Update assignment
-    const result = await pool.query(
+    const result = await query(
       `UPDATE barber_services 
        SET price = COALESCE($1, price),
            duration_minutes = COALESCE($2, duration_minutes),
@@ -84,7 +78,7 @@ export async function DELETE(
     const serviceId = parseInt(params.serviceId)
 
     // Verify barber belongs to shop
-    const barber = await pool.query(
+    const barber = await query(
       'SELECT id FROM users WHERE id = $1 AND shop_id = $2 AND role = $3',
       [barberId, decoded.shopId, 'barber']
     )
@@ -94,7 +88,7 @@ export async function DELETE(
     }
 
     // Verify assignment exists
-    const assignment = await pool.query(
+    const assignment = await query(
       `SELECT bs.id FROM barber_services bs
        JOIN services s ON s.id = bs.service_id
        WHERE bs.barber_id = $1 AND bs.service_id = $2 AND s.shop_id = $3`,
@@ -106,7 +100,7 @@ export async function DELETE(
     }
 
     // Delete assignment
-    await pool.query(
+    await query(
       'DELETE FROM barber_services WHERE barber_id = $1 AND service_id = $2',
       [barberId, serviceId]
     )

@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -25,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find onboarding record by activation token
-    const onboardingResult = await pool.query(
+    const onboardingResult = await query(
       `SELECT * FROM barber_onboarding 
        WHERE activation_token = $1 AND is_activated = false AND expires_at > NOW()`,
       [token]
@@ -39,7 +33,7 @@ export async function POST(request: NextRequest) {
     const shopId = onboarding.shop_id
 
     // Update shop with complete info
-    await pool.query(
+    await query(
       `UPDATE shops SET owner_email = $1 WHERE id = $2`,
       [onboarding.email, shopId]
     )
@@ -47,7 +41,7 @@ export async function POST(request: NextRequest) {
     // Create user account for barber (if credentials table exists)
     // For now, marking as activated
     const activatedAt = new Date()
-    await pool.query(
+    await query(
       `UPDATE barber_onboarding 
        SET is_activated = true, activated_at = $1 
        WHERE id = $2`,
@@ -85,7 +79,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Token required' }, { status: 400 })
     }
 
-    const result = await pool.query(
+    const result = await query(
       `SELECT email, is_activated, expires_at 
        FROM barber_onboarding 
        WHERE activation_token = $1`,

@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import Stripe from 'stripe'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const getStripe = () => {
   const apiKey = process.env.STRIPE_SECRET_KEY
@@ -45,7 +39,7 @@ export async function POST(request: NextRequest) {
     const status = paymentIntent.status === 'succeeded' ? 'succeeded' : 'failed'
 
     // Update payment record in database
-    const paymentResult = await pool.query(
+    const paymentResult = await query(
       `UPDATE payments 
        SET status = $1, updated_at = CURRENT_TIMESTAMP
        WHERE stripe_payment_intent_id = $2
@@ -62,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     if (status === 'succeeded') {
       // Update appointment to mark deposit as paid
-      await pool.query(
+      await query(
         `UPDATE appointments 
          SET deposit_paid = true, total_paid = $1 
          WHERE id = $2`,

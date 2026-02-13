@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 export async function GET(
   request: NextRequest,
@@ -17,7 +11,7 @@ export async function GET(
     const { slug } = await params
 
     // Get shop by slug
-    const shopResult = await pool.query(
+    const shopResult = await query(
       'SELECT id, name FROM shops WHERE slug = $1',
       [slug]
     )
@@ -32,7 +26,7 @@ export async function GET(
     const shop = shopResult.rows[0]
 
     // Get all confirmed appointments for the next 90 days
-    const appointmentsResult = await pool.query(
+    const appointmentsResult = await query(
       `SELECT a.*, u.name as barber_name
        FROM appointments a
        LEFT JOIN users u ON a.barber_id = u.id

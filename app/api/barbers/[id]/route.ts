@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -23,7 +17,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
     const { is_active } = await request.json()
 
-    const result = await pool.query(
+    const result = await query(
       'UPDATE users SET is_active = $1 WHERE id = $2 AND shop_id = $3 RETURNING *',
       [is_active, id, decoded.shopId]
     )

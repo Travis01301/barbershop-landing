@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import crypto from 'crypto'
 import { sendEmail } from '@/lib/email'
 import { BookingConfirmationEmail } from '@/lib/email-templates'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 function generateManagementToken(appointmentId: number, email: string): string {
   const data = `${appointmentId}:${email}:${process.env.TOKEN_SECRET || 'secret'}`
@@ -31,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     if (customerEmail) {
       // Check if customer profile already exists
-      const existingCustomer = await pool.query(
+      const existingCustomer = await query(
         `SELECT id FROM customer_profiles WHERE shop_id = $1 AND email = $2`,
         [shopId, customerEmail]
       )
@@ -40,7 +34,7 @@ export async function POST(request: NextRequest) {
         customerId = existingCustomer.rows[0].id
       } else {
         // Create new customer profile
-        const newCustomer = await pool.query(
+        const newCustomer = await query(
           `INSERT INTO customer_profiles (shop_id, email, name, phone)
            VALUES ($1, $2, $3, $4)
            RETURNING id`,
@@ -51,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert appointment with customer_id
-    const result = await pool.query(
+    const result = await query(
       `INSERT INTO appointments (shop_id, barber_id, customer_id, customer_name, customer_phone, customer_email, start_time, end_time, status, notes)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
       [shopId, barberId, customerId, customerName, customerPhone, customerEmail, startTime, endTime, 'confirmed', notes]
@@ -61,11 +55,11 @@ export async function POST(request: NextRequest) {
     const managementToken = generateManagementToken(appointment.id, customerEmail)
 
     // Get barber name for email
-    const barberResult = await pool.query('SELECT name FROM barbers WHERE id = $1', [barberId])
+    const barberResult = await query('SELECT name FROM barbers WHERE id = $1', [barberId])
     const barberName = barberResult.rows[0]?.name || 'Your Barber'
 
     // Get shop name for email
-    const shopResult = await pool.query('SELECT name FROM shops WHERE id = $1', [shopId])
+    const shopResult = await query('SELECT name FROM shops WHERE id = $1', [shopId])
     const shopName = shopResult.rows[0]?.name || 'Barbershop'
 
     // Send booking confirmation email

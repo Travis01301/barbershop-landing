@@ -1,18 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
-
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
+import { query } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
 export async function GET(request: NextRequest) {
+  const routeLogger = logger.createChild('api.appointments.GET')
+  
   try {
     // Get token from header
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
@@ -23,9 +18,10 @@ export async function GET(request: NextRequest) {
 
     // Verify token
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
+    routeLogger.debug('Token verified', { shopId: decoded.shopId })
 
     // Get appointments for this shop
-    const result = await pool.query(
+    const result = await query(
       `SELECT 
         a.id, 
         a.customer_name, 
@@ -43,9 +39,10 @@ export async function GET(request: NextRequest) {
       [decoded.shopId]
     )
 
+    routeLogger.debug('Appointments fetched', { count: result.rows.length })
     return NextResponse.json({ success: true, appointments: result.rows })
   } catch (error) {
-    console.error('Error fetching appointments:', error)
+    routeLogger.error('Error fetching appointments:', error)
     return NextResponse.json({ error: 'Failed to fetch appointments' }, { status: 500 })
   }
 }

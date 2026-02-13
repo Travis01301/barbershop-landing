@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -28,7 +22,7 @@ export async function GET(
     const barberId = parseInt(id)
 
     // Verify barber belongs to shop
-    const barberCheck = await pool.query(
+    const barberCheck = await query(
       'SELECT id FROM users WHERE id = $1 AND shop_id = $2 AND role = $3',
       [barberId, decoded.shopId, 'barber']
     )
@@ -38,7 +32,7 @@ export async function GET(
     }
 
     // Fetch schedule
-    const result = await pool.query(
+    const result = await query(
       `SELECT id, barber_id, day_of_week, is_working, start_time, end_time
        FROM barber_schedules
        WHERE barber_id = $1
@@ -86,7 +80,7 @@ export async function PUT(
     }
 
     // Verify barber belongs to shop
-    const barberCheck = await pool.query(
+    const barberCheck = await query(
       'SELECT id FROM users WHERE id = $1 AND shop_id = $2 AND role = $3',
       [barberId, decoded.shopId, 'barber']
     )
@@ -114,14 +108,14 @@ export async function PUT(
       }
 
       // Check if record exists
-      const existing = await pool.query(
+      const existing = await query(
         'SELECT id FROM barber_schedules WHERE barber_id = $1 AND day_of_week = $2',
         [barberId, dayOfWeek]
       )
 
       if (existing.rows.length > 0) {
         // Update existing
-        await pool.query(
+        await query(
           `UPDATE barber_schedules
            SET is_working = $1, start_time = $2, end_time = $3, updated_at = NOW()
            WHERE barber_id = $4 AND day_of_week = $5`,
@@ -129,7 +123,7 @@ export async function PUT(
         )
       } else {
         // Insert new
-        await pool.query(
+        await query(
           `INSERT INTO barber_schedules (barber_id, day_of_week, is_working, start_time, end_time)
            VALUES ($1, $2, $3, $4, $5)`,
           [barberId, dayOfWeek, isWorking, isWorking ? startTime : null, isWorking ? endTime : null]
@@ -138,7 +132,7 @@ export async function PUT(
     }
 
     // Fetch updated schedule
-    const result = await pool.query(
+    const result = await query(
       `SELECT id, barber_id, day_of_week, is_working, start_time, end_time
        FROM barber_schedules
        WHERE barber_id = $1

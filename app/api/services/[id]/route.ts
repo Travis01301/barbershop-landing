@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -26,7 +20,7 @@ export async function GET(
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
     const serviceId = parseInt(params.id)
 
-    const result = await pool.query(
+    const result = await query(
       `SELECT 
         id, 
         shop_id,
@@ -71,7 +65,7 @@ export async function PUT(
       await request.json()
 
     // Verify service belongs to shop
-    const existingService = await pool.query(
+    const existingService = await query(
       'SELECT id FROM services WHERE id = $1 AND shop_id = $2',
       [serviceId, decoded.shopId]
     )
@@ -81,7 +75,7 @@ export async function PUT(
     }
 
     // Update service
-    const result = await pool.query(
+    const result = await query(
       `UPDATE services 
        SET name = COALESCE($1, name),
            description = COALESCE($2, description),
@@ -116,7 +110,7 @@ export async function DELETE(
     const serviceId = parseInt(params.id)
 
     // Verify service belongs to shop
-    const existingService = await pool.query(
+    const existingService = await query(
       'SELECT id FROM services WHERE id = $1 AND shop_id = $2',
       [serviceId, decoded.shopId]
     )
@@ -126,7 +120,7 @@ export async function DELETE(
     }
 
     // Delete service (cascade will handle barber_services entries)
-    await pool.query('DELETE FROM services WHERE id = $1 AND shop_id = $2', [
+    await query('DELETE FROM services WHERE id = $1 AND shop_id = $2', [
       serviceId,
       decoded.shopId,
     ])

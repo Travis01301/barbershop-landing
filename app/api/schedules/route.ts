@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -41,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     query += ' ORDER BY barber_id, day_of_week'
 
-    const result = await pool.query(query, params)
+    const result = await query(query, params)
 
     // Format response with day names
     const formatted = result.rows.map((row: any) => ({
@@ -80,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Upsert schedule (insert or update)
-    const result = await pool.query(
+    const result = await query(
       `INSERT INTO barber_schedules (shop_id, barber_id, day_of_week, start_time, end_time, is_active)
        VALUES ($1, $2, $3, $4, $5, $6)
        ON CONFLICT (barber_id, day_of_week) 

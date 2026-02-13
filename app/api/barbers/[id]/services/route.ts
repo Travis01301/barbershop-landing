@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -27,7 +21,7 @@ export async function GET(
     const barberId = parseInt(params.id)
 
     // Verify barber belongs to shop
-    const barber = await pool.query(
+    const barber = await query(
       'SELECT id FROM users WHERE id = $1 AND shop_id = $2 AND role = $3',
       [barberId, decoded.shopId, 'barber']
     )
@@ -37,7 +31,7 @@ export async function GET(
     }
 
     // Get barber's services
-    const result = await pool.query(
+    const result = await query(
       `SELECT 
         bs.id,
         bs.barber_id,
@@ -80,7 +74,7 @@ export async function POST(
     const { service_id, price, duration_minutes } = await request.json()
 
     // Verify barber belongs to shop
-    const barber = await pool.query(
+    const barber = await query(
       'SELECT id FROM users WHERE id = $1 AND shop_id = $2 AND role = $3',
       [barberId, decoded.shopId, 'barber']
     )
@@ -90,7 +84,7 @@ export async function POST(
     }
 
     // Verify service belongs to shop
-    const service = await pool.query(
+    const service = await query(
       'SELECT id, base_price, duration_minutes FROM services WHERE id = $1 AND shop_id = $2',
       [service_id, decoded.shopId]
     )
@@ -100,7 +94,7 @@ export async function POST(
     }
 
     // Check if already assigned
-    const existing = await pool.query(
+    const existing = await query(
       'SELECT id FROM barber_services WHERE barber_id = $1 AND service_id = $2',
       [barberId, service_id]
     )
@@ -114,7 +108,7 @@ export async function POST(
     const finalDuration = duration_minutes || service.rows[0].duration_minutes
 
     // Insert barber-service assignment
-    const result = await pool.query(
+    const result = await query(
       `INSERT INTO barber_services (barber_id, service_id, price, duration_minutes, available)
        VALUES ($1, $2, $3, $4, true)
        RETURNING id, barber_id, service_id, price, duration_minutes, available, created_at`,

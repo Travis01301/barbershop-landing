@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { query } from '@/lib/db'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-const pool = new Pool({
-  user: 'barbershop_user',
-  host: 'localhost',
-  database: 'barbershop_booking',
-  password: 'your_secure_password_here',
-  port: 5432,
-})
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -37,7 +31,7 @@ export async function PUT(
     const statusValue = status === 'approved' ? 'approved' : 'denied'
 
     // Update the time-off request
-    const result = await pool.query(
+    const result = await query(
       `UPDATE barber_time_off
        SET status = $1, approved_by = (SELECT id FROM customer_profiles WHERE email = $2 LIMIT 1),
            approved_at = NOW(), denial_reason = $3
