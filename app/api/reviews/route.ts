@@ -1,20 +1,22 @@
-import { Pool } from 'pg'
 import { NextRequest } from 'next/server'
 import { query, getClient } from '@/lib/db'
-
+import { logger } from '@/lib/logger'
+import { ReviewSchema, validateInput, parseQueryParam } from '@/lib/validation'
 
 export async function POST(request: NextRequest) {
+  const routeLogger = logger.createChild('api.reviews.POST')
+  
   try {
-    const { appointmentId, customerId, barberId, shopId, rating, comment } = await request.json()
+    const body = await request.json()
 
     // Validate input
-    if (!appointmentId || !customerId || !barberId || !shopId) {
-      return Response.json({ error: 'Missing required fields' }, { status: 400 })
+    const validation = validateInput(ReviewSchema, body, 'reviews.create')
+    if (!validation.success) {
+      return Response.json({ error: 'Validation failed', errors: validation.errors }, { status: 400 })
     }
 
-    if (rating < 1 || rating > 5) {
-      return Response.json({ error: 'Rating must be between 1 and 5' }, { status: 400 })
-    }
+    const { appointmentId, customerId, barberId, shopId, rating, comment } = validation.data!
+    routeLogger.debug('Processing review', { appointmentId, customerId, barberId, shopId, rating })
 
     const client = await getClient()
 
@@ -26,6 +28,7 @@ export async function POST(request: NextRequest) {
       )
 
       if (appointmentRes.rows.length === 0) {
+        routeLogger.warn('Appointment not found or unauthorized', { appointmentId, customerId, shopId })
         return Response.json({ error: 'Appointment not found' }, { status: 404 })
       }
 
@@ -36,6 +39,7 @@ export async function POST(request: NextRequest) {
       )
 
       if (existingReviewRes.rows.length > 0) {
+        routeLogger.warn('Review already exists for appointment', { appointmentId })
         return Response.json({ error: 'Review already submitted for this appointment' }, { status: 400 })
       }
 
@@ -68,6 +72,7 @@ export async function POST(request: NextRequest) {
         [parseInt(count), parseFloat(avg_rating) || 0, barberId]
       )
 
+      routeLogger.info('Review submitted successfully', { reviewId: review.id, rating, barberId })
       return Response.json({
         success: true,
         message: 'Review submitted successfully',
@@ -82,7 +87,7 @@ export async function POST(request: NextRequest) {
       client.release()
     }
   } catch (error) {
-    console.error('Review submission error:', error)
+    routeLogger.error('Review submission error:', error)
     return Response.json(
       { error: 'Failed to submit review', details: (error as Error).message },
       { status: 500 }
@@ -91,19 +96,24 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const routeLogger = logger.createChild('api.reviews.GET')
+  
   try {
     const { searchParams } = new URL(request.url)
-    const shopId = searchParams.get('shopId')
-    const barberId = searchParams.get('barberId')
+    const shopId = parseQueryParam(searchParams.get('shopId'))
+    const barberId = parseQueryParam(searchParams.get('barberId'))
 
     if (!shopId) {
+      routeLogger.warn('Missing shopId parameter')
       return Response.json({ error: 'Shop ID required' }, { status: 400 })
     }
+
+    routeLogger.debug('Fetching reviews', { shopId, barberId })
 
     const client = await getClient()
 
     try {
-      let query = `
+      let queryStr = `
         SELECT r.id, r.rating, r.comment, r.created_at,
                cp.name as customer_name,
                u.name as barber_name
@@ -115,17 +125,18 @@ export async function GET(request: NextRequest) {
       const params: (string | number)[] = [parseInt(shopId)]
 
       if (barberId) {
-        query += ` AND r.barber_id = $2`
+        queryStr += ` AND r.barber_id = $2`
         params.push(parseInt(barberId))
       }
 
-      query += ` ORDER BY r.created_at DESC LIMIT 50`
+      queryStr += ` ORDER BY r.created_at DESC LIMIT 50`
 
-      const reviewsRes = await client.query(query, params)
+      const reviewsRes = await client.query(queryStr, params)
 
+      routeLogger.debug('Reviews fetched', { count: reviewsRes.rows.length })
       return Response.json({
         success: true,
-        reviews: reviewsRes.rows.map((row) => ({
+        reviews: reviewsRes.rows.map((row: any) => ({
           id: row.id,
           rating: row.rating,
           comment: row.comment,
@@ -138,7 +149,7 @@ export async function GET(request: NextRequest) {
       client.release()
     }
   } catch (error) {
-    console.error('Review fetch error:', error)
+    routeLogger.error('Review fetch error:', error)
     return Response.json(
       { error: 'Failed to fetch reviews', details: (error as Error).message },
       { status: 500 }

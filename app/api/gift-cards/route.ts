@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { query } from '@/lib/db'
-import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
-
+import { query } from '@/lib/db'
+import { logger } from '@/lib/logger'
+import { CreateGiftCardSchema, validateInput, parseQueryParam } from '@/lib/validation'
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -14,6 +14,8 @@ function generateGiftCardCode(): string {
 
 // GET - List gift cards for admin
 export async function GET(request: NextRequest) {
+  const routeLogger = logger.createChild('api.gift-cards.GET')
+  
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
     if (!token) {
@@ -22,22 +24,24 @@ export async function GET(request: NextRequest) {
 
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
     const { searchParams } = new URL(request.url)
-    const status = searchParams.get('status') || 'active' // active, redeemed, expired
+    const status = parseQueryParam(searchParams.get('status')) || 'active' // active, redeemed, expired
 
-    let query = 'SELECT id, code, amount, balance, recipient_name, recipient_email, is_active, expires_at, created_at, last_redeemed_at FROM gift_cards WHERE shop_id = $1'
+    routeLogger.debug('Fetching gift cards', { shopId: decoded.shopId, status })
+
+    let queryStr = 'SELECT id, code, amount, balance, recipient_name, recipient_email, is_active, expires_at, created_at, last_redeemed_at FROM gift_cards WHERE shop_id = $1'
     const params: any[] = [decoded.shopId]
 
     if (status === 'active') {
-      query += ' AND is_active = true AND (expires_at IS NULL OR expires_at > NOW())'
+      queryStr += ' AND is_active = true AND (expires_at IS NULL OR expires_at > NOW())'
     } else if (status === 'redeemed') {
-      query += ' AND balance = 0'
+      queryStr += ' AND balance = 0'
     } else if (status === 'expired') {
-      query += ' AND expires_at IS NOT NULL AND expires_at <= NOW()'
+      queryStr += ' AND expires_at IS NOT NULL AND expires_at <= NOW()'
     }
 
-    query += ' ORDER BY created_at DESC LIMIT 100'
+    queryStr += ' ORDER BY created_at DESC LIMIT 100'
 
-    const result = await query(query, params)
+    const result = await query(queryStr, params)
 
     // Calculate summary stats
     const statsResult = await query(`
@@ -53,19 +57,22 @@ export async function GET(request: NextRequest) {
       WHERE shop_id = $1
     `, [decoded.shopId])
 
+    routeLogger.debug('Gift cards fetched', { count: result.rows.length })
     return NextResponse.json({
       success: true,
       giftCards: result.rows,
       stats: statsResult.rows[0]
     })
   } catch (error) {
-    console.error('Error:', error)
+    routeLogger.error('Error fetching gift cards:', error)
     return NextResponse.json({ error: 'Failed to fetch gift cards' }, { status: 500 })
   }
 }
 
 // POST - Create gift card (admin)
 export async function POST(request: NextRequest) {
+  const routeLogger = logger.createChild('api.gift-cards.POST')
+  
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
     if (!token) {
@@ -73,12 +80,16 @@ export async function POST(request: NextRequest) {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
-    const { amount, recipientName, recipientEmail, message, expiresAt, purchasedByEmail } = await request.json()
+    const body = await request.json()
 
     // Validate input
-    if (!amount || amount <= 0) {
-      return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
+    const validation = validateInput(CreateGiftCardSchema, body, 'gift-cards.create')
+    if (!validation.success) {
+      return NextResponse.json({ error: 'Validation failed', errors: validation.errors }, { status: 400 })
     }
+
+    const { amount, recipientName, recipientEmail, message, expiresAt, purchasedByEmail } = validation.data!
+    routeLogger.debug('Creating gift card', { shopId: decoded.shopId, amount })
 
     const code = generateGiftCardCode()
 
@@ -89,12 +100,13 @@ export async function POST(request: NextRequest) {
       [decoded.shopId, code, amount, recipientName || null, recipientEmail || null, message || null, expiresAt || null, purchasedByEmail || null]
     )
 
+    routeLogger.info('Gift card created successfully', { giftCardId: result.rows[0].id, code, amount })
     return NextResponse.json({
       success: true,
       giftCard: result.rows[0]
     })
   } catch (error) {
-    console.error('Error:', error)
+    routeLogger.error('Error creating gift card:', error)
     return NextResponse.json({ error: 'Failed to create gift card' }, { status: 500 })
   }
 }

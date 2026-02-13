@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { query } from '@/lib/db'
-import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
-
+import { query } from '@/lib/db'
+import { logger } from '@/lib/logger'
+import { CreateScheduleSchema, validateInput, parseQueryParam } from '@/lib/validation'
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -12,11 +12,13 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
  * GET - Fetch barber schedules for a shop
  */
 export async function GET(request: NextRequest) {
+  const routeLogger = logger.createChild('api.schedules.GET')
+  
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
     const { searchParams } = new URL(request.url)
-    const barberId = searchParams.get('barberId')
-    const shopId = searchParams.get('shopId')
+    const barberId = parseQueryParam(searchParams.get('barberId'))
+    const shopId = parseQueryParam(searchParams.get('shopId'))
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -25,17 +27,19 @@ export async function GET(request: NextRequest) {
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
     const sid = parseInt(shopId || decoded.shopId.toString())
 
-    let query = 'SELECT id, barber_id, day_of_week, start_time, end_time, is_active FROM barber_schedules WHERE shop_id = $1'
+    routeLogger.debug('Token verified', { shopId: sid })
+
+    let queryStr = 'SELECT id, barber_id, day_of_week, start_time, end_time, is_active FROM barber_schedules WHERE shop_id = $1'
     const params = [sid]
 
     if (barberId) {
-      query += ' AND barber_id = $2'
+      queryStr += ' AND barber_id = $2'
       params.push(parseInt(barberId))
     }
 
-    query += ' ORDER BY barber_id, day_of_week'
+    queryStr += ' ORDER BY barber_id, day_of_week'
 
-    const result = await query(query, params)
+    const result = await query(queryStr, params)
 
     // Format response with day names
     const formatted = result.rows.map((row: any) => ({
@@ -48,9 +52,10 @@ export async function GET(request: NextRequest) {
       isActive: row.is_active,
     }))
 
+    routeLogger.debug('Schedules fetched', { count: formatted.length })
     return NextResponse.json({ successful: true, schedules: formatted })
   } catch (error) {
-    console.error('Error fetching schedules:', error)
+    routeLogger.error('Error fetching schedules:', error)
     return NextResponse.json({ error: 'Failed to fetch schedules' }, { status: 500 })
   }
 }
@@ -59,6 +64,8 @@ export async function GET(request: NextRequest) {
  * POST - Create or update barber schedule
  */
 export async function POST(request: NextRequest) {
+  const routeLogger = logger.createChild('api.schedules.POST')
+  
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
     if (!token) {
@@ -67,11 +74,15 @@ export async function POST(request: NextRequest) {
 
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
     const body = await request.json()
-    const { barberId, dayOfWeek, startTime, endTime, isActive = true } = body
 
-    if (!barberId || dayOfWeek === undefined || !startTime || !endTime) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    // Validate input
+    const validation = validateInput(CreateScheduleSchema, body, 'schedules.create')
+    if (!validation.success) {
+      return NextResponse.json({ error: 'Validation failed', errors: validation.errors }, { status: 400 })
     }
+
+    const { barberId, dayOfWeek, startTime, endTime, isActive = true } = validation.data!
+    routeLogger.debug('Creating schedule', { shopId: decoded.shopId, barberId, dayOfWeek })
 
     // Upsert schedule (insert or update)
     const result = await query(
@@ -85,6 +96,7 @@ export async function POST(request: NextRequest) {
 
     const schedule = result.rows[0]
 
+    routeLogger.info('Schedule created/updated', { scheduleId: schedule.id, barberId, dayOfWeek })
     return NextResponse.json({
       success: true,
       schedule: {
@@ -98,7 +110,7 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error creating schedule:', error)
+    routeLogger.error('Error creating schedule:', error)
     return NextResponse.json({ error: 'Failed to create schedule' }, { status: 500 })
   }
 }
