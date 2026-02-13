@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Pool } from 'pg'
 import Stripe from 'stripe'
+import { logger } from '@/lib/logger'
 
 const pool = new Pool({
   user: 'barbershop_user',
@@ -9,6 +10,8 @@ const pool = new Pool({
   password: 'your_secure_password_here',
   port: 5432,
 })
+
+const paymentLogger = logger.createChild('PaymentIntent')
 
 const getStripe = () => {
   const apiKey = process.env.STRIPE_SECRET_KEY
@@ -23,7 +26,19 @@ export async function POST(request: NextRequest) {
   try {
     const { appointmentId, amount, email, description, shopSlug } = await request.json()
 
+    paymentLogger.info('Payment intent request received', {
+      appointmentId,
+      amount,
+      email,
+      shopSlug,
+    })
+
     if (!appointmentId || !amount || !email) {
+      paymentLogger.warn('Missing required fields in payment intent request', {
+        appointmentId: !!appointmentId,
+        amount: !!amount,
+        email: !!email,
+      })
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -37,6 +52,7 @@ export async function POST(request: NextRequest) {
     )
 
     if (shopResult.rows.length === 0) {
+      paymentLogger.warn('Shop not found', { shopSlug })
       return NextResponse.json(
         { error: 'Shop not found' },
         { status: 404 }
@@ -48,6 +64,11 @@ export async function POST(request: NextRequest) {
     const stripe = getStripe()
     
     // Create payment intent
+    paymentLogger.debug('Creating Stripe payment intent', {
+      appointmentId,
+      amountInCents: Math.round(amount * 100),
+    })
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert to cents
       currency: 'usd',
@@ -75,13 +96,20 @@ export async function POST(request: NextRequest) {
       ]
     )
 
+    paymentLogger.info('Payment intent created successfully', {
+      paymentIntentId: paymentIntent.id,
+      appointmentId,
+    })
+
     return NextResponse.json({
       success: true,
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
     })
   } catch (error) {
-    console.error('Payment intent creation error:', error)
+    paymentLogger.error('Payment intent creation error', error, {
+      appointmentId: (error as any)?.metadata?.appointmentId,
+    })
     return NextResponse.json(
       { error: 'Failed to create payment intent' },
       { status: 500 }

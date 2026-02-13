@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Pool } from 'pg'
+import { logger } from '@/lib/logger'
 
 const pool = new Pool({
   user: 'barbershop_user',
@@ -9,6 +10,8 @@ const pool = new Pool({
   port: 5432,
 })
 
+const slotLogger = logger.createChild('AvailableSlots')
+
 // GET - Calculate available time slots for a barber on a specific date
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +20,18 @@ export async function GET(request: NextRequest) {
     const barberId = searchParams.get('barberId')
     const dateStr = searchParams.get('date') // Format: YYYY-MM-DD
 
+    slotLogger.debug('Available slots request', {
+      shopId,
+      barberId,
+      dateStr,
+    })
+
     if (!shopId || !barberId || !dateStr) {
+      slotLogger.warn('Missing required parameters', {
+        shopId: !!shopId,
+        barberId: !!barberId,
+        dateStr: !!dateStr,
+      })
       return NextResponse.json(
         { error: 'shopId, barberId, and date are required' },
         { status: 400 }
@@ -26,6 +40,7 @@ export async function GET(request: NextRequest) {
 
     const bookingDate = new Date(dateStr)
     if (isNaN(bookingDate.getTime())) {
+      slotLogger.warn('Invalid date format', { dateStr })
       return NextResponse.json({ error: 'Invalid date format' }, { status: 400 })
     }
 
@@ -41,6 +56,10 @@ export async function GET(request: NextRequest) {
 
     if (scheduleResult.rows.length === 0) {
       // No schedule entry for this day - return empty
+      slotLogger.info('No schedule found for barber on date', {
+        barberId,
+        dateStr,
+      })
       return NextResponse.json({ success: true, availableSlots: [] })
     }
 
@@ -48,6 +67,10 @@ export async function GET(request: NextRequest) {
 
     // If barber not working this day, return empty
     if (!schedule.is_working) {
+      slotLogger.info('Barber not working on date', {
+        barberId,
+        dateStr,
+      })
       return NextResponse.json({ success: true, availableSlots: [] })
     }
 
@@ -108,9 +131,19 @@ export async function GET(request: NextRequest) {
       current = new Date(current.getTime() + appointmentDuration)
     }
 
+    slotLogger.info('Available slots calculated', {
+      barberId,
+      dateStr,
+      slotCount: slots.length,
+    })
+
     return NextResponse.json({ success: true, availableSlots: slots })
   } catch (error) {
-    console.error('Error calculating available slots:', error)
+    slotLogger.error('Error calculating available slots', error, {
+      shopId,
+      barberId,
+      dateStr,
+    })
     return NextResponse.json(
       { error: 'Failed to calculate available slots' },
       { status: 500 }
