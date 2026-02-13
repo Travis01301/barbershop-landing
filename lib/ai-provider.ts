@@ -21,8 +21,8 @@ const aiLogger = logger.createChild('ai-provider')
  * Fallback: Google Gemini
  */
 class AIProviderService {
-  private primaryProvider: AIProvider = 'anthropic'
-  private fallbackProvider: AIProvider = 'gemini'
+  private primaryProvider: AIProvider = 'openai'
+  private fallbackProviders: AIProvider[] = ['anthropic', 'gemini']
   private rateLimitedProviders: Set<AIProvider> = new Set()
   private rateLimitResetTime: Map<AIProvider, number> = new Map()
 
@@ -68,13 +68,16 @@ class AIProviderService {
         this.rateLimitedProviders.add(provider)
         this.rateLimitResetTime.set(provider, Date.now() + 60000) // 60s cooldown
 
-        // Try fallback provider
-        if (provider !== this.fallbackProvider) {
+        // Try next fallback provider
+        const currentIndex = [this.primaryProvider, ...this.fallbackProviders].indexOf(provider)
+        const nextProvider = [this.primaryProvider, ...this.fallbackProviders][currentIndex + 1]
+
+        if (nextProvider && nextProvider !== provider) {
           aiLogger.info('Switching to fallback provider', {
             from: provider,
-            to: this.fallbackProvider,
+            to: nextProvider,
           })
-          return this.sendMessage(messages, this.fallbackProvider)
+          return this.sendMessage(messages, nextProvider as AIProvider)
         }
       }
 
@@ -88,19 +91,20 @@ class AIProviderService {
    */
   private getAvailableProvider(): AIProvider {
     const now = Date.now()
+    const allProviders = [this.primaryProvider, ...this.fallbackProviders]
 
-    // Check if primary is rate limited and still in cooldown
-    if (this.rateLimitedProviders.has(this.primaryProvider)) {
-      const resetTime = this.rateLimitResetTime.get(this.primaryProvider)
-      if (resetTime && now < resetTime) {
-        aiLogger.debug('Primary provider still rate limited, using fallback', {
-          resetIn: Math.ceil((resetTime - now) / 1000),
-        })
-        return this.fallbackProvider
-      } else {
-        // Cooldown expired, try primary again
-        this.rateLimitedProviders.delete(this.primaryProvider)
+    // Find first non-rate-limited provider
+    for (const provider of allProviders) {
+      if (this.rateLimitedProviders.has(provider)) {
+        const resetTime = this.rateLimitResetTime.get(provider)
+        if (resetTime && now < resetTime) {
+          continue // Still in cooldown, skip to next
+        } else {
+          // Cooldown expired, try this provider again
+          this.rateLimitedProviders.delete(provider)
+        }
       }
+      return provider
     }
 
     return this.primaryProvider
