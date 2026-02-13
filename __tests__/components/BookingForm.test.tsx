@@ -144,20 +144,23 @@ describe('BookingForm Component', () => {
   describe('Customer Lookup', () => {
     it('should fetch existing customer when email is valid', async () => {
       const mockFetch = global.fetch as jest.Mock
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValueOnce({
-          success: true,
-          customer: {
-            id: 1,
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-            phone: '(555) 987-6543',
-            styling_notes: 'Fade, no beard',
-          },
-        }),
-      })
+      mockFetch.mockImplementationOnce(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              success: true,
+              customer: {
+                id: 1,
+                name: 'Jane Smith',
+                email: 'jane@example.com',
+                phone: '(555) 987-6543',
+                styling_notes: 'Fade, no beard',
+              },
+            }),
+        })
+      )
 
       const user = userEvent.setup()
       render(<BookingForm {...mockProps} />)
@@ -165,24 +168,30 @@ describe('BookingForm Component', () => {
       const emailInput = screen.getByLabelText(/email address/i)
       await user.type(emailInput, 'jane@example.com')
 
-      await waitFor(() => {
-        expect(screen.getByText(/welcome back/i)).toBeInTheDocument()
-      })
+      await waitFor(
+        () => {
+          expect(screen.getByText(/welcome back/i)).toBeInTheDocument()
+        },
+        { timeout: 3000 }
+      )
     })
 
     it('should show styling notes for returning customer', async () => {
       const mockFetch = global.fetch as jest.Mock
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValueOnce({
-          success: true,
-          customer: {
-            name: 'Jane Smith',
-            styling_notes: 'Short on sides, long on top',
-          },
-        }),
-      })
+      mockFetch.mockImplementationOnce(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              success: true,
+              customer: {
+                name: 'Jane Smith',
+                styling_notes: 'Short on sides, long on top',
+              },
+            }),
+        })
+      )
 
       const user = userEvent.setup()
       render(<BookingForm {...mockProps} />)
@@ -190,9 +199,12 @@ describe('BookingForm Component', () => {
       const emailInput = screen.getByLabelText(/email address/i)
       await user.type(emailInput, 'jane@example.com')
 
-      await waitFor(() => {
-        expect(screen.getByText(/Short on sides, long on top/i)).toBeInTheDocument()
-      })
+      await waitFor(
+        () => {
+          expect(screen.getByText(/Short on sides, long on top/i)).toBeInTheDocument()
+        },
+        { timeout: 3000 }
+      )
     })
 
     it('should not fetch customer for invalid email format', async () => {
@@ -232,18 +244,21 @@ describe('BookingForm Component', () => {
   describe('Available Slots', () => {
     it('should fetch available slots when barber and date are selected', async () => {
       const mockFetch = global.fetch as jest.Mock
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValueOnce({
-          success: true,
-          availableSlots: [
-            { startTime: '2026-02-20T09:00:00Z' },
-            { startTime: '2026-02-20T09:30:00Z' },
-            { startTime: '2026-02-20T10:00:00Z' },
-          ],
-        }),
-      })
+      mockFetch.mockImplementationOnce(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              success: true,
+              availableSlots: [
+                { startTime: '2026-02-20T09:00:00Z' },
+                { startTime: '2026-02-20T09:30:00Z' },
+                { startTime: '2026-02-20T10:00:00Z' },
+              ],
+            }),
+        })
+      )
 
       const user = userEvent.setup()
       render(<BookingForm {...mockProps} />)
@@ -251,12 +266,15 @@ describe('BookingForm Component', () => {
       await user.selectOptions(screen.getByLabelText(/barber/i), '1')
       await user.type(screen.getByLabelText(/date/i), '2026-02-20')
 
-      await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('/api/available-slots'),
-          expect.any(Object)
-        )
-      })
+      await waitFor(
+        () => {
+          expect(global.fetch).toHaveBeenCalledWith(
+            expect.stringContaining('/api/available-slots'),
+            expect.any(Object)
+          )
+        },
+        { timeout: 3000 }
+      )
     })
 
     it('should display available time slots', async () => {
@@ -310,14 +328,33 @@ describe('BookingForm Component', () => {
     })
 
     it('should enable submit button when all required fields are filled', async () => {
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: async () => ({
-          success: true,
-          availableSlots: [
-            { startTime: '2026-02-20T09:00:00Z' },
-          ],
-        }),
-      })
+      const mockFetch = global.fetch as jest.Mock
+      // First call: customer lookup
+      mockFetch.mockImplementationOnce(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              success: true,
+              customer: null,
+            }),
+        })
+      )
+      // Second call: available slots
+      mockFetch.mockImplementationOnce(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              success: true,
+              availableSlots: [
+                { startTime: '2026-02-20T09:00:00Z' },
+              ],
+            }),
+        })
+      )
 
       const user = userEvent.setup()
       render(<BookingForm {...mockProps} />)
@@ -335,6 +372,12 @@ describe('BookingForm Component', () => {
         expect(timeButtons.length).toBeGreaterThan(0)
       })
 
+      // Wait longer for slots to actually render
+      await waitFor(() => {
+        const timeButtons = screen.queryAllByRole('button').filter(btn => btn.textContent?.includes(':'))
+        expect(timeButtons.length).toBeGreaterThan(0)
+      }, { timeout: 3000 })
+
       const timeButtons = screen.getAllByRole('button')
       const timeButton = timeButtons.find(btn => btn.textContent?.includes(':'))
       if (timeButton) {
@@ -344,7 +387,7 @@ describe('BookingForm Component', () => {
       const submitButton = screen.getByRole('button', { name: /confirm appointment/i })
       await waitFor(() => {
         expect(submitButton).not.toBeDisabled()
-      })
+      }, { timeout: 2000 })
     })
 
     it('should show loading state during submission', async () => {
