@@ -1,6 +1,6 @@
 import { logger } from './logger'
 
-export type AIProvider = 'anthropic' | 'gemini'
+export type AIProvider = 'anthropic' | 'gemini' | 'openai'
 
 export interface AIMessage {
   role: 'user' | 'assistant'
@@ -45,6 +45,8 @@ class AIProviderService {
 
       if (provider === 'gemini') {
         response = await this.sendToGemini(messages)
+      } else if (provider === 'openai') {
+        response = await this.sendToOpenAI(messages)
       } else {
         response = await this.sendToAnthropic(messages)
       }
@@ -155,6 +157,53 @@ class AIProviderService {
       }
     } catch (error) {
       aiLogger.error('Gemini API error', error)
+      throw error
+    }
+  }
+
+  /**
+   * Send message to OpenAI (ChatGPT)
+   */
+  private async sendToOpenAI(messages: AIMessage[]): Promise<AIResponse> {
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY not configured')
+    }
+
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4-turbo',
+          messages: messages.map(m => ({
+            role: m.role,
+            content: m.content,
+          })),
+          max_tokens: 1000,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        const err = new Error(error.error?.message || 'OpenAI API error')
+        ;(err as any).status = response.status
+        throw err
+      }
+
+      const data = await response.json()
+      const text = data.choices?.[0]?.message?.content || ''
+
+      return {
+        text,
+        provider: 'openai',
+        tokensUsed: data.usage?.total_tokens,
+      }
+    } catch (error) {
+      aiLogger.error('OpenAI API error', error)
       throw error
     }
   }
