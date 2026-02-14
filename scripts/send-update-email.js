@@ -7,7 +7,8 @@
 const https = require('https');
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const EMAIL_FROM = process.env.EMAIL_FROM || 'noreply@barbershop.example.com';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+const EMAIL_TO = process.env.EMAIL_TO || 'jnason@ibsnyc.com';
 
 if (!RESEND_API_KEY) {
   console.error('RESEND_API_KEY not set');
@@ -101,7 +102,7 @@ const emailContent = `
             <li>Multi-provider AI for future features</li>
             <li>Structured logging & error handling</li>
             <li>Database migrations & schema</li>
-            <li>16 Git commits (all changes tracked)</li>
+            <li>18 Git commits (all changes tracked)</li>
           </ul>
         </div>
 
@@ -158,7 +159,7 @@ const emailContent = `
 
 const payload = JSON.stringify({
   from: EMAIL_FROM,
-  to: 'jnason@ibsnyc.com',
+  to: EMAIL_TO,
   subject: '✅ Barbershop Booking System - Production Ready',
   html: emailContent,
 });
@@ -185,7 +186,11 @@ const req = https.request(options, (res) => {
   res.on('end', () => {
     if (res.statusCode === 200 || res.statusCode === 201) {
       console.log('✅ Email sent successfully');
-      console.log(JSON.parse(data));
+      const result = JSON.parse(data);
+      console.log(`\nRecipient: ${EMAIL_TO}`);
+      console.log(`From: ${EMAIL_FROM}`);
+      console.log(`Status: ${result.id ? 'Delivered' : 'Pending'}`);
+      console.log(`Message ID: ${result.id}`);
       process.exit(0);
     } else {
       console.error(`❌ Failed to send email (${res.statusCode})`);
