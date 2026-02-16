@@ -1,0 +1,8 @@
+.git
+node_modules
+.env.local
+__tests__
+jest.config.js
+*.md
+.gitignore
+.eslintrc*

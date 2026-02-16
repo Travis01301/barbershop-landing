@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { query } from '@/lib/db'
-import { Pool } from 'pg'
+import { logger } from '@/lib/logger'
 import jwt from 'jsonwebtoken'
-
+import ServiceManager from '@/lib/services'
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
-// PUT - Update barber's service pricing/duration
+// PUT - Update barber service
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string; serviceId: string } }
 ) {
+  const routeLogger = logger.createChild('api.barbers.[id].services.[serviceId].PUT')
+  
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
     if (!token) {
@@ -20,45 +21,29 @@ export async function PUT(
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
     const barberId = parseInt(params.id)
     const serviceId = parseInt(params.serviceId)
-    const { price, duration_minutes, available } = await request.json()
+    const body = await request.json()
 
-    // Verify barber belongs to shop
-    const barber = await query(
-      'SELECT id FROM users WHERE id = $1 AND shop_id = $2 AND role = $3',
-      [barberId, decoded.shopId, 'barber']
-    )
+    routeLogger.debug('Updating barber service', {
+      barberId,
+      serviceId,
+      shopId: decoded.shopId
+    })
 
-    if (barber.rows.length === 0) {
-      return NextResponse.json({ error: 'Barber not found' }, { status: 404 })
-    }
+    const barberService = await ServiceManager.updateBarberService(barberId, serviceId, {
+      price: body.price,
+      duration_minutes: body.duration_minutes,
+      is_available: body.is_available
+    })
 
-    // Verify assignment exists
-    const assignment = await query(
-      `SELECT bs.id FROM barber_services bs
-       JOIN services s ON s.id = bs.service_id
-       WHERE bs.barber_id = $1 AND bs.service_id = $2 AND s.shop_id = $3`,
-      [barberId, serviceId, decoded.shopId]
-    )
-
-    if (assignment.rows.length === 0) {
-      return NextResponse.json({ error: 'Service assignment not found' }, { status: 404 })
-    }
-
-    // Update assignment
-    const result = await query(
-      `UPDATE barber_services 
-       SET price = COALESCE($1, price),
-           duration_minutes = COALESCE($2, duration_minutes),
-           available = COALESCE($3, available)
-       WHERE barber_id = $4 AND service_id = $5
-       RETURNING id, barber_id, service_id, price, duration_minutes, available, updated_at`,
-      [price, duration_minutes, available, barberId, serviceId]
-    )
-
-    return NextResponse.json({ success: true, service: result.rows[0] })
+    routeLogger.info('Barber service updated', { barberId, serviceId })
+    return NextResponse.json({ success: true, service: barberService })
   } catch (error) {
-    console.error('Error updating barber service:', error)
-    return NextResponse.json({ error: 'Failed to update barber service' }, { status: 500 })
+    routeLogger.error('Error updating barber service:', error)
+    const message = error instanceof Error ? error.message : 'Failed to update barber service'
+    return NextResponse.json(
+      { error: message },
+      { status: message.includes('not found') || message.includes('not assigned') ? 404 : 500 }
+    )
   }
 }
 
@@ -67,6 +52,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string; serviceId: string } }
 ) {
+  const routeLogger = logger.createChild('api.barbers.[id].services.[serviceId].DELETE')
+  
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
     if (!token) {
@@ -77,37 +64,18 @@ export async function DELETE(
     const barberId = parseInt(params.id)
     const serviceId = parseInt(params.serviceId)
 
-    // Verify barber belongs to shop
-    const barber = await query(
-      'SELECT id FROM users WHERE id = $1 AND shop_id = $2 AND role = $3',
-      [barberId, decoded.shopId, 'barber']
-    )
+    routeLogger.debug('Removing service from barber', {
+      barberId,
+      serviceId,
+      shopId: decoded.shopId
+    })
 
-    if (barber.rows.length === 0) {
-      return NextResponse.json({ error: 'Barber not found' }, { status: 404 })
-    }
+    await ServiceManager.removeServiceFromBarber(barberId, serviceId)
 
-    // Verify assignment exists
-    const assignment = await query(
-      `SELECT bs.id FROM barber_services bs
-       JOIN services s ON s.id = bs.service_id
-       WHERE bs.barber_id = $1 AND bs.service_id = $2 AND s.shop_id = $3`,
-      [barberId, serviceId, decoded.shopId]
-    )
-
-    if (assignment.rows.length === 0) {
-      return NextResponse.json({ error: 'Service assignment not found' }, { status: 404 })
-    }
-
-    // Delete assignment
-    await query(
-      'DELETE FROM barber_services WHERE barber_id = $1 AND service_id = $2',
-      [barberId, serviceId]
-    )
-
+    routeLogger.info('Service removed from barber', { barberId, serviceId })
     return NextResponse.json({ success: true, message: 'Service removed from barber' })
   } catch (error) {
-    console.error('Error removing barber service:', error)
-    return NextResponse.json({ error: 'Failed to remove service from barber' }, { status: 500 })
+    routeLogger.error('Error removing service from barber:', error)
+    return NextResponse.json({ error: 'Failed to remove service' }, { status: 500 })
   }
 }

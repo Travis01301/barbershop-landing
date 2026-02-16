@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { query } from '@/lib/db'
-import { Pool } from 'pg'
+import { logger } from '@/lib/logger'
 import jwt from 'jsonwebtoken'
-
+import ServiceManager from '@/lib/services'
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -11,6 +10,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const routeLogger = logger.createChild('api.services.[id].GET')
+  
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
     if (!token) {
@@ -20,30 +21,16 @@ export async function GET(
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
     const serviceId = parseInt(params.id)
 
-    const result = await query(
-      `SELECT 
-        id, 
-        shop_id,
-        name, 
-        description, 
-        base_price, 
-        duration_minutes, 
-        category,
-        active,
-        created_at,
-        updated_at
-      FROM services 
-      WHERE id = $1 AND shop_id = $2`,
-      [serviceId, decoded.shopId]
-    )
+    const service = await ServiceManager.getService(serviceId, decoded.shopId)
 
-    if (result.rows.length === 0) {
+    if (!service) {
       return NextResponse.json({ error: 'Service not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true, service: result.rows[0] })
+    routeLogger.debug('Service fetched', { serviceId })
+    return NextResponse.json({ success: true, service })
   } catch (error) {
-    console.error('Error fetching service:', error)
+    routeLogger.error('Error fetching service:', error)
     return NextResponse.json({ error: 'Failed to fetch service' }, { status: 500 })
   }
 }
@@ -53,6 +40,8 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const routeLogger = logger.createChild('api.services.[id].PUT')
+  
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
     if (!token) {
@@ -61,37 +50,28 @@ export async function PUT(
 
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
     const serviceId = parseInt(params.id)
-    const { name, description, base_price, duration_minutes, category, active } =
-      await request.json()
+    const body = await request.json()
 
-    // Verify service belongs to shop
-    const existingService = await query(
-      'SELECT id FROM services WHERE id = $1 AND shop_id = $2',
-      [serviceId, decoded.shopId]
-    )
+    routeLogger.debug('Updating service', { serviceId })
 
-    if (existingService.rows.length === 0) {
-      return NextResponse.json({ error: 'Service not found' }, { status: 404 })
-    }
+    const service = await ServiceManager.updateService(serviceId, decoded.shopId, {
+      name: body.name,
+      description: body.description,
+      price: body.price || body.base_price,
+      duration_minutes: body.duration_minutes,
+      category: body.category,
+      is_active: body.is_active !== undefined ? body.is_active : body.active
+    })
 
-    // Update service
-    const result = await query(
-      `UPDATE services 
-       SET name = COALESCE($1, name),
-           description = COALESCE($2, description),
-           base_price = COALESCE($3, base_price),
-           duration_minutes = COALESCE($4, duration_minutes),
-           category = COALESCE($5, category),
-           active = COALESCE($6, active)
-       WHERE id = $7 AND shop_id = $8
-       RETURNING id, name, base_price, duration_minutes, category, active, updated_at`,
-      [name, description, base_price, duration_minutes, category, active, serviceId, decoded.shopId]
-    )
-
-    return NextResponse.json({ success: true, service: result.rows[0] })
+    routeLogger.info('Service updated', { serviceId })
+    return NextResponse.json({ success: true, service })
   } catch (error) {
-    console.error('Error updating service:', error)
-    return NextResponse.json({ error: 'Failed to update service' }, { status: 500 })
+    routeLogger.error('Error updating service:', error)
+    const message = error instanceof Error ? error.message : 'Failed to update service'
+    return NextResponse.json(
+      { error: message },
+      { status: message.includes('not found') ? 404 : 500 }
+    )
   }
 }
 
@@ -100,6 +80,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const routeLogger = logger.createChild('api.services.[id].DELETE')
+  
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
     if (!token) {
@@ -109,25 +91,18 @@ export async function DELETE(
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
     const serviceId = parseInt(params.id)
 
-    // Verify service belongs to shop
-    const existingService = await query(
-      'SELECT id FROM services WHERE id = $1 AND shop_id = $2',
-      [serviceId, decoded.shopId]
-    )
+    routeLogger.debug('Deleting service', { serviceId })
 
-    if (existingService.rows.length === 0) {
-      return NextResponse.json({ error: 'Service not found' }, { status: 404 })
-    }
+    await ServiceManager.deleteService(serviceId, decoded.shopId)
 
-    // Delete service (cascade will handle barber_services entries)
-    await query('DELETE FROM services WHERE id = $1 AND shop_id = $2', [
-      serviceId,
-      decoded.shopId,
-    ])
-
+    routeLogger.info('Service deleted', { serviceId })
     return NextResponse.json({ success: true, message: 'Service deleted' })
   } catch (error) {
-    console.error('Error deleting service:', error)
-    return NextResponse.json({ error: 'Failed to delete service' }, { status: 500 })
+    routeLogger.error('Error deleting service:', error)
+    const message = error instanceof Error ? error.message : 'Failed to delete service'
+    return NextResponse.json(
+      { error: message },
+      { status: message.includes('not found') ? 404 : 500 }
+    )
   }
 }

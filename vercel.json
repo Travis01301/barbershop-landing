@@ -1,0 +1,36 @@
+{
+  "buildCommand": "next build",
+  "framework": "nextjs",
+  "env": {
+    "DATABASE_URL": {
+      "placeholder": "postgresql://user:password@host:5432/dbname"
+    },
+    "STRIPE_SECRET_KEY": {
+      "placeholder": "sk_live_..."
+    },
+    "STRIPE_PUBLISHABLE_KEY": {
+      "placeholder": "pk_live_..."
+    },
+    "RESEND_API_KEY": {
+      "placeholder": "re_..."
+    },
+    "TWILIO_ACCOUNT_SID": {
+      "placeholder": "AC..."
+    },
+    "TWILIO_AUTH_TOKEN": {
+      "placeholder": "auth_token"
+    },
+    "TWILIO_PHONE_NUMBER": {
+      "placeholder": "+1234567890"
+    },
+    "JWT_SECRET": {
+      "placeholder": "your-secret-key-min-32-chars"
+    },
+    "JWT_EXPIRES_IN": {
+      "placeholder": "7d"
+    },
+    "OLLAMA_BASE_URL": {
+      "placeholder": "http://localhost:11434"
+    }
+  }
+}

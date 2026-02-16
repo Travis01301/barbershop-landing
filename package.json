@@ -47,6 +47,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "node-fetch": "^2.7.0",
     "tailwindcss": "^4",
+    "ts-jest": "^29.4.6",
     "typescript": "^5"
   }
 }

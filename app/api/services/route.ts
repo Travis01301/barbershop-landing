@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
-import { query } from '@/lib/db'
 import { logger } from '@/lib/logger'
 import { CreateServiceSchema, validateInput } from '@/lib/validation'
+import ServiceManager from '@/lib/services'
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
@@ -17,26 +17,16 @@ export async function GET(request: NextRequest) {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as { shopId: number }
+    const url = new URL(request.url)
+    const category = url.searchParams.get('category') || undefined
+    const activeOnly = url.searchParams.get('activeOnly') !== 'false'
+
     routeLogger.debug('Token verified', { shopId: decoded.shopId })
 
-    const result = await query(
-      `SELECT 
-        id, 
-        name, 
-        description, 
-        base_price, 
-        duration_minutes, 
-        category,
-        active,
-        created_at 
-      FROM services 
-      WHERE shop_id = $1 
-      ORDER BY display_order, name`,
-      [decoded.shopId]
-    )
+    const services = await ServiceManager.getShopServices(decoded.shopId, category, activeOnly)
 
-    routeLogger.debug('Services fetched', { count: result.rows.length })
-    return NextResponse.json({ success: true, services: result.rows })
+    routeLogger.debug('Services fetched', { count: services.length })
+    return NextResponse.json({ success: true, services })
   } catch (error) {
     routeLogger.error('Error fetching services:', error)
     return NextResponse.json({ error: 'Failed to fetch services' }, { status: 500 })
@@ -65,39 +55,23 @@ export async function POST(request: NextRequest) {
     const { name, description, base_price, duration_minutes, category } = validation.data!
     routeLogger.debug('Creating service', { shopId: decoded.shopId, name })
 
-    // Check if service already exists
-    const existingService = await query(
-      'SELECT id FROM services WHERE shop_id = $1 AND LOWER(name) = LOWER($2)',
-      [decoded.shopId, name]
+    const service = await ServiceManager.addService(
+      decoded.shopId,
+      name,
+      base_price,
+      duration_minutes,
+      description,
+      category
     )
 
-    if (existingService.rows.length > 0) {
-      routeLogger.warn('Service already exists', { name })
-      return NextResponse.json({ error: 'Service already exists' }, { status: 409 })
-    }
-
-    // Insert new service
-    const result = await query(
-      `INSERT INTO services (
-        shop_id, 
-        name, 
-        description, 
-        base_price, 
-        duration_minutes, 
-        category,
-        active
-      ) VALUES ($1, $2, $3, $4, $5, $6, true)
-      RETURNING id, name, base_price, duration_minutes, category, active, created_at`,
-      [decoded.shopId, name, description, base_price, duration_minutes, category]
-    )
-
-    routeLogger.info('Service created successfully', { serviceId: result.rows[0].id, name })
+    routeLogger.info('Service created successfully', { serviceId: service.id, name })
     return NextResponse.json(
-      { success: true, service: result.rows[0] },
+      { success: true, service },
       { status: 201 }
     )
   } catch (error) {
     routeLogger.error('Error creating service:', error)
-    return NextResponse.json({ error: 'Failed to create service' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Failed to create service'
+    return NextResponse.json({ error: message }, { status: error instanceof Error && message.includes('already exists') ? 409 : 500 })
   }
 }

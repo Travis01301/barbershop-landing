@@ -7,14 +7,13 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
+  preset: 'ts-jest',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
+  extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  transformIgnorePatterns: [
-    'node_modules/(?!jose)',
-  ],
   testMatch: [
     '**/__tests__/**/*.[jt]s?(x)',
     '**/?(*.)+(spec|test).[jt]s?(x)',
@@ -39,4 +38,12 @@ const customJestConfig = {
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
-module.exports = createJestConfig(customJestConfig)
+const moduleExports = createJestConfig(customJestConfig)
+
+// Override transformIgnorePatterns to allow jose to be transformed
+// The pattern means: ignore node_modules EXCEPT for paths starting with jose
+moduleExports.transformIgnorePatterns = [
+  '/node_modules/(?!(jose)/).*',
+]
+
+module.exports = moduleExports

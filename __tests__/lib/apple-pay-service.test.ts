@@ -1,11 +1,9 @@
+// Mock db module first
 jest.mock('@/lib/db')
-jest.mock('crypto', () => ({
-  randomUUID: jest.fn(() => 'payment_123_uuid'),
-}))
 
-// Mock Stripe SDK properly
+// Mock Stripe SDK with proper instance methods
 jest.mock('stripe', () => {
-  const mockStripeInstance = {
+  return jest.fn(() => ({
     accounts: {
       retrieve: jest.fn().mockResolvedValue({
         id: 'acct_test',
@@ -13,16 +11,26 @@ jest.mock('stripe', () => {
       }),
     },
     paymentIntents: {
-      create: jest.fn().mockResolvedValue({ id: 'pi_test_123', status: 'succeeded' }),
-      confirm: jest.fn().mockResolvedValue({ id: 'pi_test_123', status: 'succeeded' }),
-      retrieve: jest.fn().mockResolvedValue({ id: 'pi_test_123', status: 'succeeded' }),
+      create: jest.fn().mockResolvedValue({ 
+        id: 'pi_test_123', 
+        status: 'succeeded' 
+      }),
+      confirm: jest.fn().mockImplementation((paymentIntentId) => {
+        if (!paymentIntentId || paymentIntentId.startsWith('invalid') || paymentIntentId === 'invalid') {
+          return Promise.reject(new Error(`Invalid payment intent id: ${paymentIntentId}`))
+        }
+        return Promise.resolve({ id: paymentIntentId, status: 'succeeded' })
+      }),
+      retrieve: jest.fn().mockResolvedValue({ 
+        id: 'pi_test_123', 
+        status: 'succeeded' 
+      }),
     },
-  }
-
-  return jest.fn(() => mockStripeInstance)
+  }))
 })
 
 import { applePayService } from '@/lib/apple-pay-service'
+
 const { query } = require('@/lib/db')
 
 describe('Apple Pay Service', () => {

@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react'
 import { PaymentForm } from './PaymentForm'
 import { ReviewForm } from '../../components/ReviewForm'
+import ServiceSelector from '@/components/ServiceSelector'
+import { Service } from '@/lib/services'
 
 export default function BookingForm({ shopId, barbers, shopName }: { shopId: number, barbers: Array<{ id: number, name: string }>, shopName: string }) {
   const [formData, setFormData] = useState({
@@ -11,8 +13,10 @@ export default function BookingForm({ shopId, barbers, shopName }: { shopId: num
     customerEmail: '',
     date: '',
     time: '',
-    timeISO: '' // Store the actual ISO time for submission
+    timeISO: '', // Store the actual ISO time for submission
+    serviceId: '' // Service selection
   })
+  const [selectedService, setSelectedService] = useState<Service | null>(null)
   const [existingCustomer, setExistingCustomer] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -116,7 +120,11 @@ export default function BookingForm({ shopId, barbers, shopName }: { shopId: num
           ...formData, 
           shopId,
           time: timeStr,
-          timeISO: undefined // Don't send internal state
+          timeISO: undefined, // Don't send internal state
+          serviceId: formData.serviceId ? parseInt(formData.serviceId) : undefined,
+          serviceName: selectedService?.name,
+          servicePrice: selectedService?.price,
+          serviceDuration: selectedService?.duration_minutes
         })
       })
 
@@ -231,9 +239,14 @@ END:VCALENDAR`
                 <p className="text-lg font-bold text-slate-900 mt-2">{appointment.barber_id}</p>
                 <p className="text-slate-600 text-sm mt-1">Professional Barber</p>
               </div>
+              <div className="border-l-4 border-green-500 pl-4">
+                <p className="text-xs uppercase tracking-wide font-semibold text-slate-500">Service</p>
+                <p className="text-lg font-bold text-slate-900 mt-2">{selectedService?.name || 'Service'}</p>
+                <p className="text-slate-600 text-sm mt-1">${selectedService?.price.toFixed(2) || '0.00'}</p>
+              </div>
               <div className="border-l-4 border-pink-500 pl-4">
                 <p className="text-xs uppercase tracking-wide font-semibold text-slate-500">Duration</p>
-                <p className="text-lg font-bold text-slate-900 mt-2">30 Minutes</p>
+                <p className="text-lg font-bold text-slate-900 mt-2">{selectedService?.duration_minutes || 30} Minutes</p>
               </div>
               <div className="border-l-4 border-amber-500 pl-4">
                 <p className="text-xs uppercase tracking-wide font-semibold text-slate-500">Location</p>
@@ -382,6 +395,20 @@ END:VCALENDAR`
       </div>
 
       <div>
+        <ServiceSelector
+          shopId={shopId}
+          barberId={formData.barberId ? parseInt(formData.barberId) : undefined}
+          selectedServiceId={formData.serviceId ? parseInt(formData.serviceId) : undefined}
+          onSelect={(service) => {
+            setSelectedService(service)
+            setFormData({...formData, serviceId: service?.id.toString() || ''})
+          }}
+          label="Service"
+          required={true}
+        />
+      </div>
+
+      <div>
         <label className="block text-sm font-semibold text-slate-900 mb-3">Available Times</label>
         {loadingSlots ? (
           <div className="flex items-center justify-center py-8 px-4 bg-slate-50 rounded-lg">
@@ -416,7 +443,7 @@ END:VCALENDAR`
         </div>
       </div>
 
-      <button type="submit" disabled={loading || checkingEmail || !formData.timeISO} className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-blue-800 disabled:from-slate-400 disabled:to-slate-500 transition-all shadow-lg hover:shadow-xl disabled:shadow-none transform hover:-translate-y-0.5 disabled:transform-none">
+      <button type="submit" disabled={loading || checkingEmail || !formData.timeISO || !formData.serviceId} className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-blue-800 disabled:from-slate-400 disabled:to-slate-500 transition-all shadow-lg hover:shadow-xl disabled:shadow-none transform hover:-translate-y-0.5 disabled:transform-none">
         {loading ? (
           <span className="flex items-center justify-center">
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>

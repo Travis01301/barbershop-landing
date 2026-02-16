@@ -49,5 +49,15 @@ process.env.STRIPE_PUBLISHABLE_KEY = 'pk_test_mock_key_for_testing'
 process.env.DATABASE_URL = 'postgres://test:test@localhost:5432/barbershop_test'
 process.env.NODE_ENV = 'test'
 
+// Mock jose ESM module (can't be transformed by jest properly)
+jest.mock('jose')
+
+// Mock crypto.randomUUID for tests before any modules are loaded
+const originalCrypto = global.crypto
+global.crypto = {
+  ...originalCrypto,
+  randomUUID: () => 'test-uuid-' + Math.random().toString(36).substr(2, 9),
+}
+
 // Global test utilities
 global.fetch = jest.fn()
