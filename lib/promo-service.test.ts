@@ -232,29 +232,36 @@ describe('PromoService', () => {
     });
 
     it('should prevent duplicate redemptions', async () => {
-      mockQuery.mockResolvedValueOnce({
-        rows: [
-          {
-            id: 1,
-            code: 'LAUNCH50',
-            discount_percent: 50,
-            duration_months: 6,
-            max_uses: null,
-            used_count: 0,
-            expires_at: null,
-            is_active: true,
-            stripe_coupon_id: 'cpon_123',
-            created_by: 1,
-            created_at: '2024-01-01',
-            updated_at: '2024-01-01',
-            description: null,
-          },
-        ],
-        rowCount: 1,
-      });
+      // Mock validatePromoCode call - first query for code
+      mockQuery
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: 1,
+              code: 'LAUNCH50',
+              discount_percent: 50,
+              duration_months: 6,
+              max_uses: null,
+              used_count: 0,
+              expires_at: null,
+              is_active: true,
+              stripe_coupon_id: 'cpon_123',
+              created_by: 1,
+              created_at: '2024-01-01',
+              updated_at: '2024-01-01',
+              description: null,
+            },
+          ],
+          rowCount: 1,
+        })
+        // Second query for checking shop promo - no existing
+        .mockResolvedValueOnce({
+          rows: [],
+          rowCount: 0,
+        });
 
+      // Mock client.query calls during redemption
       mockClient.query
-        .mockResolvedValueOnce({ rows: [], rowCount: 0 })
         .mockResolvedValueOnce({ rows: [{ id: 1 }], rowCount: 1 }); // Already redeemed
 
       const result = await promoService.redeemPromoCode('LAUNCH50', 1);
@@ -267,29 +274,33 @@ describe('PromoService', () => {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
 
-      mockQuery.mockResolvedValueOnce({
-        rows: [
-          {
-            id: 1,
-            code: 'LAUNCH50',
-            discount_percent: 50,
-            duration_months: 6,
-            max_uses: null,
-            used_count: 0,
-            expires_at: null,
-            is_active: true,
-            stripe_coupon_id: 'cpon_123',
-            created_by: 1,
-            created_at: '2024-01-01',
-            updated_at: '2024-01-01',
-            description: null,
-          },
-        ],
-        rowCount: 1,
-      });
+      // Mock validatePromoCode - two queries
+      mockQuery
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: 1,
+              code: 'LAUNCH50',
+              discount_percent: 50,
+              duration_months: 6,
+              max_uses: null,
+              used_count: 0,
+              expires_at: null,
+              is_active: true,
+              stripe_coupon_id: 'cpon_123',
+              created_by: 1,
+              created_at: '2024-01-01',
+              updated_at: '2024-01-01',
+              description: null,
+            },
+          ],
+          rowCount: 1,
+        })
+        .mockResolvedValueOnce({ rows: [], rowCount: 0 }); // Check shop promo
 
+      // Mock client.query calls during redemption
       mockClient.query
-        .mockResolvedValueOnce({ rows: [], rowCount: 0 }) // No existing usage
+        .mockResolvedValueOnce({ rows: [], rowCount: 0 }) // Check for existing usage
         .mockResolvedValueOnce({
           rows: [{ id: 1, discount_applied: 19.5, discount_end_at: tomorrow.toISOString() }],
           rowCount: 1,
@@ -305,27 +316,31 @@ describe('PromoService', () => {
     });
 
     it('should handle Stripe coupon application errors gracefully', async () => {
-      mockQuery.mockResolvedValueOnce({
-        rows: [
-          {
-            id: 1,
-            code: 'LAUNCH50',
-            discount_percent: 50,
-            duration_months: 6,
-            max_uses: null,
-            used_count: 0,
-            expires_at: null,
-            is_active: true,
-            stripe_coupon_id: 'cpon_123',
-            created_by: 1,
-            created_at: '2024-01-01',
-            updated_at: '2024-01-01',
-            description: null,
-          },
-        ],
-        rowCount: 1,
-      });
+      // Mock validatePromoCode - two queries
+      mockQuery
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: 1,
+              code: 'LAUNCH50',
+              discount_percent: 50,
+              duration_months: 6,
+              max_uses: null,
+              used_count: 0,
+              expires_at: null,
+              is_active: true,
+              stripe_coupon_id: 'cpon_123',
+              created_by: 1,
+              created_at: '2024-01-01',
+              updated_at: '2024-01-01',
+              description: null,
+            },
+          ],
+          rowCount: 1,
+        })
+        .mockResolvedValueOnce({ rows: [], rowCount: 0 }); // Check shop promo
 
+      // Mock client.query calls during redemption
       mockClient.query
         .mockResolvedValueOnce({ rows: [], rowCount: 0 })
         .mockResolvedValueOnce({
