@@ -165,6 +165,58 @@ export const ActivateAccountSchema = z.object({
 
 export type ActivateAccountInput = z.infer<typeof ActivateAccountSchema>;
 
+// ============ Promo Code Creation ============
+
+export const CreatePromoCodeSchema = z.object({
+  code: z.string().min(3, 'Code must be at least 3 characters').max(50, 'Code must be less than 50 characters'),
+  discountPercent: z.number().min(0, 'Discount must be at least 0%').max(100, 'Discount must be at most 100%'),
+  durationMonths: z.number().positive('Duration must be positive'),
+  maxUses: z.number().int().positive('Max uses must be positive').optional(),
+  expiresAt: z.string().refine(
+    (date) => !isNaN(new Date(date).getTime()),
+    'Invalid expiration date'
+  ).optional(),
+  description: z.string().optional(),
+});
+
+export type CreatePromoCodeInput = z.infer<typeof CreatePromoCodeSchema>;
+
+// ============ Promo Code Validation ============
+
+export const ValidatePromoCodeSchema = z.object({
+  code: z.string().min(1, 'Promo code is required'),
+  shopId: z.number().int().positive('Shop ID is required').optional(),
+});
+
+export type ValidatePromoCodeInput = z.infer<typeof ValidatePromoCodeSchema>;
+
+// ============ Promo Code Redemption ============
+
+export const RedeemPromoCodeSchema = z.object({
+  code: z.string().min(1, 'Promo code is required'),
+  shopId: z.number().int().positive('Shop ID is required'),
+  subscriptionId: z.string().min(1, 'Subscription ID is required').optional(),
+});
+
+export type RedeemPromoCodeInput = z.infer<typeof RedeemPromoCodeSchema>;
+
+// ============ Promo Code Update ============
+
+export const UpdatePromoCodeSchema = z.object({
+  code: z.string().min(3, 'Code must be at least 3 characters').optional(),
+  discountPercent: z.number().min(0).max(100).optional(),
+  durationMonths: z.number().positive().optional(),
+  maxUses: z.number().int().positive().optional(),
+  isActive: z.boolean().optional(),
+  expiresAt: z.string().refine(
+    (date) => !isNaN(new Date(date).getTime()),
+    'Invalid expiration date'
+  ).optional(),
+  description: z.string().optional(),
+});
+
+export type UpdatePromoCodeInput = z.infer<typeof UpdatePromoCodeSchema>;
+
 // ============ Validation Helper ============
 
 /**
