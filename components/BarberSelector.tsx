@@ -1,0 +1,147 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+
+interface BarberSelectorProps {
+  shopSlug: string;
+  shopId: number;
+  onSelect: (barber: any) => void;
+}
+
+export function BarberSelector({ shopSlug, shopId, onSelect }: BarberSelectorProps) {
+  const [barbers, setBarbers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
+
+  useEffect(() => {
+    const fetchBarbers = async () => {
+      try {
+        const response = await fetch(`/api/public/shops/${shopSlug}/barbers`);
+        const data = await response.json();
+
+        if (data.success) {
+          setBarbers(data.barbers);
+        } else {
+          setError(data.error || 'Failed to load barbers');
+        }
+      } catch (err) {
+        setError('Failed to load barbers');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBarbers();
+  }, [shopSlug]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-red-700">
+        {error}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-bold text-slate-900 mb-4">Choose Your Barber</h2>
+        <p className="text-lg text-slate-600">Select from our talented team</p>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {barbers.map((barber) => (
+          <button
+            key={barber.id}
+            onClick={() => onSelect(barber)}
+            className="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all transform hover:-translate-y-1"
+          >
+            {/* Profile Image */}
+            {barber.profile_photo_url ? (
+              <div className="relative w-full h-64 bg-slate-100">
+                <Image
+                  src={barber.profile_photo_url}
+                  alt={barber.name}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform"
+                />
+              </div>
+            ) : (
+              <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+                <svg
+                  className="w-24 h-24 text-blue-300"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+              </div>
+            )}
+
+            {/* Info */}
+            <div className="p-6">
+              <h3 className="text-2xl font-bold text-slate-900 text-left">{barber.name}</h3>
+
+              {/* Rating */}
+              {barber.average_rating && (
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="flex text-yellow-400">
+                    {[...Array(5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < Math.round(barber.average_rating) ? 'fill-current' : 'fill-slate-300'
+                        }`}
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="text-sm text-slate-600">
+                    {barber.average_rating.toFixed(1)} ({barber.review_count} reviews)
+                  </span>
+                </div>
+              )}
+
+              {/* Bio */}
+              {barber.bio && (
+                <p className="text-sm text-slate-600 mt-3 text-left line-clamp-2">{barber.bio}</p>
+              )}
+
+              {/* Specialties */}
+              {barber.specialties && barber.specialties.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {barber.specialties.slice(0, 3).map((specialty: string, index: number) => (
+                    <span
+                      key={index}
+                      className="inline-block bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full"
+                    >
+                      {specialty}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* CTA */}
+              <div className="mt-6 pt-6 border-t border-slate-100">
+                <div className="text-sm font-semibold text-blue-600 group-hover:text-blue-700">
+                  Book with {barber.name.split(' ')[0]} →
+                </div>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
