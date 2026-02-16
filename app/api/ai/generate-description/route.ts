@@ -14,10 +14,15 @@ const GenerateDescriptionSchema = z.object({
 })
 
 /**
- * POST /api/ai/generate-description
- * Generate AI descriptions using local Phi4 model
+ * DEPRECATED: This endpoint is no longer used
+ * AI features have been moved to the Jarvis bot (Ollama)
+ * The app now focuses on core booking/payment/CRM functionality
  */
 export async function POST(request: NextRequest) {
+  return NextResponse.json(
+    { error: 'AI features are now handled by Jarvis bot. Use /api/ai/chat instead.' },
+    { status: 410 } // 410 Gone
+  )
   try {
     const body = await request.json()
 
