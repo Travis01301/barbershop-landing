@@ -1,6 +1,5 @@
 import { query, getClient } from './db';
 import { logger } from './logger';
-import { v4 as uuidv4 } from 'uuid';
 
 const serviceLogger = logger.createChild('loyalty-service');
 
@@ -221,8 +220,12 @@ export async function generateReferralCode(
       return existing.rows[0].referral_code;
     }
 
-    // Generate unique code (first 8 chars of UUID)
-    const code = `REF-${uuidv4().substring(0, 8).toUpperCase()}`;
+    // Generate unique code - random alphanumeric
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = 'REF-';
+    for (let i = 0; i < 8; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
 
     await query(
       `UPDATE customer_profiles

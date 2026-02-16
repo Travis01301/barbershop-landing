@@ -173,7 +173,7 @@ describe('Loyalty Service', () => {
       const result = await generateReferralCode(mockCustomerId, mockShopId);
 
       expect(result).toBeDefined();
-      expect(result).toMatch(/^REF-[A-F0-9]{8}$/);
+      expect(result).toMatch(/^REF-[A-Z0-9]{8}$/);
     });
 
     it('should return existing code if already generated', async () => {

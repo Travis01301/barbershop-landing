@@ -8,13 +8,15 @@ import {
   getWaitlistSize,
 } from './waitlist-service';
 import * as db from './db';
-import * as sms from './sms-service';
-import * as email from './email-service';
 
 // Mock database and services
 jest.mock('./db');
-jest.mock('./sms-service');
-jest.mock('./email-service');
+jest.mock('./sms-service', () => ({
+  sendSMS: jest.fn(),
+}));
+jest.mock('./email-service', () => ({
+  sendEmail: jest.fn(),
+}));
 
 describe('Waitlist Service', () => {
   const mockShopId = 1;
@@ -181,18 +183,22 @@ describe('Waitlist Service', () => {
       };
 
       (db.getClient as jest.Mock).mockResolvedValue(mockClient);
-      (email.sendEmail as jest.Mock).mockResolvedValue(true);
-      (sms.sendSMS as jest.Mock).mockResolvedValue(true);
+
+      // Get the mocked sendEmail and sendSMS
+      const sendEmailMock = require('./email-service').sendEmail;
+      const sendSMSMock = require('./sms-service').sendSMS;
+      sendEmailMock.mockResolvedValue(true);
+      sendSMSMock.mockResolvedValue(true);
 
       const result = await promoteFromWaitlist(1, mockShopId, 1);
 
       expect(result?.status).toBe('promoted');
-      expect(email.sendEmail).toHaveBeenCalledWith(
+      expect(sendEmailMock).toHaveBeenCalledWith(
         'customer@example.com',
         expect.any(String),
         expect.any(String)
       );
-      expect(sms.sendSMS).toHaveBeenCalledWith(
+      expect(sendSMSMock).toHaveBeenCalledWith(
         '5551234567',
         expect.any(String)
       );
