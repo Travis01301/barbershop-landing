@@ -6,54 +6,29 @@ interface ReviewFormProps {
   appointmentId: number
   customerId: number
   barberId: number
-  shopId: number
   barberName: string
-  onSuccess?: () => void
+  shopId: number
+  onSubmit?: (success: boolean) => void
 }
 
-const StarRating = ({ rating, onChange }: { rating: number; onChange: (r: number) => void }) => {
-  return (
-    <div className="flex gap-2">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <button
-          key={star}
-          type="button"
-          onClick={() => onChange(star)}
-          className={`text-4xl transition-all transform hover:scale-110 ${
-            star <= rating ? 'text-yellow-400' : 'text-slate-300 hover:text-yellow-200'
-          }`}
-        >
-          ★
-        </button>
-      ))}
-    </div>
-  )
-}
-
-export function ReviewForm({
+export default function ReviewForm({
   appointmentId,
   customerId,
   barberId,
-  shopId,
   barberName,
-  onSuccess,
+  shopId,
+  onSubmit,
 }: ReviewFormProps) {
-  const [rating, setRating] = useState(0)
+  const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (rating === 0) {
-      setError('Please select a rating')
-      return
-    }
-
-    setLoading(true)
-    setError(null)
+    setIsSubmitting(true)
+    setError('')
 
     try {
       const response = await fetch('/api/reviews', {
@@ -71,76 +46,83 @@ export function ReviewForm({
 
       const data = await response.json()
 
-      if (response.ok) {
-        setSubmitted(true)
-        setTimeout(() => {
-          onSuccess?.()
-        }, 2000)
-      } else {
+      if (!response.ok) {
         setError(data.error || 'Failed to submit review')
+        return
       }
+
+      setSuccess(true)
+      setComment('')
+      setRating(5)
+      onSubmit?.(true)
     } catch (err) {
-      setError((err as Error).message || 'Failed to submit review')
+      setError('Failed to submit review')
     } finally {
-      setLoading(false)
+      setIsSubmitting(false)
     }
   }
 
-  if (submitted) {
+  if (success) {
     return (
-      <div className="text-center py-8">
-        <div className="text-5xl mb-4">✨</div>
-        <h3 className="text-xl font-bold text-slate-900 mb-2">Thank you!</h3>
-        <p className="text-slate-600">Your review helps us improve and helps other customers choose quality barbers.</p>
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <p className="text-green-800 font-medium">Thank you for your review!</p>
+        <p className="text-green-700 text-sm">Your feedback helps us improve our service.</p>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <h3 className="text-lg font-bold text-slate-900 mb-2">How was your experience?</h3>
-        <p className="text-sm text-slate-600 mb-4">
-          Please rate your appointment with <span className="font-semibold">{barberName}</span>
+        <h3 className="text-lg font-semibold mb-2">Rate your experience with {barberName}</h3>
+
+        <div className="flex gap-2 mb-4">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => setRating(star)}
+              className={`text-3xl transition-colors ${
+                star <= rating ? 'text-yellow-400' : 'text-gray-300'
+              }`}
+            >
+              ★
+            </button>
+          ))}
+        </div>
+
+        <p className="text-sm text-gray-600">
+          {rating === 1 && 'Poor'}
+          {rating === 2 && 'Fair'}
+          {rating === 3 && 'Good'}
+          {rating === 4 && 'Very Good'}
+          {rating === 5 && 'Excellent'}
         </p>
-        <StarRating rating={rating} onChange={setRating} />
       </div>
 
       <div>
-        <label className="block text-sm font-bold text-slate-900 mb-2">Comment (Optional)</label>
+        <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
+          Comment (optional)
+        </label>
         <textarea
+          id="comment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          placeholder="Share your feedback about the service quality, barber's professionalism, cleanliness, etc."
-          maxLength={500}
-          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 placeholder-slate-400"
+          placeholder="Share your experience..."
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           rows={4}
         />
-        <p className="text-xs text-slate-500 mt-1">{comment.length}/500 characters</p>
       </div>
 
-      {error && <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
+      {error && <div className="text-red-600 text-sm">{error}</div>}
 
       <button
         type="submit"
-        disabled={loading || rating === 0}
-        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-slate-400 disabled:to-slate-400 text-white py-3 rounded-lg font-bold transition-all shadow-md flex items-center justify-center gap-2"
+        disabled={isSubmitting}
+        className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400"
       >
-        {loading ? (
-          <>
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Submitting...
-          </>
-        ) : (
-          <>
-            <span>⭐ Submit Review</span>
-          </>
-        )}
+        {isSubmitting ? 'Submitting...' : 'Submit Review'}
       </button>
-
-      <p className="text-xs text-slate-500 text-center">
-        Your review is published immediately and helps other customers find quality barbers.
-      </p>
     </form>
   )
 }
