@@ -5,7 +5,7 @@ import { query, getClient } from '@/lib/db'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ shopSlug: string }> }
+  { params }: { params: { shopSlug: string } }
 ) {
   try {
     const { shopSlug } = await params

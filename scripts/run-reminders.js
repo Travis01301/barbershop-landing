@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
-/**
- * Standalone script to trigger appointment reminders
- * Can be run via cron: 0 * * * * node scripts/run-reminders.js
- * 
- * Usage:
- * - Direct: node scripts/run-reminders.js
- * - Cron (hourly): 0 * * * * cd /path/to/project && node scripts/run-reminders.js
- * - Cron (every 30 mins): */30 * * * * cd /path/to/project && node scripts/run-reminders.js
- */
+// Standalone script to trigger appointment reminders
+// Can be run via cron: 0 * * * * node scripts/run-reminders.js
+// 
+// Usage:
+// - Direct: node scripts/run-reminders.js
+// - Cron (hourly): 0 * * * * cd /path/to/project && node scripts/run-reminders.js
+// - Cron (every 30 mins): every 30 minutes cd /path/to/project && node scripts/run-reminders.js
 
 const https = require('https');
 const fs = require('fs');

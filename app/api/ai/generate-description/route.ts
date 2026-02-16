@@ -15,9 +15,7 @@ const GenerateDescriptionSchema = z.object({
 
 /**
  * POST /api/ai/generate-description
- * Generate AI descriptions using multi-provider fallback
- * 
- * Automatically switches to Google Gemini if Anthropic is rate limited
+ * Generate AI descriptions using local Phi4 model
  */
 export async function POST(request: NextRequest) {
   try {
@@ -50,13 +48,16 @@ export async function POST(request: NextRequest) {
         Be professional and appreciative. Keep it brief (1-2 sentences).`
     }
 
-    // Get AI response with automatic provider fallback
-    const response = await aiProvider.sendMessage([
-      {
-        role: 'user',
-        content: prompt,
-      },
-    ])
+    // Get AI response from local Phi4 model (fast, customer-facing)
+    const response = await aiProvider.sendMessage(
+      [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      'app'
+    )
 
     aiLogger.info('AI description generated successfully', {
       type,
@@ -81,9 +82,9 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/ai/status
- * Check AI provider status
+ * Check Ollama server status
  */
 export async function GET() {
-  const status = aiProvider.getStatus()
+  const status = await aiProvider.getStatus()
   return NextResponse.json(status)
 }

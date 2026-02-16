@@ -9,7 +9,7 @@ const JWT_SECRET = 'your-secret-key-change-this-in-production'
 // GET - Fetch barber's schedule
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = await params
@@ -59,7 +59,7 @@ export async function GET(
 // PUT - Update barber's schedule
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = await params

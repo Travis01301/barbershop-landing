@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = await params
     const token = request.headers.get('authorization')?.replace('Bearer ', '')

@@ -9,7 +9,7 @@ const JWT_SECRET = 'your-secret-key-change-this-in-production'
 // GET - Get customer profile with appointment history
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = await params
@@ -65,7 +65,7 @@ export async function GET(
 // PUT - Update customer profile
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = await params

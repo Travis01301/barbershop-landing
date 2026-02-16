@@ -1,8 +1,28 @@
-import { applePayService } from '@/lib/apple-pay-service'
-
 jest.mock('@/lib/db')
-jest.mock('stripe')
+jest.mock('crypto', () => ({
+  randomUUID: jest.fn(() => 'payment_123_uuid'),
+}))
 
+// Mock Stripe SDK properly
+jest.mock('stripe', () => {
+  const mockStripeInstance = {
+    accounts: {
+      retrieve: jest.fn().mockResolvedValue({
+        id: 'acct_test',
+        type: 'standard',
+      }),
+    },
+    paymentIntents: {
+      create: jest.fn().mockResolvedValue({ id: 'pi_test_123', status: 'succeeded' }),
+      confirm: jest.fn().mockResolvedValue({ id: 'pi_test_123', status: 'succeeded' }),
+      retrieve: jest.fn().mockResolvedValue({ id: 'pi_test_123', status: 'succeeded' }),
+    },
+  }
+
+  return jest.fn(() => mockStripeInstance)
+})
+
+import { applePayService } from '@/lib/apple-pay-service'
 const { query } = require('@/lib/db')
 
 describe('Apple Pay Service', () => {

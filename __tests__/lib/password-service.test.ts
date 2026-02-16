@@ -62,7 +62,7 @@ describe('Password Service', () => {
     })
 
     it('should reject password too short', () => {
-      const error = passwordService.validatePasswordStrength('Short1')
+      const error = passwordService.validatePasswordStrength('Short')
 
       expect(error).toContain('at least 6 characters')
     })

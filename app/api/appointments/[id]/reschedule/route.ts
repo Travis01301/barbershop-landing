@@ -11,7 +11,7 @@ function generateToken(appointmentId: number, email: string): string {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = await params

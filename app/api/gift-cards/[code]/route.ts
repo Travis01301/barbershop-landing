@@ -9,7 +9,7 @@ const JWT_SECRET = 'your-secret-key-change-this-in-production'
 // GET - Check gift card balance and validity
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: { code: string } }
 ) {
   try {
     const { code } = await params
@@ -73,7 +73,7 @@ export async function GET(
 // POST - Redeem gift card for an appointment
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: { code: string } }
 ) {
   try {
     const { code } = await params

@@ -8,7 +8,7 @@ const JWT_SECRET = 'your-secret-key-change-this-in-production'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ shopSlug: string }> }
+  { params }: { params: { shopSlug: string } }
 ) {
   try {
     const { shopSlug } = await params

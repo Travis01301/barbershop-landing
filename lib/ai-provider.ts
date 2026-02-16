@@ -1,6 +1,7 @@
 import { logger } from './logger'
 
-export type AIProvider = 'anthropic' | 'gemini' | 'openai'
+export type AIProvider = 'phi4' | 'qwen2.5' | 'local'
+export type ModelContext = 'app' | 'bot'
 
 export interface AIMessage {
   role: 'user' | 'assistant'
@@ -10,190 +11,90 @@ export interface AIMessage {
 export interface AIResponse {
   text: string
   provider: AIProvider
+  model: string
   tokensUsed?: number
 }
 
 const aiLogger = logger.createChild('ai-provider')
 
 /**
- * Multi-provider AI service with automatic fallback on rate limits
- * Primary: Anthropic Claude
- * Fallback: Google Gemini
+ * Local LLM service using Ollama
+ * phi4 (fast) → barbershop app (customer-facing)
+ * qwen2.5 (reasoning) → bot & sub-agents (complex tasks)
  */
 class AIProviderService {
-  private primaryProvider: AIProvider = 'openai'
-  private fallbackProviders: AIProvider[] = ['anthropic', 'gemini']
-  private rateLimitedProviders: Set<AIProvider> = new Set()
-  private rateLimitResetTime: Map<AIProvider, number> = new Map()
+  private getOllamaUrl(): string {
+    return process.env.OLLAMA_BASE_URL || 'http://localhost:11434'
+  }
+  
+  // Model mapping by context
+  private modelMap: Record<ModelContext, string> = {
+    app: 'phi4-mini:latest',        // Fast, lightweight for booking confirmations
+    bot: 'qwen2.5-coder:7b',        // Better reasoning for bot tasks & sub-agents
+  }
 
   /**
-   * Send a message and get AI response, with automatic provider fallback
+   * Send a message and get AI response
+   * @param messages - Chat history
+   * @param context - Use case: 'app' (phi4) or 'bot' (qwen2.5)
    */
   async sendMessage(
     messages: AIMessage[],
-    preferredProvider?: AIProvider
+    context: ModelContext = 'bot'
   ): Promise<AIResponse> {
-    const provider = preferredProvider || this.getAvailableProvider()
+    const model = this.modelMap[context]
 
     try {
-      aiLogger.debug('Sending message to AI provider', {
-        provider,
+      aiLogger.debug('Sending message to local LLM', {
+        model,
+        context,
         messageCount: messages.length,
       })
 
-      let response: AIResponse
+      const response = await this.sendToOllama(messages, model)
 
-      if (provider === 'gemini') {
-        response = await this.sendToGemini(messages)
-      } else if (provider === 'openai') {
-        response = await this.sendToOpenAI(messages)
-      } else {
-        response = await this.sendToAnthropic(messages)
-      }
-
-      // Clear rate limit flag on success
-      this.rateLimitedProviders.delete(provider)
-      aiLogger.info('AI message processed successfully', {
-        provider,
+      aiLogger.info('Local LLM message processed successfully', {
+        model,
+        context,
         tokensUsed: response.tokensUsed,
       })
 
       return response
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
-
-      // Check if rate limited
-      if (this.isRateLimit(error)) {
-        aiLogger.warn('Rate limit hit', { provider, error: errorMessage })
-        this.rateLimitedProviders.add(provider)
-        this.rateLimitResetTime.set(provider, Date.now() + 60000) // 60s cooldown
-
-        // Try next fallback provider
-        const currentIndex = [this.primaryProvider, ...this.fallbackProviders].indexOf(provider)
-        const nextProvider = [this.primaryProvider, ...this.fallbackProviders][currentIndex + 1]
-
-        if (nextProvider && nextProvider !== provider) {
-          aiLogger.info('Switching to fallback provider', {
-            from: provider,
-            to: nextProvider,
-          })
-          return this.sendMessage(messages, nextProvider as AIProvider)
-        }
-      }
-
-      aiLogger.error('AI provider error', error, { provider, errorMessage })
+      aiLogger.error('Local LLM error', error, { model, context, errorMessage })
       throw error
     }
   }
 
   /**
-   * Get the best available provider (respecting rate limits)
+   * Send message to Ollama (OpenAI-compatible API)
    */
-  private getAvailableProvider(): AIProvider {
-    const now = Date.now()
-    const allProviders = [this.primaryProvider, ...this.fallbackProviders]
-
-    // Find first non-rate-limited provider
-    for (const provider of allProviders) {
-      if (this.rateLimitedProviders.has(provider)) {
-        const resetTime = this.rateLimitResetTime.get(provider)
-        if (resetTime && now < resetTime) {
-          continue // Still in cooldown, skip to next
-        } else {
-          // Cooldown expired, try this provider again
-          this.rateLimitedProviders.delete(provider)
-        }
-      }
-      return provider
-    }
-
-    return this.primaryProvider
-  }
-
-  /**
-   * Send message to Anthropic Claude
-   */
-  private async sendToAnthropic(messages: AIMessage[]): Promise<AIResponse> {
-    // This would use the actual Anthropic SDK
-    // For now, return a placeholder that shows the pattern
-    throw new Error('Anthropic integration not implemented in this example')
-  }
-
-  /**
-   * Send message to Google Gemini
-   */
-  private async sendToGemini(messages: AIMessage[]): Promise<AIResponse> {
-    const apiKey = process.env.GOOGLE_GEMINI_API_KEY
-    if (!apiKey) {
-      throw new Error('GOOGLE_GEMINI_API_KEY not configured')
-    }
-
+  private async sendToOllama(messages: AIMessage[], model: string): Promise<AIResponse> {
     try {
-      // Using Gemini API via REST (would normally use SDK)
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
+      const response = await fetch(`${this.getOllamaUrl()}/v1/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: messages.map(m => ({
-            role: m.role === 'user' ? 'user' : 'model',
-            parts: [{ text: m.content }],
-          })),
-        }),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        const err = new Error(error.error?.message || 'Gemini API error')
-        ;(err as any).status = response.status
-        throw err
-      }
-
-      const data = await response.json()
-      const text =
-        data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-
-      return {
-        text,
-        provider: 'gemini',
-        tokensUsed: data.usageMetadata?.totalTokenCount,
-      }
-    } catch (error) {
-      aiLogger.error('Gemini API error', error)
-      throw error
-    }
-  }
-
-  /**
-   * Send message to OpenAI (ChatGPT)
-   */
-  private async sendToOpenAI(messages: AIMessage[]): Promise<AIResponse> {
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY not configured')
-    }
-
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4-turbo',
+          model,
           messages: messages.map(m => ({
             role: m.role,
             content: m.content,
           })),
           max_tokens: 1000,
+          temperature: 0.7,
         }),
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        const err = new Error(error.error?.message || 'OpenAI API error')
+        const error = await response.json().catch(() => ({}))
+        const err = new Error(
+          error.error?.message || 
+          error.message || 
+          `Ollama API error (${response.status})`
+        )
         ;(err as any).status = response.status
         throw err
       }
@@ -203,46 +104,60 @@ class AIProviderService {
 
       return {
         text,
-        provider: 'openai',
+        provider: 'local',
+        model,
         tokensUsed: data.usage?.total_tokens,
       }
     } catch (error) {
-      aiLogger.error('OpenAI API error', error)
+      if (error instanceof Error && error.message.includes('fetch')) {
+        const err = new Error(
+          `Cannot connect to Ollama at ${this.getOllamaUrl()}. Is it running?`
+        )
+        aiLogger.error('Ollama connection error', err)
+        throw err
+      }
       throw error
     }
   }
 
   /**
-   * Check if error is a rate limit error
+   * Check Ollama server status
    */
-  private isRateLimit(error: unknown): boolean {
-    if (!(error instanceof Error)) return false
+  async checkStatus(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.getOllamaUrl()}/api/tags`)
+      return response.ok
+    } catch {
+      return false
+    }
+  }
 
-    const message = error.message.toLowerCase()
-    const status = (error as any).status
-
-    return (
-      status === 429 ||
-      message.includes('rate limit') ||
-      message.includes('quota') ||
-      message.includes('too many requests')
-    )
+  /**
+   * Get loaded models from Ollama
+   */
+  async getLoadedModels(): Promise<string[]> {
+    try {
+      const response = await fetch(`${this.getOllamaUrl()}/api/tags`)
+      if (!response.ok) return []
+      const data = await response.json()
+      return (data.models || []).map((m: any) => m.name || m.model)
+    } catch {
+      return []
+    }
   }
 
   /**
    * Get provider status (for debugging)
    */
-  getStatus() {
+  async getStatus() {
+    const isAlive = await this.checkStatus()
+    const models = await this.getLoadedModels()
+
     return {
-      primaryProvider: this.primaryProvider,
-      fallbackProvider: this.fallbackProvider,
-      rateLimitedProviders: Array.from(this.rateLimitedProviders),
-      rateLimitResets: Object.fromEntries(
-        Array.from(this.rateLimitResetTime.entries()).map(([provider, time]) => [
-          provider,
-          new Date(time).toISOString(),
-        ])
-      ),
+      ollamaUrl: this.getOllamaUrl(),
+      alive: isAlive,
+      loadedModels: models,
+      modelMap: this.modelMap,
     }
   }
 }
