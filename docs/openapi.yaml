@@ -1,0 +1,694 @@
+openapi: 3.0.0
+info:
+  title: Barbershop SaaS API
+  description: Comprehensive API for managing reviews, webhooks, and third-party integrations
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: api-support@barbershop-saas.com
+
+servers:
+  - url: https://api.barbershop-saas.com/api
+    description: Production
+  - url: http://localhost:3000/api
+    description: Development
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: API Key in format "Bearer YOUR_API_KEY"
+
+  schemas:
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          nullable: true
+        customerName:
+          type: string
+        barberName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ReviewAnalytics:
+      type: object
+      properties:
+        totalReviews:
+          type: integer
+        averageRating:
+          type: number
+          format: float
+        fiveStarCount:
+          type: integer
+        fourStarCount:
+          type: integer
+        threeStarCount:
+          type: integer
+        twoStarCount:
+          type: integer
+        oneStarCount:
+          type: integer
+        responseRate:
+          type: number
+          format: float
+        sentimentPositive:
+          type: integer
+        sentimentNegative:
+          type: integer
+        sentimentNeutral:
+          type: integer
+
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        retryEnabled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    WebhookLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        eventType:
+          type: string
+        webhookUrl:
+          type: string
+          format: uri
+        httpStatusCode:
+          type: integer
+        responseBody:
+          type: string
+          nullable: true
+        errorMessage:
+          type: string
+          nullable: true
+        isDelivered:
+          type: boolean
+        sentAt:
+          type: string
+          format: date-time
+        deliveredAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    ApiKey:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        keyHash:
+          type: string
+        rateLimit:
+          type: integer
+        isActive:
+          type: boolean
+        lastUsedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: string
+          nullable: true
+
+paths:
+  /reviews:
+    get:
+      summary: Get reviews for a shop or barber
+      tags:
+        - Reviews
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: shopId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: barberId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  reviews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new review
+      tags:
+        - Reviews
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - appointmentId
+                - customerId
+                - barberId
+                - shopId
+                - rating
+              properties:
+                appointmentId:
+                  type: integer
+                customerId:
+                  type: integer
+                barberId:
+                  type: integer
+                shopId:
+                  type: integer
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                comment:
+                  type: string
+                  nullable: true
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  review:
+                    $ref: '#/components/schemas/Review'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Review already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /reviews/analytics:
+    get:
+      summary: Get review analytics
+      tags:
+        - Reviews
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: shopId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: barberId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  summary:
+                    $ref: '#/components/schemas/ReviewAnalytics'
+                  dailyData:
+                    type: array
+                    items:
+                      type: object
+
+  /reviews/google-sync:
+    get:
+      summary: Get Google reviews
+      tags:
+        - Reviews
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: shopId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Google reviews
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  reviews:
+                    type: array
+                    items:
+                      type: object
+
+    post:
+      summary: Sync Google reviews
+      tags:
+        - Reviews
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - shopId
+              properties:
+                shopId:
+                  type: integer
+      responses:
+        '200':
+          description: Sync initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /reviews/{id}/reply:
+    patch:
+      summary: Add reply to review
+      tags:
+        - Reviews
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - shopId
+                - barberId
+                - responseText
+              properties:
+                shopId:
+                  type: integer
+                barberId:
+                  type: integer
+                responseText:
+                  type: string
+                responseType:
+                  type: string
+                  enum: [template, custom]
+                templateId:
+                  type: integer
+                  nullable: true
+      responses:
+        '200':
+          description: Reply added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  response:
+                    type: object
+
+  /webhooks/management:
+    get:
+      summary: Get webhooks
+      tags:
+        - Webhooks
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: shopId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: isActive
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of webhooks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  webhooks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Webhook'
+
+    post:
+      summary: Create webhook
+      tags:
+        - Webhooks
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - shopId
+                - webhookUrl
+                - events
+              properties:
+                shopId:
+                  type: integer
+                webhookUrl:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+                  minItems: 1
+                maxRetries:
+                  type: integer
+                  default: 5
+                retryBackoffSeconds:
+                  type: integer
+                  default: 30
+      responses:
+        '201':
+          description: Webhook created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  webhook:
+                    $ref: '#/components/schemas/Webhook'
+
+  /webhooks/logs:
+    get:
+      summary: Get webhook logs
+      tags:
+        - Webhooks
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: shopId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: webhookId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: eventType
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: isDelivered
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Webhook logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  logs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WebhookLog'
+
+  /api-keys:
+    get:
+      summary: Get API keys
+      tags:
+        - API Keys
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: shopId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of API keys
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  apiKeys:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApiKey'
+
+    post:
+      summary: Create API key
+      tags:
+        - API Keys
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - shopId
+                - keyName
+              properties:
+                shopId:
+                  type: integer
+                keyName:
+                  type: string
+                rateLimit:
+                  type: integer
+                  default: 1000
+                expiresAt:
+                  type: string
+                  format: date-time
+                  nullable: true
+      responses:
+        '201':
+          description: API key created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  apiKey:
+                    type: object
+
+  /integrations/marketplace:
+    get:
+      summary: Get marketplace apps
+      tags:
+        - Integrations
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: shopId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: onlyInstalled
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of apps
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  apps:
+                    type: array
+                    items:
+                      type: object
+
+    post:
+      summary: Install/uninstall app
+      tags:
+        - Integrations
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - shopId
+                - appId
+                - action
+              properties:
+                shopId:
+                  type: integer
+                appId:
+                  type: integer
+                action:
+                  type: string
+                  enum: [install, uninstall]
+      responses:
+        '200':
+          description: Action completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+security:
+  - ApiKeyAuth: []
+
+tags:
+  - name: Reviews
+    description: Customer reviews and feedback
+  - name: Webhooks
+    description: Webhook management and logs
+  - name: API Keys
+    description: API key management
+  - name: Integrations
+    description: Third-party integrations
