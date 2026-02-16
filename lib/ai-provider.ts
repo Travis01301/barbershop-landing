@@ -1,6 +1,6 @@
 import { logger } from './logger'
 
-export type AIProvider = 'phi4' | 'qwen2.5' | 'local'
+export type AIProvider = 'phi4' | 'qwen2.5' | 'local' | 'deepseek'
 export type ModelContext = 'app' | 'bot'
 
 export interface AIMessage {
@@ -18,13 +18,20 @@ export interface AIResponse {
 const aiLogger = logger.createChild('ai-provider')
 
 /**
- * Local LLM service using Ollama
+ * AI Provider with fallback chain:
+ * 1. Local Ollama (phi4/qwen2.5) - zero cost, no rate limits
+ * 2. DeepSeek API - fallback if Ollama unavailable
+ * 
  * phi4 (fast) → barbershop app (customer-facing)
  * qwen2.5 (reasoning) → bot & sub-agents (complex tasks)
  */
 class AIProviderService {
   private getOllamaUrl(): string {
     return process.env.OLLAMA_BASE_URL || 'http://localhost:11434'
+  }
+
+  private getDeepSeekApiKey(): string {
+    return process.env.DEEPSEEK_API_KEY || ''
   }
   
   // Model mapping by context
@@ -33,8 +40,15 @@ class AIProviderService {
     bot: 'qwen2.5-coder:7b',        // Better reasoning for bot tasks & sub-agents
   }
 
+  // DeepSeek model mapping
+  private deepseekModelMap: Record<ModelContext, string> = {
+    app: 'deepseek-chat',           // Fast, lightweight for app
+    bot: 'deepseek-chat',           // Uses reasoning tokens for complex tasks
+  }
+
   /**
-   * Send a message and get AI response
+   * Send a message and get AI response with fallback chain
+   * Tries Ollama first (local, free), falls back to DeepSeek if needed
    * @param messages - Chat history
    * @param context - Use case: 'app' (phi4) or 'bot' (qwen2.5)
    */
@@ -42,28 +56,55 @@ class AIProviderService {
     messages: AIMessage[],
     context: ModelContext = 'bot'
   ): Promise<AIResponse> {
-    const model = this.modelMap[context]
+    const ollamaModel = this.modelMap[context]
 
     try {
-      aiLogger.debug('Sending message to local LLM', {
-        model,
+      aiLogger.debug('Sending message to AI provider', {
+        model: ollamaModel,
         context,
         messageCount: messages.length,
+        provider: 'ollama',
       })
 
-      const response = await this.sendToOllama(messages, model)
+      const response = await this.sendToOllama(messages, ollamaModel)
 
-      aiLogger.info('Local LLM message processed successfully', {
-        model,
+      aiLogger.info('AI message processed successfully', {
+        model: ollamaModel,
         context,
+        provider: 'ollama',
         tokensUsed: response.tokensUsed,
       })
 
       return response
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
-      aiLogger.error('Local LLM error', error, { model, context, errorMessage })
-      throw error
+      aiLogger.warn('Ollama failed, trying DeepSeek fallback', {
+        context,
+        errorMessage,
+      })
+
+      // Try DeepSeek fallback
+      try {
+        const deepseekModel = this.deepseekModelMap[context]
+        const response = await this.sendToDeepSeek(messages, deepseekModel)
+        
+        aiLogger.info('AI message processed via DeepSeek fallback', {
+          model: deepseekModel,
+          context,
+          provider: 'deepseek',
+          tokensUsed: response.tokensUsed,
+        })
+
+        return response
+      } catch (fallbackError) {
+        const fallbackMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
+        aiLogger.error('Both Ollama and DeepSeek failed', fallbackError, {
+          context,
+          ollamaError: errorMessage,
+          deepseekError: fallbackMsg,
+        })
+        throw new Error(`AI provider unavailable. Ollama: ${errorMessage}. DeepSeek: ${fallbackMsg}`)
+      }
     }
   }
 
@@ -116,6 +157,59 @@ class AIProviderService {
         aiLogger.error('Ollama connection error', err)
         throw err
       }
+      throw error
+    }
+  }
+
+  /**
+   * Send message to DeepSeek API (fallback)
+   */
+  private async sendToDeepSeek(messages: AIMessage[], model: string): Promise<AIResponse> {
+    const apiKey = this.getDeepSeekApiKey()
+    if (!apiKey) {
+      throw new Error('DEEPSEEK_API_KEY not configured')
+    }
+
+    try {
+      const response = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages: messages.map(m => ({
+            role: m.role,
+            content: m.content,
+          })),
+          max_tokens: 1000,
+          temperature: 0.7,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}))
+        const err = new Error(
+          error.error?.message || 
+          error.message || 
+          `DeepSeek API error (${response.status})`
+        )
+        ;(err as any).status = response.status
+        throw err
+      }
+
+      const data = await response.json()
+      const text = data.choices?.[0]?.message?.content || ''
+
+      return {
+        text,
+        provider: 'deepseek',
+        model,
+        tokensUsed: data.usage?.total_tokens,
+      }
+    } catch (error) {
+      aiLogger.error('DeepSeek API error', error)
       throw error
     }
   }
