@@ -217,6 +217,142 @@ export const UpdatePromoCodeSchema = z.object({
 
 export type UpdatePromoCodeInput = z.infer<typeof UpdatePromoCodeSchema>;
 
+// ============ Shift Scheduling Schemas ============
+
+// -------- Shop Operating Hours --------
+
+export const ShopOperatingHoursSchema = z.object({
+  dayOfWeek: z.number().min(0, 'Day of week must be 0-6').max(6, 'Day of week must be 0-6'),
+  isOpen: z.boolean(),
+  openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:MM)').optional(),
+  closeTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:MM)').optional(),
+});
+
+export type ShopOperatingHoursInput = z.infer<typeof ShopOperatingHoursSchema>;
+
+// -------- Shift Templates --------
+
+export const CreateShiftTemplateSchema = z.object({
+  name: z.string().min(1, 'Template name is required').max(255),
+  description: z.string().optional(),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:MM)'),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (HH:MM)'),
+  minBarbersRequired: z.number().int().min(1, 'At least 1 barber required').optional(),
+  maxBarbersAllowed: z.number().int().min(1, 'At least 1 barber allowed').optional(),
+  recurringPattern: z.enum(['daily', 'weekdays', 'weekly', 'custom']).optional(),
+  recurringDays: z.string().optional(), // JSON array string
+  isActive: z.boolean().optional(),
+});
+
+export type CreateShiftTemplateInput = z.infer<typeof CreateShiftTemplateSchema>;
+
+export const UpdateShiftTemplateSchema = CreateShiftTemplateSchema.partial();
+
+export type UpdateShiftTemplateInput = z.infer<typeof UpdateShiftTemplateSchema>;
+
+// -------- Barber Availability --------
+
+export const SetBarberAvailabilitySchema = z.object({
+  barberId: z.number().int().positive('Barber ID is required'),
+  dayOfWeek: z.number().min(0, 'Day of week must be 0-6').max(6),
+  isAvailable: z.boolean(),
+  availabilityType: z.enum(['regular', 'flexible', 'unavailable']).optional(),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format').optional(),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format').optional(),
+  preferenceLevel: z.enum(['preferred', 'willing', 'unavailable']).optional(),
+});
+
+export type SetBarberAvailabilityInput = z.infer<typeof SetBarberAvailabilitySchema>;
+
+// -------- Shift Assignment --------
+
+export const AssignBarberToShiftSchema = z.object({
+  barberId: z.number().int().positive('Barber ID is required'),
+  shiftTemplateId: z.number().int().positive('Shift template ID is required').optional(),
+  shiftDate: z.string().refine((date) => !isNaN(new Date(date).getTime()), 'Invalid date'),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
+  notes: z.string().optional(),
+});
+
+export type AssignBarberToShiftInput = z.infer<typeof AssignBarberToShiftSchema>;
+
+export const UpdateBarberShiftSchema = z.object({
+  barberId: z.number().int().positive().optional(),
+  shiftDate: z.string().refine((date) => !isNaN(new Date(date).getTime()), 'Invalid date').optional(),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format').optional(),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format').optional(),
+  status: z.enum(['assigned', 'pending', 'confirmed', 'cancelled']).optional(),
+  notes: z.string().optional(),
+});
+
+export type UpdateBarberShiftInput = z.infer<typeof UpdateBarberShiftSchema>;
+
+// -------- Time Off Request (Extended) --------
+
+export const RequestTimeOffSchema = z.object({
+  barberId: z.number().int().positive('Barber ID is required'),
+  startDate: z.string().refine((date) => !isNaN(new Date(date).getTime()), 'Invalid start date'),
+  endDate: z.string().refine((date) => !isNaN(new Date(date).getTime()), 'Invalid end date'),
+  reason: z.enum(['vacation', 'sick', 'personal', 'other']).optional(),
+  description: z.string().optional(),
+});
+
+export type RequestTimeOffInput = z.infer<typeof RequestTimeOffSchema>;
+
+export const ApproveTimeOffSchema = z.object({
+  approvedBy: z.number().int().positive('User ID is required'),
+});
+
+export type ApproveTimeOffInput = z.infer<typeof ApproveTimeOffSchema>;
+
+export const DenyTimeOffSchema = z.object({
+  approvedBy: z.number().int().positive('User ID is required'),
+  denialReason: z.string().optional(),
+});
+
+export type DenyTimeOffInput = z.infer<typeof DenyTimeOffSchema>;
+
+// -------- Shift Swap Request --------
+
+export const RequestShiftSwapSchema = z.object({
+  requestingBarberId: z.number().int().positive('Requesting barber ID is required'),
+  requestedBarberId: z.number().int().positive('Requested barber ID is required'),
+  shiftIdToGive: z.number().int().positive('Shift ID to give is required'),
+  shiftIdToReceive: z.number().int().positive('Shift ID to receive is required'),
+  notes: z.string().optional(),
+});
+
+export type RequestShiftSwapInput = z.infer<typeof RequestShiftSwapSchema>;
+
+export const RespondToShiftSwapSchema = z.object({
+  status: z.enum(['approved', 'denied']),
+  notes: z.string().optional(),
+});
+
+export type RespondToShiftSwapInput = z.infer<typeof RespondToShiftSwapSchema>;
+
+// -------- Shift Board Query --------
+
+export const ShiftBoardQuerySchema = z.object({
+  startDate: z.string().refine((date) => !isNaN(new Date(date).getTime()), 'Invalid start date'),
+  endDate: z.string().refine((date) => !isNaN(new Date(date).getTime()), 'Invalid end date'),
+  barberId: z.number().int().positive().optional(),
+  viewMode: z.enum(['week', 'month']).optional(),
+});
+
+export type ShiftBoardQueryInput = z.infer<typeof ShiftBoardQuerySchema>;
+
+// -------- Coverage Query --------
+
+export const CoverageQuerySchema = z.object({
+  startDate: z.string().refine((date) => !isNaN(new Date(date).getTime()), 'Invalid start date'),
+  endDate: z.string().refine((date) => !isNaN(new Date(date).getTime()), 'Invalid end date'),
+  includeDetails: z.boolean().optional(),
+});
+
+export type CoverageQueryInput = z.infer<typeof CoverageQuerySchema>;
+
 // ============ Validation Helper ============
 
 /**
