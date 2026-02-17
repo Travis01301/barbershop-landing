@@ -49,6 +49,7 @@ model Organization {
   users             User[]
   invitations       OrganizationInvitation[]
   activityLogs      ActivityLog[]
+  oauthConnections  OAuthConnection[]
   
   @@map("organizations")
 }
@@ -267,4 +268,72 @@ model UsageAnalytics {
   @@unique([organizationId, date, period])
   @@index([organizationId])
   @@map("usage_analytics")
+}
+
+// OAuth Connections for integrations
+enum IntegrationProvider {
+  ZAPIER
+  GOOGLE_CALENDAR
+  OUTLOOK_CALENDAR
+  SHOPIFY
+}
+
+enum OAuthStatus {
+  CONNECTED
+  DISCONNECTED
+  EXPIRED
+  NEEDS_REAUTH
+}
+
+model OAuthConnection {
+  id                String   @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  provider          IntegrationProvider
+  
+  // OAuth credentials (encrypted)
+  accessToken       String   // encrypted in DB
+  refreshToken      String?  // encrypted in DB
+  tokenExpiresAt    DateTime?
+  
+  // Provider-specific identifiers
+  externalId        String   // account ID from provider (e.g., user@gmail.com, shopify-store-id)
+  externalEmail     String?  
+  
+  // Status
+  status            OAuthStatus @default(CONNECTED)
+  lastSyncedAt      DateTime?
+  syncErrorMessage  String?
+  
+  // Config
+  config            String?  // JSON - provider-specific config
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([organizationId, provider, externalId])
+  @@index([organizationId])
+  @@index([provider])
+  @@map("oauth_connections")
+}
+
+// Integration logs for debugging
+model IntegrationLog {
+  id                String   @id @default(cuid())
+  organizationId    String
+  
+  provider          IntegrationProvider
+  action            String   // sync, authorize, webhook, etc
+  status            String   // success, error
+  
+  details           String?  // JSON
+  errorMessage      String?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([organizationId])
+  @@index([provider])
+  @@index([createdAt])
+  @@map("integration_logs")
 }
