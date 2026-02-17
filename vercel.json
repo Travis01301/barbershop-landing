@@ -1,4 +1,9 @@
 {
+  "buildCommand": "npm install --legacy-peer-deps && npm run build",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "nodeVersion": "20.x",
   "crons": [
     {
       "path": "/api/cron/backup",
