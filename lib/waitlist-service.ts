@@ -1,6 +1,6 @@
 import { query, getClient } from './db';
 import { logger } from './logger';
-import { sendSMS } from './sms-service';
+import { smsService } from './sms-service';
 import { sendEmail } from './email-service';
 
 const serviceLogger = logger.createChild('waitlist-service');
@@ -236,10 +236,10 @@ export async function promoteFromWaitlist(
         );
       }
       if (entry.phone) {
-        await sendSMS(
-          entry.phone,
-          `Great news! Your appointment slot for ${entry.preferred_date} is now available. Please check your email or app to confirm.`
-        );
+        await smsService.send({
+          phoneNumber: entry.phone,
+          message: `Great news! Your appointment slot for ${entry.preferred_date} is now available. Please check your email or app to confirm.`
+        });
       }
     } catch (notificationError) {
       serviceLogger.warn('Failed to send promotion notification', notificationError);
