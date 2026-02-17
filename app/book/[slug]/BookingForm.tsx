@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { PaymentForm } from './PaymentForm'
-import { ReviewForm } from '../../components/ReviewForm'
 import ServiceSelector from '@/components/ServiceSelector'
 import { Service } from '@/lib/services'
 
@@ -27,8 +26,6 @@ export default function BookingForm({ shopId, barbers, shopName }: { shopId: num
   const [managementToken, setManagementToken] = useState('')
   const [showPayment, setShowPayment] = useState(false)
   const [paymentError, setPaymentError] = useState('')
-  const [showReview, setShowReview] = useState(false)
-  const [barberName, setBarberName] = useState('')
 
   // Check for existing customer profile when email changes
   useEffect(() => {
@@ -132,9 +129,6 @@ export default function BookingForm({ shopId, barbers, shopName }: { shopId: num
       if (data.success) {
         setAppointment(data.appointment)
         setManagementToken(data.managementToken)
-        // Get barber name from selected barber
-        const selectedBarber = barbers.find(b => b.id === parseInt(formData.barberId))
-        setBarberName(selectedBarber?.name || 'Barber')
         setSubmitted(true)
       } else {
         alert('Booking failed: ' + (data.error || 'Unknown error'))
@@ -276,20 +270,6 @@ END:VCALENDAR`
                   setShowReview(true)
                 }}
                 onError={setPaymentError}
-              />
-            </div>
-          ) : showReview && appointment ? (
-            <div className="bg-white border-2 border-blue-200 p-8 rounded-xl">
-              <h3 className="font-bold text-slate-900 mb-2 text-xl">⭐ Share Your Experience</h3>
-              <p className="text-slate-600 mb-6">Help us improve by rating your appointment (you can do this now or later)</p>
-              
-              <ReviewForm
-                appointmentId={appointment.id}
-                customerId={appointment.customer_id || 0}
-                barberId={parseInt(formData.barberId)}
-                shopId={shopId}
-                barberName={barberName}
-                onSuccess={() => setShowReview(false)}
               />
             </div>
           ) : (
