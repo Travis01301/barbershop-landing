@@ -94,23 +94,23 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6 max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-6">Create Campaign</h2>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-md text-red-700 text-sm">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+        <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-md text-green-700 text-sm">
           Campaign saved successfully!
         </div>
       )}
 
       {/* Templates */}
-      <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg">
         <h3 className="text-lg font-semibold mb-4">Quick Templates</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {Object.entries(CAMPAIGN_TEMPLATES).map(([key, template]) => (
@@ -118,12 +118,12 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({
               key={key}
               type="button"
               onClick={() => handleTemplateSelect(key as keyof typeof CAMPAIGN_TEMPLATES)}
-              className="p-4 bg-white border border-blue-300 hover:border-blue-600 rounded-lg text-left transition hover:shadow-md"
+              className="p-4 bg-white dark:bg-slate-900 border border-blue-300 hover:border-blue-600 rounded-lg text-left transition hover:shadow-md"
             >
-              <div className="font-semibold text-gray-900 text-sm">
+              <div className="font-semibold text-gray-900 dark:text-slate-100 text-sm">
                 {key.replace(/_/g, ' ').toUpperCase()}
               </div>
-              <div className="text-xs text-gray-600 mt-1">{template.subject}</div>
+              <div className="text-xs text-gray-600 dark:text-slate-400 mt-1">{template.subject}</div>
             </button>
           ))}
         </div>
@@ -132,7 +132,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Campaign Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Campaign Name *
           </label>
           <input
@@ -149,7 +149,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({
 
         {/* Campaign Type */}
         <div>
-          <label htmlFor="campaign_type" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="campaign_type" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Campaign Type *
           </label>
           <select
@@ -170,7 +170,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({
         {/* Sender Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="sender_email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="sender_email" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
               Sender Email *
             </label>
             <input
@@ -186,7 +186,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({
           </div>
 
           <div>
-            <label htmlFor="sender_name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="sender_name" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
               Sender Name
             </label>
             <input
@@ -205,7 +205,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({
         {/* Subject & Preview */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
               Subject Line *
             </label>
             <input
@@ -221,7 +221,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({
           </div>
 
           <div>
-            <label htmlFor="preview_text" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="preview_text" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
               Preview Text
             </label>
             <input
@@ -239,7 +239,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({
 
         {/* HTML Content */}
         <div>
-          <label htmlFor="html_content" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="html_content" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Email Content (HTML) *
           </label>
           <textarea
@@ -257,7 +257,7 @@ export const CampaignBuilder: React.FC<CampaignBuilderProps> = ({
 
         {/* Reply To */}
         <div>
-          <label htmlFor="reply_to_email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="reply_to_email" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Reply-To Email
           </label>
           <input

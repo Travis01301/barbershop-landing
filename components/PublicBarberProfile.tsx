@@ -48,7 +48,7 @@ export function PublicBarberProfile() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden mb-8">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 overflow-hidden mb-8">
         {/* Profile Section */}
         <div className="grid md:grid-cols-3 gap-8 p-8">
           {/* Photo */}
@@ -66,7 +66,7 @@ export function PublicBarberProfile() {
 
           {/* Info */}
           <div className={barber.profile_photo_url ? 'md:col-span-2' : 'md:col-span-3'}>
-            <h1 className="text-4xl font-bold text-slate-900 mb-2">{barber.name}</h1>
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-2">{barber.name}</h1>
 
             {/* Rating */}
             {barber.average_rating && (
@@ -92,7 +92,7 @@ export function PublicBarberProfile() {
 
             {/* Bio */}
             {barber.bio && (
-              <p className="text-lg text-slate-600 mb-6 leading-relaxed">{barber.bio}</p>
+              <p className="text-lg text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">{barber.bio}</p>
             )}
 
             {/* Specialties */}
@@ -139,7 +139,7 @@ export function PublicBarberProfile() {
         </div>
 
         {/* Book Button */}
-        <div className="bg-gradient-to-r from-blue-50 to-slate-50 border-t border-slate-200 p-8">
+        <div className="bg-gradient-to-r from-blue-50 to-slate-50 border-t border-slate-200 dark:border-slate-700 p-8">
           <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg font-bold text-lg transition-all shadow-lg hover:shadow-xl">
             Book with {barber.name.split(' ')[0]}
           </button>
@@ -148,13 +148,13 @@ export function PublicBarberProfile() {
 
       {/* Services */}
       {barber.services && barber.services.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8 mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">Services</h2>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 p-8 mb-8">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-6">Services</h2>
           <div className="space-y-4">
             {barber.services.map((service: any) => (
               <div
                 key={service.id}
-                className="flex justify-between items-center p-4 border border-slate-200 rounded-lg hover:border-blue-300 transition-all"
+                className="flex justify-between items-center p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-300 transition-all"
               >
                 <div>
                   <h3 className="font-bold text-slate-900">{service.name}</h3>
@@ -171,11 +171,11 @@ export function PublicBarberProfile() {
 
       {/* Reviews */}
       {barber.reviews && barber.reviews.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">Customer Reviews</h2>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 p-8">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-6">Customer Reviews</h2>
           <div className="space-y-6">
             {barber.reviews.map((review: any) => (
-              <div key={review.id} className="border-b border-slate-200 pb-6 last:border-b-0">
+              <div key={review.id} className="border-b border-slate-200 dark:border-slate-700 pb-6 last:border-b-0">
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <p className="font-bold text-slate-900">{review.customer_name}</p>

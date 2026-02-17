@@ -79,7 +79,7 @@ export function BookingManagement() {
 
   if (!token) {
     return (
-      <div className="max-w-2xl mx-auto bg-red-50 border border-red-200 rounded-lg p-6 text-red-700">
+      <div className="max-w-2xl mx-auto bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-6 text-red-700">
         Invalid booking link. Please check your email for the correct link.
       </div>
     );
@@ -87,7 +87,7 @@ export function BookingManagement() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-8">
           <h1 className="text-3xl font-bold">Manage Your Booking</h1>
@@ -95,7 +95,7 @@ export function BookingManagement() {
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-slate-200 flex">
+        <div className="border-b border-slate-200 dark:border-slate-700 flex">
           {['details', 'reschedule', 'cancel'].map((tab) => (
             <button
               key={tab}
@@ -103,7 +103,7 @@ export function BookingManagement() {
               className={`flex-1 py-4 px-6 font-semibold capitalize border-b-2 transition-all ${
                 activeTab === tab
                   ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900'
               }`}
             >
               {tab}
@@ -114,7 +114,7 @@ export function BookingManagement() {
         {/* Content */}
         <div className="p-8">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mb-6">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-4 text-red-700 mb-6">
               {error}
             </div>
           )}
@@ -158,7 +158,7 @@ export function BookingManagement() {
                 </div>
               </div>
 
-              <div className="border-t border-slate-200 pt-6">
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <p className="text-xs uppercase tracking-wide font-semibold text-slate-500 mb-2">
@@ -195,7 +195,7 @@ export function BookingManagement() {
               </div>
 
               {booking.styling_notes && (
-                <div className="border-t border-slate-200 pt-6">
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
                   <p className="text-xs uppercase tracking-wide font-semibold text-slate-500 mb-2">
                     Notes
                   </p>
@@ -212,7 +212,7 @@ export function BookingManagement() {
               </p>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
                   New Date
                 </label>
                 <input
@@ -226,7 +226,7 @@ export function BookingManagement() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
                   New Time
                 </label>
                 <input
@@ -259,7 +259,7 @@ export function BookingManagement() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
                   Reason for Cancellation (Optional)
                 </label>
                 <textarea

@@ -55,24 +55,24 @@ export const QueueCheckIn: React.FC<QueueCheckInProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6 max-w-md mx-auto">
       <h2 className="text-2xl font-bold mb-6">Walk-in Check-In</h2>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-md text-red-700 text-sm">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+        <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-md text-green-700 text-sm">
           Customer checked in successfully!
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Customer Name *
           </label>
           <input
@@ -89,7 +89,7 @@ export const QueueCheckIn: React.FC<QueueCheckInProps> = ({
         </div>
 
         <div>
-          <label htmlFor="customerPhone" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="customerPhone" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Phone Number
           </label>
           <input
@@ -105,7 +105,7 @@ export const QueueCheckIn: React.FC<QueueCheckInProps> = ({
         </div>
 
         <div>
-          <label htmlFor="serviceType" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="serviceType" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Service Type *
           </label>
           <select
@@ -125,7 +125,7 @@ export const QueueCheckIn: React.FC<QueueCheckInProps> = ({
         </div>
 
         <div>
-          <label htmlFor="estimatedDuration" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="estimatedDuration" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Estimated Duration (minutes) *
           </label>
           <select

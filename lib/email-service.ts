@@ -1,318 +1,393 @@
-import { logger } from './logger'
+import { Resend } from 'resend';
+import { query } from './db';
+import { v4 as uuidv4 } from 'uuid';
 
-const emailLogger = logger.createChild('email-service')
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-export interface EmailPayload {
-  to: string
-  subject: string
-  html: string
-  text?: string
-}
-
-export interface BookingConfirmationData {
-  customerName: string
-  customerEmail: string
-  barberName: string
-  appointmentDate: string
-  appointmentTime: string
-  serviceName: string
-  shopName: string
-}
-
-export interface ReminderEmailData {
-  customerName: string
-  customerEmail: string
-  barberName: string
-  appointmentDate: string
-  appointmentTime: string
-  shopName: string
-  shopPhone?: string
-}
-
-export interface CancellationEmailData {
-  customerName: string
-  customerEmail: string
-  barberName: string
-  appointmentDate: string
-  appointmentTime: string
-  cancellationReason?: string
-  shopName: string
+interface EmailQueueItem {
+  id: string;
+  ticket_id: string;
+  recipient_email: string;
+  subject: string;
+  html_body: string;
+  text_body?: string;
+  email_type: string;
+  status: 'pending' | 'sent' | 'failed' | 'bounced';
+  error_message?: string;
+  retry_count: number;
+  max_retries: number;
 }
 
 /**
- * Email service using Resend
+ * Send email for ticket creation
  */
-class EmailService {
-  private apiKey: string
-  private fromEmail: string
+export async function sendTicketCreatedEmail(
+  ticketId: string,
+  customerEmail: string,
+  ticketNumber: string,
+  subject: string,
+  description: string
+) {
+  const htmlBody = `
+    <h2>Support Ticket Created</h2>
+    <p>Your support ticket has been created and assigned to our team.</p>
+    <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
+    <p><strong>Subject:</strong> ${subject}</p>
+    <p><strong>Description:</strong></p>
+    <p>${description.replace(/\n/g, '<br>')}</p>
+    <p>You can track your ticket status by visiting your support dashboard or replying to this email.</p>
+    <p>We'll get back to you shortly!</p>
+  `;
 
-  constructor() {
-    this.apiKey = process.env.RESEND_API_KEY || ''
-    this.fromEmail = process.env.EMAIL_FROM || 'noreply@barbershop.local'
+  const textBody = `
+Support Ticket Created
 
-    if (!this.apiKey) {
-      emailLogger.warn('RESEND_API_KEY not configured, emails will be logged only')
-    }
-  }
+Your support ticket has been created and assigned to our team.
 
-  /**
-   * Send email via Resend
-   */
-  async send(payload: EmailPayload): Promise<{ success: boolean; messageId?: string }> {
-    if (!this.apiKey) {
-      emailLogger.debug('Email service not configured, logging instead', {
-        to: payload.to,
-        subject: payload.subject,
-      })
-      return { success: true }
-    }
+Ticket Number: ${ticketNumber}
+Subject: ${subject}
+Description: ${description}
 
-    try {
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify({
-          from: this.fromEmail,
-          to: payload.to,
-          subject: payload.subject,
-          html: payload.html,
-          text: payload.text,
-        }),
-      })
+You can track your ticket status by visiting your support dashboard or replying to this email.
 
-      if (!response.ok) {
-        const error = await response.json()
-        emailLogger.error('Resend API error', error)
-        return { success: false }
-      }
+We'll get back to you shortly!
+  `;
 
-      const data = (await response.json()) as any
-      emailLogger.info('Email sent successfully', {
-        to: payload.to,
-        subject: payload.subject,
-        messageId: data.id,
-      })
+  return queueEmail({
+    ticket_id: ticketId,
+    recipient_email: customerEmail,
+    subject: `[${ticketNumber}] ${subject}`,
+    html_body: htmlBody,
+    text_body: textBody,
+    email_type: 'ticket_created'
+  });
+}
 
-      return { success: true, messageId: data.id }
-    } catch (error) {
-      emailLogger.error('Error sending email', error, { to: payload.to })
-      return { success: false }
-    }
-  }
+/**
+ * Send email for ticket reply
+ */
+export async function sendTicketReplyEmail(
+  ticketId: string,
+  customerEmail: string,
+  ticketNumber: string,
+  replyMessage: string,
+  replyAuthor: string
+) {
+  const htmlBody = `
+    <h2>New Reply on Your Ticket</h2>
+    <p>Hi there,</p>
+    <p>There's a new reply to your support ticket:</p>
+    <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
+    <p><strong>Reply from:</strong> ${replyAuthor}</p>
+    <blockquote style="border-left: 3px solid #3B82F6; padding-left: 12px;">
+      ${replyMessage.replace(/\n/g, '<br>')}
+    </blockquote>
+    <p>Visit your support dashboard to see the full conversation and reply.</p>
+  `;
 
-  /**
-   * Send booking confirmation email
-   */
-  async sendBookingConfirmation(data: BookingConfirmationData): Promise<boolean> {
-    const html = this.buildBookingConfirmationHtml(data)
-    const text = this.buildBookingConfirmationText(data)
+  const textBody = `
+New Reply on Your Ticket
 
-    const result = await this.send({
-      to: data.customerEmail,
-      subject: `Booking Confirmed - ${data.shopName}`,
-      html,
-      text,
-    })
+Ticket Number: ${ticketNumber}
+Reply from: ${replyAuthor}
 
-    return result.success
-  }
+${replyMessage}
 
-  /**
-   * Send appointment reminder email
-   */
-  async sendAppointmentReminder(data: ReminderEmailData): Promise<boolean> {
-    const html = this.buildReminderHtml(data)
-    const text = this.buildReminderText(data)
+Visit your support dashboard to see the full conversation and reply.
+  `;
 
-    const result = await this.send({
-      to: data.customerEmail,
-      subject: `Reminder: Your appointment tomorrow at ${data.shopName}`,
-      html,
-      text,
-    })
+  return queueEmail({
+    ticket_id: ticketId,
+    recipient_email: customerEmail,
+    subject: `[${ticketNumber}] New Reply to Your Support Ticket`,
+    html_body: htmlBody,
+    text_body: textBody,
+    email_type: 'ticket_reply'
+  });
+}
 
-    return result.success
-  }
+/**
+ * Send email for ticket status update
+ */
+export async function sendTicketStatusUpdateEmail(
+  ticketId: string,
+  customerEmail: string,
+  ticketNumber: string,
+  newStatus: string,
+  description?: string
+) {
+  const statusMessages: Record<string, string> = {
+    in_progress: 'Your ticket is now being worked on by our support team.',
+    waiting_customer: 'We need additional information from you to proceed.',
+    resolved: 'Your ticket has been resolved. Please rate your experience.',
+    closed: 'Your ticket has been closed.'
+  };
 
-  /**
-   * Send cancellation confirmation email
-   */
-  async sendCancellationConfirmation(data: CancellationEmailData): Promise<boolean> {
-    const html = this.buildCancellationHtml(data)
-    const text = this.buildCancellationText(data)
+  const message = statusMessages[newStatus] || 'Your ticket status has been updated.';
 
-    const result = await this.send({
-      to: data.customerEmail,
-      subject: `Appointment Cancelled - ${data.shopName}`,
-      html,
-      text,
-    })
+  const htmlBody = `
+    <h2>Ticket Status Update</h2>
+    <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
+    <p><strong>New Status:</strong> ${newStatus.replace('_', ' ').toUpperCase()}</p>
+    <p>${message}</p>
+    ${description ? `<p>${description.replace(/\n/g, '<br>')}</p>` : ''}
+    <p>Visit your support dashboard for more details.</p>
+  `;
 
-    return result.success
-  }
+  return queueEmail({
+    ticket_id: ticketId,
+    recipient_email: customerEmail,
+    subject: `[${ticketNumber}] Status Update: ${newStatus.replace('_', ' ')}`,
+    html_body: htmlBody,
+    email_type: 'ticket_status_update'
+  });
+}
 
-  /**
-   * Build booking confirmation HTML
-   */
-  private buildBookingConfirmationHtml(data: BookingConfirmationData): string {
-    return `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Booking Confirmed! ✅</h2>
-        <p>Hi ${this.escapeHtml(data.customerName)},</p>
-        <p>Your appointment has been confirmed. Here are the details:</p>
-        
-        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 10px 0;"><strong>Shop:</strong> ${this.escapeHtml(data.shopName)}</p>
-          <p style="margin: 10px 0;"><strong>Barber:</strong> ${this.escapeHtml(data.barberName)}</p>
-          <p style="margin: 10px 0;"><strong>Service:</strong> ${this.escapeHtml(data.serviceName)}</p>
-          <p style="margin: 10px 0;"><strong>Date:</strong> ${this.escapeHtml(data.appointmentDate)}</p>
-          <p style="margin: 10px 0;"><strong>Time:</strong> ${this.escapeHtml(data.appointmentTime)}</p>
-        </div>
-        
-        <p>Please arrive 5-10 minutes early. If you need to reschedule or cancel, please contact the shop directly.</p>
-        <p>We look forward to seeing you!</p>
-        <p>Best regards,<br>${this.escapeHtml(data.shopName)} Team</p>
-      </div>
-    `
-  }
+/**
+ * Queue email for async processing
+ */
+export async function queueEmail(emailData: {
+  ticket_id: string;
+  recipient_email: string;
+  subject: string;
+  html_body: string;
+  text_body?: string;
+  email_type: string;
+}) {
+  try {
+    const emailId = uuidv4();
+    const result = await query(
+      `INSERT INTO email_queue 
+       (id, ticket_id, recipient_email, subject, html_body, text_body, email_type, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING *`,
+      [
+        emailId,
+        emailData.ticket_id,
+        emailData.recipient_email,
+        emailData.subject,
+        emailData.html_body,
+        emailData.text_body || null,
+        emailData.email_type,
+        'pending'
+      ]
+    );
 
-  /**
-   * Build booking confirmation text
-   */
-  private buildBookingConfirmationText(data: BookingConfirmationData): string {
-    return `
-Booking Confirmed! ✅
-
-Hi ${data.customerName},
-
-Your appointment has been confirmed. Here are the details:
-
-Shop: ${data.shopName}
-Barber: ${data.barberName}
-Service: ${data.serviceName}
-Date: ${data.appointmentDate}
-Time: ${data.appointmentTime}
-
-Please arrive 5-10 minutes early. If you need to reschedule or cancel, please contact the shop directly.
-
-We look forward to seeing you!
-
-Best regards,
-${data.shopName} Team
-    `.trim()
-  }
-
-  /**
-   * Build reminder email HTML
-   */
-  private buildReminderHtml(data: ReminderEmailData): string {
-    return `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Appointment Reminder 📅</h2>
-        <p>Hi ${this.escapeHtml(data.customerName)},</p>
-        <p>This is a friendly reminder about your upcoming appointment.</p>
-        
-        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196F3;">
-          <p style="margin: 10px 0;"><strong>Tomorrow at ${this.escapeHtml(data.appointmentTime)}</strong></p>
-          <p style="margin: 10px 0;"><strong>With:</strong> ${this.escapeHtml(data.barberName)}</p>
-          <p style="margin: 10px 0;"><strong>At:</strong> ${this.escapeHtml(data.shopName)}</p>
-          ${data.shopPhone ? `<p style="margin: 10px 0;"><strong>Phone:</strong> ${this.escapeHtml(data.shopPhone)}</p>` : ''}
-        </div>
-        
-        <p>Please arrive a few minutes early. If you need to cancel or reschedule, contact us as soon as possible.</p>
-        <p>See you tomorrow!</p>
-        <p>${this.escapeHtml(data.shopName)} Team</p>
-      </div>
-    `
-  }
-
-  /**
-   * Build reminder email text
-   */
-  private buildReminderText(data: ReminderEmailData): string {
-    return `
-Appointment Reminder 📅
-
-Hi ${data.customerName},
-
-This is a friendly reminder about your upcoming appointment.
-
-Tomorrow at ${data.appointmentTime}
-With: ${data.barberName}
-At: ${data.shopName}
-${data.shopPhone ? `Phone: ${data.shopPhone}` : ''}
-
-Please arrive a few minutes early. If you need to cancel or reschedule, contact us as soon as possible.
-
-See you tomorrow!
-
-${data.shopName} Team
-    `.trim()
-  }
-
-  /**
-   * Build cancellation email HTML
-   */
-  private buildCancellationHtml(data: CancellationEmailData): string {
-    return `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Appointment Cancelled ❌</h2>
-        <p>Hi ${this.escapeHtml(data.customerName)},</p>
-        <p>Your appointment has been cancelled.</p>
-        
-        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 10px 0;"><strong>Original Appointment:</strong></p>
-          <p style="margin: 10px 0;">${this.escapeHtml(data.appointmentDate)} at ${this.escapeHtml(data.appointmentTime)}</p>
-          <p style="margin: 10px 0;"><strong>With:</strong> ${this.escapeHtml(data.barberName)}</p>
-          ${data.cancellationReason ? `<p style="margin: 10px 0;"><strong>Reason:</strong> ${this.escapeHtml(data.cancellationReason)}</p>` : ''}
-        </div>
-        
-        <p>If you'd like to rebook or have questions, please contact ${this.escapeHtml(data.shopName)} directly.</p>
-        <p>${this.escapeHtml(data.shopName)} Team</p>
-      </div>
-    `
-  }
-
-  /**
-   * Build cancellation email text
-   */
-  private buildCancellationText(data: CancellationEmailData): string {
-    return `
-Appointment Cancelled ❌
-
-Hi ${data.customerName},
-
-Your appointment has been cancelled.
-
-Original Appointment:
-${data.appointmentDate} at ${data.appointmentTime}
-With: ${data.barberName}
-${data.cancellationReason ? `Reason: ${data.cancellationReason}` : ''}
-
-If you'd like to rebook or have questions, please contact ${data.shopName} directly.
-
-${data.shopName} Team
-    `.trim()
-  }
-
-  /**
-   * Escape HTML to prevent XSS
-   */
-  private escapeHtml(text: string): string {
-    const map: Record<string, string> = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;',
-    }
-    return text.replace(/[&<>"']/g, char => map[char])
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error queuing email:', error);
+    throw error;
   }
 }
 
-export const emailService = new EmailService()
+/**
+ * Process pending emails from queue (runs periodically)
+ */
+export async function processPendingEmails() {
+  try {
+    // Get pending emails
+    const result = await query(
+      `SELECT * FROM email_queue 
+       WHERE status = 'pending' AND retry_count < max_retries
+       ORDER BY created_at ASC
+       LIMIT 100`,
+      []
+    );
 
-export default emailService
+    const emails: EmailQueueItem[] = result.rows;
+
+    for (const email of emails) {
+      try {
+        // Send email via Resend
+        const response = await resend.emails.send({
+          from: 'support@barbershop.com',
+          to: email.recipient_email,
+          subject: email.subject,
+          html: email.html_body,
+          text: email.text_body || undefined,
+          replyTo: 'support@barbershop.com'
+        });
+
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+
+        // Mark as sent
+        await query(
+          `UPDATE email_queue 
+           SET status = 'sent', sent_at = $1, updated_at = $2 
+           WHERE id = $3`,
+          [new Date(), new Date(), email.id]
+        );
+
+        console.log(`Email sent: ${email.id}`);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const newRetryCount = email.retry_count + 1;
+
+        if (newRetryCount >= email.max_retries) {
+          // Mark as failed after max retries
+          await query(
+            `UPDATE email_queue 
+             SET status = 'failed', error_message = $1, retry_count = $2, updated_at = $3 
+             WHERE id = $4`,
+            [errorMessage, newRetryCount, new Date(), email.id]
+          );
+
+          console.error(`Email failed (max retries): ${email.id} - ${errorMessage}`);
+        } else {
+          // Retry later
+          await query(
+            `UPDATE email_queue 
+             SET retry_count = $1, error_message = $2, updated_at = $3 
+             WHERE id = $4`,
+            [newRetryCount, errorMessage, new Date(), email.id]
+          );
+
+          console.warn(`Email retry scheduled: ${email.id} (attempt ${newRetryCount})`);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error processing email queue:', error);
+  }
+}
+
+/**
+ * Handle incoming email webhook (for support@barbershop.com)
+ * This would need to be integrated with email provider's webhook
+ */
+export async function handleIncomingEmail(
+  fromEmail: string,
+  subject: string,
+  body: string,
+  attachments?: Array<{ filename: string; content: Buffer; contentType: string }>
+) {
+  try {
+    // Try to find existing ticket by subject or thread ID
+    let ticketId: string | null = null;
+
+    // Look for ticket number in subject like "[TICKET-123456-ABC]"
+    const ticketMatch = subject.match(/\[TICKET-[A-Z0-9-]+\]/);
+    if (ticketMatch) {
+      const ticketNumber = ticketMatch[0].slice(1, -1); // Remove brackets
+      const ticketResult = await query(
+        'SELECT id FROM support_tickets WHERE ticket_number = $1',
+        [ticketNumber]
+      );
+
+      if (ticketResult.rows.length > 0) {
+        ticketId = ticketResult.rows[0].id;
+      }
+    }
+
+    // If no existing ticket, create a new one
+    if (!ticketId) {
+      const userResult = await query(
+        'SELECT id, shop_id FROM users WHERE email = $1',
+        [fromEmail]
+      );
+
+      if (userResult.rows.length === 0) {
+        console.warn(`Incoming email from unknown user: ${fromEmail}`);
+        return;
+      }
+
+      const user = userResult.rows[0];
+      ticketId = uuidv4();
+      const ticketNumber = `TICKET-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+      await query(
+        `INSERT INTO support_tickets 
+         (id, ticket_number, shop_id, user_id, subject, description, category, priority, status, email_from)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        [
+          ticketId,
+          ticketNumber,
+          user.shop_id,
+          user.id,
+          subject,
+          body,
+          'other',
+          'medium',
+          'open',
+          fromEmail
+        ]
+      );
+    } else {
+      // Add reply to existing ticket
+      const messageId = uuidv4();
+      await query(
+        `INSERT INTO ticket_messages 
+         (id, ticket_id, author_id, author_type, message, is_internal)
+         VALUES ($1, $2, NULL, $3, $4, $5)`,
+        [messageId, ticketId, 'customer', body, false]
+      );
+    }
+
+    // Handle attachments if any
+    if (attachments && attachments.length > 0) {
+      for (const attachment of attachments) {
+        // Upload to storage and store reference
+        const fileUrl = await uploadAttachment(attachment);
+        const attachmentId = uuidv4();
+
+        await query(
+          `INSERT INTO ticket_attachments 
+           (id, ticket_id, file_name, file_size_bytes, file_type, file_url, uploaded_by)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [
+            attachmentId,
+            ticketId,
+            attachment.filename,
+            attachment.content.length,
+            attachment.contentType,
+            fileUrl,
+            null // System upload
+          ]
+        );
+      }
+    }
+
+    console.log(`Processed incoming email - Ticket: ${ticketId}`);
+  } catch (error) {
+    console.error('Error handling incoming email:', error);
+  }
+}
+
+/**
+ * Upload attachment to storage (stub - implement based on your storage solution)
+ */
+async function uploadAttachment(file: {
+  filename: string;
+  content: Buffer;
+  contentType: string;
+}): Promise<string> {
+  // TODO: Implement file upload to S3, Azure Blob Storage, etc.
+  // For now, return a placeholder URL
+  return `https://storage.example.com/${file.filename}`;
+}
+
+/**
+ * Get email statistics
+ */
+export async function getEmailStats(shopId: string) {
+  try {
+    const result = await query(
+      `SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent,
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed
+       FROM email_queue eq
+       JOIN support_tickets st ON eq.ticket_id = st.id
+       WHERE st.shop_id = $1`,
+      [shopId]
+    );
+
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error getting email stats:', error);
+    return null;
+  }
+}

@@ -103,24 +103,24 @@ export function TimeOffRequestForm({
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white border rounded overflow-hidden">
-      <div className="px-6 py-4 bg-gray-50 border-b">
+    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border rounded overflow-hidden">
+      <div className="px-6 py-4 bg-gray-50 dark:bg-slate-900 border-b">
         <h2 className="text-lg font-semibold">Request Time Off</h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
           Submit a request for vacation, sick leave, or personal time
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-4">
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded p-4 text-red-700">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded p-4 text-red-700">
             {error}
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
               Start Date
             </label>
             <input
@@ -133,7 +133,7 @@ export function TimeOffRequestForm({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
               End Date
             </label>
             <input
@@ -148,7 +148,7 @@ export function TimeOffRequestForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Reason
           </label>
           <select
@@ -164,7 +164,7 @@ export function TimeOffRequestForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Description (Optional)
           </label>
           <textarea
@@ -177,7 +177,7 @@ export function TimeOffRequestForm({
         </div>
 
         {startDate && endDate && (
-          <div className="bg-blue-50 border border-blue-200 rounded p-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded p-4">
             <p className="text-sm text-blue-700">
               <strong>Duration:</strong> {Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))} days
             </p>
@@ -196,7 +196,7 @@ export function TimeOffRequestForm({
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 font-medium"
+              className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 dark:text-slate-300 rounded hover:bg-gray-300 font-medium"
             >
               Cancel
             </button>

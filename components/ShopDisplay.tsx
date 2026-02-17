@@ -27,7 +27,7 @@ export function ShopDisplay({ shopSlug }: ShopDisplayProps) {
   }, [shopSlug]);
 
   return (
-    <div className="border-b border-slate-200 bg-white sticky top-0 z-40 shadow-sm">
+    <div className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 sticky top-0 z-40 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -51,7 +51,7 @@ export function ShopDisplay({ shopSlug }: ShopDisplayProps) {
           </div>
 
           <div className="text-right">
-            <div className="inline-flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-semibold border border-green-200">
+            <div className="inline-flex items-center px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 rounded-full text-xs font-semibold border border-green-200">
               ✓ Booking Available
             </div>
           </div>

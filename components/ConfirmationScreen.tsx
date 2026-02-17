@@ -71,31 +71,31 @@ export function ConfirmationScreen({
       </div>
 
       {/* Appointment Details */}
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8 mb-8">
-        <h3 className="text-2xl font-bold text-slate-900 mb-6">Your Appointment</h3>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 p-8 mb-8">
+        <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-6">Your Appointment</h3>
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <div className="border-l-4 border-blue-500 pl-4">
             <p className="text-xs uppercase tracking-wide font-semibold text-slate-500">Date & Time</p>
-            <p className="text-lg font-bold text-slate-900 mt-2">{dateStr}</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">{dateStr}</p>
             <p className="text-xl font-bold text-blue-600">{timeStr}</p>
           </div>
 
           <div className="border-l-4 border-purple-500 pl-4">
             <p className="text-xs uppercase tracking-wide font-semibold text-slate-500">With</p>
-            <p className="text-lg font-bold text-slate-900 mt-2">{barber.name}</p>
-            <p className="text-slate-600 text-sm mt-1">Professional Barber</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">{barber.name}</p>
+            <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">Professional Barber</p>
           </div>
 
           <div className="border-l-4 border-pink-500 pl-4">
             <p className="text-xs uppercase tracking-wide font-semibold text-slate-500">Service</p>
-            <p className="text-lg font-bold text-slate-900 mt-2">{service.name}</p>
-            <p className="text-slate-600 text-sm mt-1">${service.price.toFixed(2)}</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">{service.name}</p>
+            <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">${service.price.toFixed(2)}</p>
           </div>
 
           <div className="border-l-4 border-amber-500 pl-4">
             <p className="text-xs uppercase tracking-wide font-semibold text-slate-500">Duration</p>
-            <p className="text-lg font-bold text-slate-900 mt-2">{service.duration_minutes} Minutes</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">{service.duration_minutes} Minutes</p>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ export function ConfirmationScreen({
         <div className="space-y-4 pt-8 border-t border-slate-100">
           <button
             onClick={handleGenerateQR}
-            className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-900 py-3 rounded-lg font-bold transition-all"
+            className="w-full flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-900 dark:text-slate-100 py-3 rounded-lg font-bold transition-all"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -120,7 +120,7 @@ export function ConfirmationScreen({
 
           <button
             onClick={onReschedule}
-            className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-900 py-3 rounded-lg font-bold transition-all"
+            className="w-full flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-900 dark:text-slate-100 py-3 rounded-lg font-bold transition-all"
           >
             Book Another Appointment
           </button>
@@ -129,9 +129,9 @@ export function ConfirmationScreen({
 
       {/* Rating Section */}
       {!showRating && (
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-8 text-center">
-          <h3 className="text-xl font-bold text-slate-900 mb-2">⭐ Share Your Experience</h3>
-          <p className="text-slate-600 mb-6">Help us improve by rating your appointment</p>
+        <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 rounded-2xl p-8 text-center">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">⭐ Share Your Experience</h3>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">Help us improve by rating your appointment</p>
           <button
             onClick={() => setShowRating(true)}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all"
@@ -142,8 +142,8 @@ export function ConfirmationScreen({
       )}
 
       {showRating && (
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-8 mb-8">
-          <h3 className="text-xl font-bold text-slate-900 mb-6">Rate Your Experience</h3>
+        <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 rounded-2xl p-8 mb-8">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">Rate Your Experience</h3>
 
           {/* Star Rating */}
           <div className="flex justify-center gap-4 mb-6">
@@ -178,7 +178,7 @@ export function ConfirmationScreen({
           <div className="flex gap-4">
             <button
               onClick={() => setShowRating(false)}
-              className="flex-1 px-4 py-3 border border-slate-300 text-slate-900 rounded-lg font-bold hover:bg-slate-100 transition-all"
+              className="flex-1 px-4 py-3 border border-slate-300 text-slate-900 dark:text-slate-100 rounded-lg font-bold hover:bg-slate-100 dark:bg-slate-800 transition-all"
             >
               Skip
             </button>
@@ -194,11 +194,11 @@ export function ConfirmationScreen({
       )}
 
       {/* Confirmation Email */}
-      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 text-center">
+      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center">
         <p className="text-slate-700">
           ✓ Confirmation sent to <span className="font-bold">{booking.customer_email}</span>
         </p>
-        <p className="text-xs text-slate-600 mt-2">Check spam if you don't see it</p>
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">Check spam if you don't see it</p>
       </div>
     </div>
   );

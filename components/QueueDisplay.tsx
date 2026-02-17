@@ -48,13 +48,13 @@ export const QueueDisplay: React.FC<QueueDisplayProps> = ({
       fade: 'bg-purple-100 text-purple-800',
       beard: 'bg-orange-100 text-orange-800',
       shave: 'bg-green-100 text-green-800',
-      other: 'bg-gray-100 text-gray-800',
+      other: 'bg-gray-100 dark:bg-slate-800 text-gray-800',
     };
     return colors[service.toLowerCase()] || colors.other;
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">Live Queue</h2>
         <div className="flex items-center gap-2">
@@ -79,24 +79,24 @@ export const QueueDisplay: React.FC<QueueDisplayProps> = ({
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200">
           <div className="text-3xl font-bold text-blue-600">{status.total_waiting}</div>
           <div className="text-sm text-gray-600">People Waiting</div>
         </div>
 
-        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200">
           <div className="text-3xl font-bold text-green-600">{status.estimated_wait_time}</div>
           <div className="text-sm text-gray-600">Estimated Wait (min)</div>
         </div>
 
-        <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200">
           <div className="text-3xl font-bold text-yellow-600">{status.avg_wait_time}</div>
           <div className="text-sm text-gray-600">Average Wait (min)</div>
         </div>
       </div>
 
       {/* Queue List */}
-      <div className="bg-gray-50 rounded-lg overflow-hidden">
+      <div className="bg-gray-50 dark:bg-slate-900 rounded-lg overflow-hidden">
         <div className="px-6 py-4 bg-gray-200 font-semibold text-gray-900">
           Queue Status
         </div>
@@ -110,7 +110,7 @@ export const QueueDisplay: React.FC<QueueDisplayProps> = ({
             {status.queue_display.map((entry) => (
               <div
                 key={entry.id}
-                className="px-6 py-4 hover:bg-gray-100 transition"
+                className="px-6 py-4 hover:bg-gray-100 dark:bg-slate-800 transition"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
@@ -143,7 +143,7 @@ export const QueueDisplay: React.FC<QueueDisplayProps> = ({
                         ? 'bg-yellow-100 text-yellow-800'
                         : entry.status === 'completed'
                         ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
+                        : 'bg-gray-100 dark:bg-slate-800 text-gray-800'
                     }`}>
                       {entry.status === 'in-service' && '🔄 In Service'}
                       {entry.status === 'waiting' && '⏳ Waiting'}

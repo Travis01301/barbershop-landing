@@ -85,7 +85,7 @@ export function CustomerHistory({ customerId, token }: CustomerHistoryProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6 animate-pulse">
         <div className="h-8 bg-gray-200 rounded mb-4"></div>
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -98,7 +98,7 @@ export function CustomerHistory({ customerId, token }: CustomerHistoryProps) {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-6">
         <p className="text-red-800 font-semibold">Error loading appointment history</p>
         <p className="text-red-600 text-sm mt-1">{error}</p>
       </div>
@@ -106,8 +106,8 @@ export function CustomerHistory({ customerId, token }: CustomerHistoryProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Appointment History</h2>
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-6">Appointment History</h2>
 
       {/* Filter Tabs */}
       <div className="flex gap-2 mb-6 border-b">
@@ -118,7 +118,7 @@ export function CustomerHistory({ customerId, token }: CustomerHistoryProps) {
             className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
               filter === f
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
+                : 'border-transparent text-gray-600 dark:text-slate-400 hover:text-gray-900'
             }`}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -135,7 +135,7 @@ export function CustomerHistory({ customerId, token }: CustomerHistoryProps) {
 
       {/* Appointments List */}
       {filteredAppointments.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
+        <div className="text-center py-12 bg-gray-50 dark:bg-slate-900 rounded-lg">
           <p className="text-gray-600">
             {appointments.length === 0
               ? 'No appointments yet'
@@ -147,7 +147,7 @@ export function CustomerHistory({ customerId, token }: CustomerHistoryProps) {
           {filteredAppointments.map((apt) => (
             <div
               key={apt.id}
-              className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+              className="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:bg-gray-50 dark:bg-slate-900 transition-colors"
             >
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="flex-1 min-w-0">
@@ -157,7 +157,7 @@ export function CustomerHistory({ customerId, token }: CustomerHistoryProps) {
                     </span>
                     {getStatusBadge(apt.status)}
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">
+                  <p className="text-sm text-gray-600 dark:text-slate-400 mb-2">
                     {formatDateTime(apt.date)}
                   </p>
                   {apt.service && (
@@ -171,7 +171,7 @@ export function CustomerHistory({ customerId, token }: CustomerHistoryProps) {
                     </p>
                   )}
                   {apt.notes && (
-                    <p className="text-sm text-gray-700 mt-2 italic">
+                    <p className="text-sm text-gray-700 dark:text-slate-300 mt-2 italic">
                       Notes: {apt.notes}
                     </p>
                   )}
@@ -185,15 +185,15 @@ export function CustomerHistory({ customerId, token }: CustomerHistoryProps) {
       {/* Summary Stats */}
       {appointments.length > 0 && (
         <div className="mt-8 pt-6 border-t">
-          <h3 className="text-sm font-semibold text-gray-600 uppercase mb-4">
+          <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 uppercase mb-4">
             Statistics
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-blue-50 rounded-lg p-4">
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
               <p className="text-xs font-medium text-blue-600 uppercase">Total Appointments</p>
               <p className="text-2xl font-bold text-blue-900">{appointments.length}</p>
             </div>
-            <div className="bg-green-50 rounded-lg p-4">
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
               <p className="text-xs font-medium text-green-600 uppercase">Completed</p>
               <p className="text-2xl font-bold text-green-900">
                 {appointments.filter(
@@ -201,7 +201,7 @@ export function CustomerHistory({ customerId, token }: CustomerHistoryProps) {
                 ).length}
               </p>
             </div>
-            <div className="bg-red-50 rounded-lg p-4">
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
               <p className="text-xs font-medium text-red-600 uppercase">Cancelled</p>
               <p className="text-2xl font-bold text-red-900">
                 {appointments.filter((a) => a.status === 'cancelled').length}

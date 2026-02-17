@@ -38,14 +38,14 @@ export function BarberSelector({ shopSlug, shopId, onSelect }: BarberSelectorPro
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 dark:border-blue-400 border-t-transparent"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-red-700">
+      <div className="bg-red-50 dark:bg-red-900/20 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-red-700 dark:text-red-400">
         {error}
       </div>
     );
@@ -54,8 +54,8 @@ export function BarberSelector({ shopSlug, shopId, onSelect }: BarberSelectorPro
   return (
     <div>
       <div className="text-center mb-12">
-        <h2 className="text-4xl font-bold text-slate-900 mb-4">Choose Your Barber</h2>
-        <p className="text-lg text-slate-600">Select from our talented team</p>
+        <h2 className="text-4xl font-bold text-slate-900 dark:text-slate-100 dark:text-slate-100 mb-4">Choose Your Barber</h2>
+        <p className="text-lg text-slate-600 dark:text-slate-400 dark:text-slate-400">Select from our talented team</p>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -63,11 +63,11 @@ export function BarberSelector({ shopSlug, shopId, onSelect }: BarberSelectorPro
           <button
             key={barber.id}
             onClick={() => onSelect(barber)}
-            className="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all transform hover:-translate-y-1"
+            className="group bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl dark:hover:shadow-xl transition-all transform hover:-translate-y-1"
           >
             {/* Profile Image */}
             {barber.profile_photo_url ? (
-              <div className="relative w-full h-64 bg-slate-100">
+              <div className="relative w-full h-64 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800">
                 <Image
                   src={barber.profile_photo_url}
                   alt={barber.name}
@@ -76,9 +76,9 @@ export function BarberSelector({ shopSlug, shopId, onSelect }: BarberSelectorPro
                 />
               </div>
             ) : (
-              <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+              <div className="w-full h-64 bg-gradient-to-br from-blue-100 dark:from-blue-900/30 to-blue-50 dark:to-blue-800/30 flex items-center justify-center">
                 <svg
-                  className="w-24 h-24 text-blue-300"
+                  className="w-24 h-24 text-blue-300 dark:text-blue-700"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -89,17 +89,17 @@ export function BarberSelector({ shopSlug, shopId, onSelect }: BarberSelectorPro
 
             {/* Info */}
             <div className="p-6">
-              <h3 className="text-2xl font-bold text-slate-900 text-left">{barber.name}</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 dark:text-slate-100 text-left">{barber.name}</h3>
 
               {/* Rating */}
               {barber.average_rating && (
                 <div className="flex items-center gap-2 mt-2">
-                  <div className="flex text-yellow-400">
+                  <div className="flex text-yellow-400 dark:text-yellow-500">
                     {[...Array(5)].map((_, i) => (
                       <svg
                         key={i}
                         className={`w-4 h-4 ${
-                          i < Math.round(barber.average_rating) ? 'fill-current' : 'fill-slate-300'
+                          i < Math.round(barber.average_rating) ? 'fill-current' : 'fill-slate-300 dark:fill-slate-700'
                         }`}
                         viewBox="0 0 20 20"
                       >
@@ -107,7 +107,7 @@ export function BarberSelector({ shopSlug, shopId, onSelect }: BarberSelectorPro
                       </svg>
                     ))}
                   </div>
-                  <span className="text-sm text-slate-600">
+                  <span className="text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400">
                     {barber.average_rating.toFixed(1)} ({barber.review_count} reviews)
                   </span>
                 </div>
@@ -115,7 +115,7 @@ export function BarberSelector({ shopSlug, shopId, onSelect }: BarberSelectorPro
 
               {/* Bio */}
               {barber.bio && (
-                <p className="text-sm text-slate-600 mt-3 text-left line-clamp-2">{barber.bio}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 dark:text-slate-400 mt-3 text-left line-clamp-2">{barber.bio}</p>
               )}
 
               {/* Specialties */}
@@ -124,7 +124,7 @@ export function BarberSelector({ shopSlug, shopId, onSelect }: BarberSelectorPro
                   {barber.specialties.slice(0, 3).map((specialty: string, index: number) => (
                     <span
                       key={index}
-                      className="inline-block bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full"
+                      className="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs px-3 py-1 rounded-full"
                     >
                       {specialty}
                     </span>
@@ -133,8 +133,8 @@ export function BarberSelector({ shopSlug, shopId, onSelect }: BarberSelectorPro
               )}
 
               {/* CTA */}
-              <div className="mt-6 pt-6 border-t border-slate-100">
-                <div className="text-sm font-semibold text-blue-600 group-hover:text-blue-700">
+              <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 dark:border-slate-700">
+                <div className="text-sm font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
                   Book with {barber.name.split(' ')[0]} →
                 </div>
               </div>

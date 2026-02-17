@@ -59,7 +59,7 @@ export const LowStockAlerts: React.FC<LowStockAlertsProps> = ({ shopId }) => {
 
   if (alerts.length === 0) {
     return (
-      <div className="p-6 bg-green-50 rounded">
+      <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded">
         <p className="text-green-700">✓ All inventory levels are healthy!</p>
       </div>
     );
@@ -79,8 +79,8 @@ export const LowStockAlerts: React.FC<LowStockAlertsProps> = ({ shopId }) => {
             key={alert.id}
             className={`p-4 rounded border-l-4 ${
               alert.alert_type === 'out_of_stock'
-                ? 'bg-red-50 border-red-400'
-                : 'bg-yellow-50 border-yellow-400'
+                ? 'bg-red-50 dark:bg-red-900/20 border-red-400'
+                : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-400'
             }`}
           >
             <div className="flex justify-between items-start">

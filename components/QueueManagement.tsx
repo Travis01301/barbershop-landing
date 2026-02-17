@@ -96,23 +96,23 @@ export const QueueManagement: React.FC<QueueManagementProps> = ({
     const colors: Record<string, string> = {
       available: 'bg-green-100 text-green-800',
       busy: 'bg-yellow-100 text-yellow-800',
-      offline: 'bg-gray-100 text-gray-800',
+      offline: 'bg-gray-100 dark:bg-slate-800 text-gray-800',
     };
     return colors[availability] || colors.offline;
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 max-w-6xl mx-auto">
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6 max-w-6xl mx-auto">
       <h2 className="text-2xl font-bold mb-6">Queue Management</h2>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-md text-red-700 text-sm">
           {error}
         </div>
       )}
 
       {/* Barber Assignment Section */}
-      <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg">
         <h3 className="text-lg font-semibold mb-4">Assign Barber to Customer</h3>
         <div className="flex flex-col md:flex-row gap-4">
           <select
@@ -158,8 +158,8 @@ export const QueueManagement: React.FC<QueueManagementProps> = ({
       </div>
 
       {/* Queue List */}
-      <div className="bg-gray-50 rounded-lg overflow-hidden">
-        <div className="px-6 py-4 bg-gray-200 font-semibold text-gray-900 grid grid-cols-12 gap-4">
+      <div className="bg-gray-50 dark:bg-slate-900 rounded-lg overflow-hidden">
+        <div className="px-6 py-4 bg-gray-200 font-semibold text-gray-900 dark:text-slate-100 grid grid-cols-12 gap-4">
           <div className="col-span-1">Pos.</div>
           <div className="col-span-3">Customer</div>
           <div className="col-span-2">Service</div>
@@ -177,7 +177,7 @@ export const QueueManagement: React.FC<QueueManagementProps> = ({
             {queue.map((entry) => (
               <div
                 key={entry.id}
-                className="px-6 py-4 hover:bg-gray-100 transition grid grid-cols-12 gap-4 items-center"
+                className="px-6 py-4 hover:bg-gray-100 dark:bg-slate-800 transition grid grid-cols-12 gap-4 items-center"
               >
                 <div className="col-span-1">
                   <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold">
@@ -205,7 +205,7 @@ export const QueueManagement: React.FC<QueueManagementProps> = ({
                     entry.status === 'in-service' ? 'bg-yellow-100 text-yellow-800' :
                     entry.status === 'waiting' ? 'bg-blue-100 text-blue-800' :
                     entry.status === 'completed' ? 'bg-green-100 text-green-800' :
-                    'bg-gray-100 text-gray-800'
+                    'bg-gray-100 dark:bg-slate-800 text-gray-800'
                   }`}>
                     {entry.status}
                   </span>

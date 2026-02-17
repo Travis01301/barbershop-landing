@@ -43,8 +43,8 @@ export function PeakTimesHeatmapComponent({ peakTimes }: PeakTimesHeatmapProps) 
   const hours = Array.from(allHours).sort((a, b) => a - b);
 
   return (
-    <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-      <h2 className="text-lg font-bold text-slate-900 mb-4">Peak Times Heatmap</h2>
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">Peak Times Heatmap</h2>
 
       {hours.length === 0 ? (
         <p className="text-slate-500 text-center py-8">No booking data available</p>
@@ -54,11 +54,11 @@ export function PeakTimesHeatmapComponent({ peakTimes }: PeakTimesHeatmapProps) 
             <table className="border-collapse">
               <thead>
                 <tr>
-                  <th className="border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 bg-slate-50"></th>
+                  <th className="border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-semibold text-slate-900 dark:text-slate-100 bg-slate-50"></th>
                   {daysOfWeek.map((day, idx) => (
                     <th
                       key={idx}
-                      className="border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 bg-slate-50 text-center w-20"
+                      className="border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-semibold text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-900 text-center w-20"
                     >
                       {day}
                     </th>
@@ -68,7 +68,7 @@ export function PeakTimesHeatmapComponent({ peakTimes }: PeakTimesHeatmapProps) 
               <tbody>
                 {hours.map((hour) => (
                   <tr key={hour}>
-                    <td className="border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 bg-slate-50 text-center w-16">
+                    <td className="border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-semibold text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-900 text-center w-16">
                       {String(hour).padStart(2, '0')}:00
                     </td>
                     {daysOfWeek.map((_, dayIdx) => {
@@ -76,7 +76,7 @@ export function PeakTimesHeatmapComponent({ peakTimes }: PeakTimesHeatmapProps) 
                       return (
                         <td
                           key={`${dayIdx}-${hour}`}
-                          className={`border border-slate-200 px-4 py-2 text-center text-sm font-semibold ${getHeatmapColor(
+                          className={`border border-slate-200 dark:border-slate-700 px-4 py-2 text-center text-sm font-semibold ${getHeatmapColor(
                             count,
                             maxCount
                           )}`}
@@ -96,7 +96,7 @@ export function PeakTimesHeatmapComponent({ peakTimes }: PeakTimesHeatmapProps) 
       {/* Legend */}
       <div className="mt-6 flex flex-wrap gap-4 justify-center">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-slate-100 border border-slate-200"></div>
+          <div className="w-4 h-4 bg-slate-100 dark:bg-slate-800 border border-slate-200"></div>
           <span className="text-xs text-slate-600">No bookings</span>
         </div>
         <div className="flex items-center gap-2">

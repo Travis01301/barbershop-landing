@@ -94,13 +94,13 @@ export const SMSCampaignBuilder: React.FC<SMSCampaignBuilderProps> = ({
       <h2 className="text-2xl font-bold mb-6">Create SMS Campaign</h2>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 text-red-700 rounded">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded">
+        <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 text-green-700 rounded">
           ✓ Campaign created successfully!
         </div>
       )}
@@ -165,9 +165,9 @@ export const SMSCampaignBuilder: React.FC<SMSCampaignBuilderProps> = ({
           />
         </div>
 
-        <div className="bg-blue-50 p-4 rounded">
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded">
           <h4 className="font-semibold mb-2">Message Preview</h4>
-          <div className="bg-white p-3 rounded border border-blue-200 text-sm">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded border border-blue-200 text-sm">
             <p className="text-gray-800">{formData.message_content || '(Your message will appear here)'}</p>
             <p className="text-xs text-gray-500 mt-2">— {formData.sender_id}</p>
           </div>

@@ -125,7 +125,7 @@ export function AvailabilityCalendar({
 
   if (error) {
     return (
-      <div className="w-full p-8 bg-red-50 border border-red-200 rounded-lg">
+      <div className="w-full p-8 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg">
         <p className="text-red-700 font-semibold">Error</p>
         <p className="text-red-600 text-sm mt-1">{error}</p>
         <button
@@ -146,7 +146,7 @@ export function AvailabilityCalendar({
   return (
     <div className="w-full">
       {/* Summary */}
-      <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200">
         <p className="text-sm text-gray-700">
           <strong>{availableCount}</strong> available slots from{' '}
           <strong>{formatDateHeader(startDate)}</strong> to <strong>{formatDateHeader(endDate)}</strong>
@@ -185,8 +185,8 @@ export function AvailabilityCalendar({
                         slot.isAvailable
                           ? isSelected
                             ? 'bg-green-600 text-white ring-2 ring-green-400'
-                            : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 cursor-pointer'
-                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-green-50 dark:bg-green-900/20 text-green-700 hover:bg-green-100 border border-green-200 cursor-pointer'
+                          : 'bg-gray-100 dark:bg-slate-800 text-gray-400 cursor-not-allowed'
                       }`}
                       title={
                         slot.isAvailable
@@ -213,11 +213,11 @@ export function AvailabilityCalendar({
       )}
 
       {/* Legend */}
-      <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="mt-8 p-4 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200">
         <h4 className="font-semibold text-gray-800 mb-3">Legend</h4>
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-green-50 border border-green-200 rounded"></div>
+            <div className="w-8 h-8 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded"></div>
             <span>Available slot</span>
           </div>
           <div className="flex items-center gap-3">
@@ -227,7 +227,7 @@ export function AvailabilityCalendar({
             <span>Selected slot</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gray-100 rounded"></div>
+            <div className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded"></div>
             <span>Booked slot</span>
           </div>
         </div>

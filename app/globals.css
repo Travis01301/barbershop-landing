@@ -1,8 +1,27 @@
 @import "tailwindcss";
 
 :root {
+  /* Light mode - default */
   --background: #ffffff;
   --foreground: #171717;
+  --border: #e5e7eb;
+  --input-bg: #f3f4f6;
+  --card-bg: #ffffff;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 10px 13px rgba(0, 0, 0, 0.05);
+}
+
+html {
+  @apply transition-colors duration-200;
+}
+
+html.dark {
+  color-scheme: dark;
+  --background: #050E1F;
+  --foreground: #F1F5F9;
+  --border: #334155;
+  --input-bg: #1E293B;
+  --card-bg: #1E293B;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 13px rgba(0, 0, 0, 0.2);
 }
 
 @theme inline {
@@ -12,15 +31,102 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  @apply transition-colors duration-200;
+}
+
+/* Smooth transitions for theme switching */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Dark mode specific styles */
+.dark {
+  color-scheme: dark;
+}
+
+/* Text colors */
+.dark p, .dark span, .dark div, .dark a, .dark button, .dark label {
+  @apply text-slate-100;
+}
+
+.dark p {
+  @apply text-slate-300;
+}
+
+/* Input styles */
+.dark input,
+.dark textarea,
+.dark select {
+  @apply bg-slate-900 text-slate-100 border-slate-700;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  @apply text-slate-500;
+}
+
+/* Card styles */
+.dark [class*="card"],
+.dark [class*="panel"],
+.dark [class*="modal"] {
+  @apply bg-slate-900 border-slate-700;
+}
+
+/* Button styles */
+.dark button {
+  @apply transition-colors duration-200;
+}
+
+/* Link styles */
+.dark a {
+  @apply text-blue-400 hover:text-blue-300;
+}
+
+/* Table styles */
+.dark table {
+  @apply border-collapse;
+}
+
+.dark th,
+.dark td {
+  @apply border-slate-700;
+}
+
+.dark th {
+  @apply bg-slate-800 text-slate-100;
+}
+
+.dark tbody tr {
+  @apply border-slate-700;
+}
+
+.dark tbody tr:hover {
+  @apply bg-slate-800/50;
+}
+
+/* Form elements */
+.dark label {
+  @apply text-slate-300;
+}
+
+.dark input[type="checkbox"],
+.dark input[type="radio"] {
+  @apply accent-orange-500;
+}
+
+/* Scrollbar styling */
+.dark ::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+
+.dark ::-webkit-scrollbar-track {
+  @apply bg-slate-900;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-slate-700 rounded hover:bg-slate-600;
 }

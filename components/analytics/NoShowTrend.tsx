@@ -31,8 +31,8 @@ export function NoShowTrend({ customerAcquisition }: NoShowTrendProps) {
   }));
 
   return (
-    <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-      <h2 className="text-lg font-bold text-slate-900 mb-4">Customer Acquisition Trend</h2>
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">Customer Acquisition Trend</h2>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={noShowData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -59,9 +59,9 @@ export function NoShowTrend({ customerAcquisition }: NoShowTrendProps) {
 
       {/* Summary statistics */}
       <div className="mt-6 grid grid-cols-3 gap-4">
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <p className="text-sm text-slate-600 font-semibold">Avg New Customers/Day</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">
+        <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg">
+          <p className="text-sm text-slate-600 dark:text-slate-400 font-semibold">Avg New Customers/Day</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
             {noShowData.length > 0
               ? (
                   noShowData.reduce((sum, d) => sum + d.newCustomers, 0) / noShowData.length
@@ -69,9 +69,9 @@ export function NoShowTrend({ customerAcquisition }: NoShowTrendProps) {
               : '0'}
           </p>
         </div>
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <p className="text-sm text-slate-600 font-semibold">Avg Returning/Day</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">
+        <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg">
+          <p className="text-sm text-slate-600 dark:text-slate-400 font-semibold">Avg Returning/Day</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
             {noShowData.length > 0
               ? (
                   noShowData.reduce((sum, d) => sum + d.returningCustomers, 0) / noShowData.length
@@ -79,9 +79,9 @@ export function NoShowTrend({ customerAcquisition }: NoShowTrendProps) {
               : '0'}
           </p>
         </div>
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <p className="text-sm text-slate-600 font-semibold">Total Appointments</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">
+        <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg">
+          <p className="text-sm text-slate-600 dark:text-slate-400 font-semibold">Total Appointments</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
             {noShowData.reduce((sum, d) => sum + d.totalAppointments, 0)}
           </p>
         </div>

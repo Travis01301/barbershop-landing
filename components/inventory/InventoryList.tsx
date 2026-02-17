@@ -55,15 +55,15 @@ export const InventoryList: React.FC<InventoryListProps> = ({ shopId, onSelectIt
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-4">Inventory Management</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-50 p-4 rounded">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded">
             <p className="text-sm text-gray-600">Total Items</p>
             <p className="text-2xl font-bold">{items.length}</p>
           </div>
-          <div className="bg-green-50 p-4 rounded">
+          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded">
             <p className="text-sm text-gray-600">Total Value</p>
             <p className="text-2xl font-bold">${totalValue.toFixed(2)}</p>
           </div>
-          <div className="bg-red-50 p-4 rounded">
+          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded">
             <p className="text-sm text-gray-600">Low Stock Items</p>
             <p className="text-2xl font-bold">
               {items.filter((i) => i.current_quantity <= i.low_stock_threshold).length}
@@ -104,7 +104,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({ shopId, onSelectIt
               <tr
                 key={item.id}
                 onClick={() => onSelectItem?.(item)}
-                className="hover:bg-gray-50 cursor-pointer"
+                className="hover:bg-gray-50 dark:bg-slate-900 cursor-pointer"
               >
                 <td className="border p-2">{item.item_name}</td>
                 <td className="border p-2 capitalize">{item.category}</td>

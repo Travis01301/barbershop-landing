@@ -80,27 +80,27 @@ export default function CustomerLTVAnalytics({ shopId }: CustomerLTVAnalyticsPro
   };
 
   return (
-    <div className="p-8 bg-gray-50 rounded-lg">
+    <div className="p-8 bg-gray-50 dark:bg-slate-900 rounded-lg">
       <h1 className="text-3xl font-bold mb-8">Customer Lifetime Value Analytics</h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Total Customers</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Total Customers</h3>
           <p className="text-4xl font-bold mt-2">{data.length}</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Total Revenue</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Total Revenue</h3>
           <p className="text-4xl font-bold mt-2">${totalRevenue.toFixed(2)}</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Average LTV</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Average LTV</h3>
           <p className="text-4xl font-bold mt-2">
             ${data.length > 0 ? (totalRevenue / data.length).toFixed(2) : '0.00'}
           </p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Avg Churn Risk</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Avg Churn Risk</h3>
           <p className="text-4xl font-bold mt-2">{(avgChurnRisk * 100).toFixed(1)}%</p>
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function CustomerLTVAnalytics({ shopId }: CustomerLTVAnalyticsPro
       {/* Charts */}
       <div className="grid grid-cols-2 gap-8 mb-8">
         {/* Customer Segments */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Customer Segments</h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -132,7 +132,7 @@ export default function CustomerLTVAnalytics({ shopId }: CustomerLTVAnalyticsPro
         </div>
 
         {/* Spending Distribution */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Revenue by Segment</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart
@@ -153,7 +153,7 @@ export default function CustomerLTVAnalytics({ shopId }: CustomerLTVAnalyticsPro
         </div>
 
         {/* Churn Risk vs Spending */}
-        <div className="bg-white p-6 rounded-lg shadow col-span-2">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow col-span-2">
           <h2 className="text-lg font-semibold mb-4">Churn Risk vs Customer Spending</h2>
           <ResponsiveContainer width="100%" height={300}>
             <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
@@ -168,7 +168,7 @@ export default function CustomerLTVAnalytics({ shopId }: CustomerLTVAnalyticsPro
       </div>
 
       {/* Top Customers Table */}
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
         <h2 className="text-lg font-semibold mb-4">Top Customers by Spending</h2>
         <table className="w-full">
           <thead>

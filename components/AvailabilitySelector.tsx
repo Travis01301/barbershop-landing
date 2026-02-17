@@ -144,16 +144,16 @@ export function AvailabilitySelector({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded p-4 text-red-700">{error}</div>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded p-4 text-red-700">{error}</div>
       )}
       {success && (
-        <div className="bg-green-50 border border-green-200 rounded p-4 text-green-700">{success}</div>
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 rounded p-4 text-green-700">{success}</div>
       )}
 
-      <div className="bg-white border rounded overflow-hidden">
-        <div className="px-6 py-4 bg-gray-50 border-b">
+      <div className="bg-white dark:bg-slate-900 border rounded overflow-hidden">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-900 border-b">
           <h2 className="text-lg font-semibold">Weekly Availability</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
             Set your availability for each day of the week
           </p>
         </div>
@@ -181,7 +181,7 @@ export function AvailabilitySelector({
               {day.isAvailable && (
                 <div className="grid grid-cols-3 gap-4 ml-6">
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">Type</label>
+                    <label className="block text-sm text-gray-600 dark:text-slate-400 mb-1">Type</label>
                     <select
                       value={day.availabilityType}
                       onChange={(e) =>
@@ -200,7 +200,7 @@ export function AvailabilitySelector({
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">Preference</label>
+                    <label className="block text-sm text-gray-600 dark:text-slate-400 mb-1">Preference</label>
                     <select
                       value={day.preferenceLevel}
                       onChange={(e) =>
@@ -220,7 +220,7 @@ export function AvailabilitySelector({
 
                   <div className="flex gap-2">
                     <div className="flex-1">
-                      <label className="block text-sm text-gray-600 mb-1">From</label>
+                      <label className="block text-sm text-gray-600 dark:text-slate-400 mb-1">From</label>
                       <input
                         type="time"
                         value={day.startTime || '09:00'}
@@ -231,7 +231,7 @@ export function AvailabilitySelector({
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="block text-sm text-gray-600 mb-1">To</label>
+                      <label className="block text-sm text-gray-600 dark:text-slate-400 mb-1">To</label>
                       <input
                         type="time"
                         value={day.endTime || '17:00'}
@@ -248,7 +248,7 @@ export function AvailabilitySelector({
           ))}
         </div>
 
-        <div className="px-6 py-4 bg-gray-50 border-t">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-900 border-t">
           <button
             onClick={handleSave}
             disabled={saving}

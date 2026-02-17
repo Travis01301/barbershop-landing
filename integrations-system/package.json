@@ -1,0 +1,70 @@
+{
+  "name": "barbershop-integrations",
+  "version": "1.0.0",
+  "description": "Advanced integrations system for barbershop SaaS - Zapier, Google Calendar, Outlook, Shopify",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "migrate": "node backend/database/migrate.js",
+    "test": "jest --coverage",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "build": "npm run lint && npm run test",
+    "webhook:process": "node scripts/process-webhooks.js",
+    "sync:calendar": "node scripts/calendar-sync.js",
+    "sync:shopify": "node scripts/shopify-sync.js"
+  },
+  "keywords": [
+    "barbershop",
+    "integrations",
+    "zapier",
+    "google-calendar",
+    "outlook",
+    "shopify",
+    "appointments",
+    "saas"
+  ],
+  "author": "Barbershop SaaS",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.1.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.11.3",
+    "redis": "^4.6.12",
+    "googleapis": "^118.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.3",
+    "@types/node": "^20.10.6"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "backend/**/*.js",
+      "!backend/server.js"
+    ]
+  }
+}

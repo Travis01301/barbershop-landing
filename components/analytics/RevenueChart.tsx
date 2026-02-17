@@ -19,8 +19,8 @@ interface RevenueChartProps {
 
 export function RevenueChart({ revenue }: RevenueChartProps) {
   return (
-    <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-      <h2 className="text-lg font-bold text-slate-900 mb-4">Daily Revenue Trend</h2>
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">Daily Revenue Trend</h2>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={revenue.dailyRevenue}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -54,7 +54,7 @@ export function RevenueChart({ revenue }: RevenueChartProps) {
       {/* Revenue breakdown by service */}
       {revenue.byService.length > 0 && (
         <div className="mt-8">
-          <h3 className="text-md font-semibold text-slate-900 mb-4">Revenue by Service</h3>
+          <h3 className="text-md font-semibold text-slate-900 dark:text-slate-100 mb-4">Revenue by Service</h3>
           <div className="space-y-3">
             {revenue.byService.map((service, idx) => (
               <div key={idx} className="flex items-center justify-between">
@@ -74,7 +74,7 @@ export function RevenueChart({ revenue }: RevenueChartProps) {
       {/* Revenue breakdown by barber */}
       {revenue.byBarber.length > 0 && (
         <div className="mt-8">
-          <h3 className="text-md font-semibold text-slate-900 mb-4">Revenue by Barber</h3>
+          <h3 className="text-md font-semibold text-slate-900 dark:text-slate-100 mb-4">Revenue by Barber</h3>
           <div className="space-y-3">
             {revenue.byBarber.map((barber, idx) => (
               <div key={idx} className="flex items-center justify-between">

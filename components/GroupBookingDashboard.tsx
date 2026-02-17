@@ -159,7 +159,7 @@ export function GroupBookingDashboard({ groupId, isOrganizerView = false }: Grou
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow">
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-slate-900 rounded-lg shadow">
       <div className="mb-6">
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -196,7 +196,7 @@ export function GroupBookingDashboard({ groupId, isOrganizerView = false }: Grou
       </div>
 
       {/* Pricing Summary */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="mb-6 p-4 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200">
         <h2 className="text-lg font-semibold mb-3">Pricing Summary</h2>
         <div className="space-y-2">
           <div className="flex justify-between">
@@ -233,7 +233,7 @@ export function GroupBookingDashboard({ groupId, isOrganizerView = false }: Grou
         <h2 className="text-lg font-semibold mb-3">Group Members ({members.length}/{group.groupSize})</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
-            <thead className="bg-gray-100 border-b-2 border-gray-300">
+            <thead className="bg-gray-100 dark:bg-slate-800 border-b-2 border-gray-300">
               <tr>
                 <th className="px-4 py-2 text-left">Name</th>
                 <th className="px-4 py-2 text-left">Service</th>
@@ -245,7 +245,7 @@ export function GroupBookingDashboard({ groupId, isOrganizerView = false }: Grou
             </thead>
             <tbody>
               {members.map((member) => (
-                <tr key={member.id} className="border-b border-gray-200 hover:bg-gray-50">
+                <tr key={member.id} className="border-b border-gray-200 dark:border-slate-700 hover:bg-gray-50">
                   <td className="px-4 py-2">{member.guestName || 'Customer'}</td>
                   <td className="px-4 py-2">{member.servicePrice}</td>
                   <td className="px-4 py-2">{new Date(member.slotTime).toLocaleString()}</td>
@@ -281,7 +281,7 @@ export function GroupBookingDashboard({ groupId, isOrganizerView = false }: Grou
       {/* Payment Dialog */}
       {showPaymentDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-6 max-w-sm w-full">
             <h3 className="text-lg font-semibold mb-4">Complete Payment</h3>
             <p className="mb-4">
               Total amount due: <span className="font-bold text-lg">${group.totalCost.toFixed(2)}</span>

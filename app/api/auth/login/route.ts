@@ -96,7 +96,54 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate JWT tokens
+    // Check if 2FA is enabled
+    const twoFactorResult = await query(
+      `SELECT is_enabled, method FROM user_two_factor_settings
+       WHERE user_id = $1 AND shop_id = $2`,
+      [user.id, user.shop_id]
+    )
+
+    if (twoFactorResult.rowCount > 0 && twoFactorResult.rows[0].is_enabled) {
+      // 2FA is enabled - return 2FA required response
+      const { method } = twoFactorResult.rows[0]
+
+      // Send SMS code if SMS method
+      let attemptId: string | null = null
+      if (method === 'sms') {
+        // Get phone number
+        const phoneResult = await query(
+          `SELECT phone_number FROM user_two_factor_settings WHERE user_id = $1`,
+          [user.id]
+        )
+
+        if (phoneResult.rowCount > 0 && phoneResult.rows[0].phone_number) {
+          const { twoFactorService } = await import('@/lib/two-factor-service')
+          const smsResult = await twoFactorService.generateAndSendSMSCode(
+            user.id,
+            user.shop_id,
+            phoneResult.rows[0].phone_number
+          )
+          attemptId = smsResult.attemptId
+        }
+      }
+
+      authLogger.info('2FA required for login', {
+        userId: user.id,
+        email,
+        method,
+      })
+
+      return NextResponse.json({
+        success: false,
+        requiresTwoFactor: true,
+        userId: user.id,
+        method,
+        attemptId,
+        message: method === 'sms' ? 'SMS code sent to registered phone number' : 'Enter your authenticator code',
+      })
+    }
+
+    // No 2FA - generate JWT tokens normally
     const tokens = await jwtAuth.generateTokenPair({
       userId: user.id,
       email: user.email,

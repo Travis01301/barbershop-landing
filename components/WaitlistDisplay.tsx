@@ -117,7 +117,7 @@ export default function WaitlistDisplay({ barberId, date, onRefresh }: WaitlistD
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+      <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg text-red-800">
         {error}
       </div>
     );
@@ -141,8 +141,8 @@ export default function WaitlistDisplay({ barberId, date, onRefresh }: WaitlistD
             key={entry.id}
             className={`p-4 border rounded-lg ${
               entry.priority_level === 'priority'
-                ? 'bg-yellow-50 border-yellow-200'
-                : 'bg-gray-50 border-gray-200'
+                ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200'
+                : 'bg-gray-50 dark:bg-slate-900 border-gray-200'
             }`}
           >
             <div className="flex justify-between items-start">
@@ -156,13 +156,13 @@ export default function WaitlistDisplay({ barberId, date, onRefresh }: WaitlistD
                     </span>
                   )}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">
+                <div className="text-sm text-gray-600 dark:text-slate-400 mt-1">
                   📧 {entry.customer_email}
                 </div>
                 <div className="text-sm text-gray-600">
                   📱 {entry.customer_phone}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">
+                <div className="text-sm text-gray-600 dark:text-slate-400 mt-1">
                   📅 {entry.preferred_date}
                   {entry.preferred_time && ` @ ${entry.preferred_time}`}
                 </div>

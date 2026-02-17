@@ -115,7 +115,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6 animate-pulse">
         <div className="h-8 bg-gray-200 rounded mb-4"></div>
         <div className="space-y-3">
           {[...Array(4)].map((_, i) => (
@@ -127,7 +127,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Customer Notes</h2>
         {!editMode ? (
@@ -142,14 +142,14 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
 
       {/* Success Message */}
       {successMessage && (
-        <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-lg p-4">
           <p className="text-green-800 font-medium">{successMessage}</p>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-4">
           <p className="text-red-800 font-semibold">Error</p>
           <p className="text-red-600 text-sm mt-1">{error}</p>
         </div>
@@ -159,7 +159,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
         <form onSubmit={handleSave} className="space-y-6">
           {/* Styling Notes */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
               Styling Preferences
             </label>
             <textarea
@@ -168,7 +168,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
                 setNotes({ ...notes, styling_notes: e.target.value })
               }
               placeholder="e.g., Prefers fades on sides, 2-3 on length, tapered back..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-slate-100 placeholder-gray-500"
               rows={4}
             />
             <p className="text-xs text-gray-500 mt-1">Internal notes about preferred cuts and styles</p>
@@ -176,7 +176,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
 
           {/* Allergies */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
               Allergies & Sensitivities
             </label>
             <textarea
@@ -185,7 +185,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
                 setNotes({ ...notes, allergies: e.target.value })
               }
               placeholder="e.g., Allergic to lavender, sensitive to alcohol-based products..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-slate-100 placeholder-gray-500"
               rows={4}
             />
             <p className="text-xs text-gray-500 mt-1">⚠️ Important for safety - disclose all known allergies</p>
@@ -193,7 +193,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
 
           {/* Health Notes */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
               Health Considerations
             </label>
             <textarea
@@ -202,7 +202,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
                 setNotes({ ...notes, health_notes: e.target.value })
               }
               placeholder="e.g., Scalp sensitivity, eczema, recent surgery, medication side effects..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-slate-100 placeholder-gray-500"
               rows={4}
             />
             <p className="text-xs text-gray-500 mt-1">Medical considerations to be aware of</p>
@@ -211,7 +211,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
           {/* Contact Preferences */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
                 Preferred Contact Method
               </label>
               <select
@@ -231,7 +231,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
                 Do Not Disturb Times
               </label>
               <input
@@ -244,7 +244,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
                   })
                 }
                 placeholder="e.g., 9am-11am, after 6pm"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-slate-100 placeholder-gray-500"
               />
             </div>
           </div>
@@ -261,7 +261,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
             <button
               type="button"
               onClick={handleCancel}
-              className="flex-1 px-4 py-3 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
+              className="flex-1 px-4 py-3 bg-gray-200 text-gray-900 dark:text-slate-100 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
             >
               Cancel
             </button>
@@ -271,7 +271,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
         // Display Mode
         <div className="space-y-6">
           {/* Styling Notes */}
-          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200">
             <h3 className="text-sm font-semibold text-blue-900 mb-2">
               Styling Preferences
             </h3>
@@ -283,7 +283,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
           </div>
 
           {/* Allergies */}
-          <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+          <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200">
             <h3 className="text-sm font-semibold text-red-900 mb-2 flex items-center gap-2">
               ⚠️ Allergies & Sensitivities
             </h3>
@@ -295,7 +295,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
           </div>
 
           {/* Health Notes */}
-          <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200">
             <h3 className="text-sm font-semibold text-yellow-900 mb-2">
               Health Considerations
             </h3>
@@ -308,7 +308,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
 
           {/* Contact & DND */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200">
               <h3 className="text-sm font-semibold text-green-900 mb-2">
                 Preferred Contact
               </h3>
@@ -317,7 +317,7 @@ export function CustomerNotes({ customerId, token }: CustomerNotesProps) {
               </p>
             </div>
 
-            <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200">
               <h3 className="text-sm font-semibold text-purple-900 mb-2">
                 Do Not Disturb
               </h3>

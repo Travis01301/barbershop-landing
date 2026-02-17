@@ -43,14 +43,14 @@ export function CustomerForm({
         ← Back
       </button>
 
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">Your Information</h2>
-        <p className="text-slate-600 mb-8">We'll use this to confirm your appointment</p>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 p-8">
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Your Information</h2>
+        <p className="text-slate-600 dark:text-slate-400 mb-8">We'll use this to confirm your appointment</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name */}
           <div>
-            <label className="block text-sm font-semibold text-slate-900 mb-2">
+            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
               Full Name *
             </label>
             <input
@@ -65,7 +65,7 @@ export function CustomerForm({
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-semibold text-slate-900 mb-2">
+            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
               Email Address *
             </label>
             <input
@@ -80,7 +80,7 @@ export function CustomerForm({
 
           {/* Phone */}
           <div>
-            <label className="block text-sm font-semibold text-slate-900 mb-2">
+            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
               Phone Number *
             </label>
             <input
@@ -95,7 +95,7 @@ export function CustomerForm({
 
           {/* Styling Notes */}
           <div>
-            <label className="block text-sm font-semibold text-slate-900 mb-2">
+            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
               Styling Notes or Preferences
             </label>
             <textarea

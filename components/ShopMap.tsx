@@ -34,14 +34,14 @@ export const ShopMap: React.FC<ShopMapProps> = ({
   return (
     <div className="space-y-4">
       {/* Shop Info Card */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">{shopName}</h3>
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-4">{shopName}</h3>
 
         <div className="space-y-3">
           {/* Address */}
           <div className="flex items-start space-x-3">
             <svg
-              className="w-5 h-5 text-gray-600 mt-0.5"
+              className="w-5 h-5 text-gray-600 dark:text-slate-400 mt-0.5"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -57,7 +57,7 @@ export const ShopMap: React.FC<ShopMapProps> = ({
           {phoneNumber && (
             <div className="flex items-start space-x-3">
               <svg
-                className="w-5 h-5 text-gray-600 mt-0.5"
+                className="w-5 h-5 text-gray-600 dark:text-slate-400 mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -79,7 +79,7 @@ export const ShopMap: React.FC<ShopMapProps> = ({
           {hours && (
             <div className="flex items-start space-x-3">
               <svg
-                className="w-5 h-5 text-gray-600 mt-0.5"
+                className="w-5 h-5 text-gray-600 dark:text-slate-400 mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -91,7 +91,7 @@ export const ShopMap: React.FC<ShopMapProps> = ({
               </svg>
               <div>
                 <p className="text-sm font-medium text-gray-600">Hours</p>
-                <p className="text-gray-900 whitespace-pre-line">{hours}</p>
+                <p className="text-gray-900 dark:text-slate-100 whitespace-pre-line">{hours}</p>
               </div>
             </div>
           )}
@@ -111,7 +111,7 @@ export const ShopMap: React.FC<ShopMapProps> = ({
             href={mapsLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 border-2 border-blue-600 text-blue-600 py-2 px-4 rounded-lg text-center hover:bg-blue-50 transition"
+            className="flex-1 border-2 border-blue-600 text-blue-600 py-2 px-4 rounded-lg text-center hover:bg-blue-50 dark:bg-blue-900/20 transition"
           >
             View on Maps
           </a>

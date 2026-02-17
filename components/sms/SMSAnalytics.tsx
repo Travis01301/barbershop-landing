@@ -93,23 +93,23 @@ export const SMSAnalytics: React.FC<SMSAnalyticsProps> = ({ shopId, campaignId }
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-blue-50 p-4 rounded">
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded">
           <p className="text-sm text-gray-600">Total Sent</p>
           <p className="text-3xl font-bold text-blue-600">{aggregatedStats.total_sent}</p>
         </div>
 
-        <div className="bg-green-50 p-4 rounded">
+        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded">
           <p className="text-sm text-gray-600">Delivered</p>
           <p className="text-3xl font-bold text-green-600">{aggregatedStats.total_delivered}</p>
           <p className="text-xs text-gray-500 mt-1">{overallDeliveryRate}% delivery rate</p>
         </div>
 
-        <div className="bg-red-50 p-4 rounded">
+        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded">
           <p className="text-sm text-gray-600">Failed</p>
           <p className="text-3xl font-bold text-red-600">{aggregatedStats.total_failed}</p>
         </div>
 
-        <div className="bg-purple-50 p-4 rounded">
+        <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded">
           <p className="text-sm text-gray-600">Conversions</p>
           <p className="text-3xl font-bold text-purple-600">{aggregatedStats.conversion_count}</p>
           <p className="text-xs text-gray-500 mt-1">{overallConversionRate}% conversion rate</p>
@@ -118,7 +118,7 @@ export const SMSAnalytics: React.FC<SMSAnalyticsProps> = ({ shopId, campaignId }
 
       {/* Chart */}
       {chartData.length > 0 && (
-        <div className="bg-white p-6 rounded border mb-8">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded border mb-8">
           <h3 className="font-semibold mb-4">Performance Trend</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData}>

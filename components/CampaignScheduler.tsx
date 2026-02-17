@@ -115,24 +115,24 @@ export const CampaignScheduler: React.FC<CampaignSchedulerProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6 max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-6">Schedule Campaign</h2>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-md text-red-700 text-sm">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+        <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-md text-green-700 text-sm">
           Campaign scheduled successfully!
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Send Timing */}
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg">
           <h3 className="text-lg font-semibold mb-4">Send Timing</h3>
           <div className="space-y-4">
             <label className="flex items-center gap-3">
@@ -144,7 +144,7 @@ export const CampaignScheduler: React.FC<CampaignSchedulerProps> = ({
                 className="w-4 h-4"
                 disabled={isLoading}
               />
-              <span className="text-gray-700 font-medium">Send Now</span>
+              <span className="text-gray-700 dark:text-slate-300 font-medium">Send Now</span>
             </label>
 
             <label className="flex items-center gap-3">
@@ -156,7 +156,7 @@ export const CampaignScheduler: React.FC<CampaignSchedulerProps> = ({
                 className="w-4 h-4"
                 disabled={isLoading}
               />
-              <span className="text-gray-700 font-medium">Schedule for Later</span>
+              <span className="text-gray-700 dark:text-slate-300 font-medium">Schedule for Later</span>
             </label>
 
             {!formData.sendNow && (
@@ -175,11 +175,11 @@ export const CampaignScheduler: React.FC<CampaignSchedulerProps> = ({
         </div>
 
         {/* Recipient Segments */}
-        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 rounded-lg">
           <h3 className="text-lg font-semibold mb-4">Recipient Segments (Optional)</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                 Service Type
               </label>
               <select
@@ -197,7 +197,7 @@ export const CampaignScheduler: React.FC<CampaignSchedulerProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                 Visit Frequency
               </label>
               <select
@@ -214,7 +214,7 @@ export const CampaignScheduler: React.FC<CampaignSchedulerProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                 Last Visit (Days)
               </label>
               <input
@@ -256,7 +256,7 @@ export const CampaignScheduler: React.FC<CampaignSchedulerProps> = ({
             </button>
           </div>
 
-          <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 max-h-64 overflow-y-auto">
+          <div className="bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 p-4 max-h-64 overflow-y-auto">
             {formData.recipientEmails.length === 0 ? (
               <p className="text-gray-500 text-center py-4">No recipients added yet</p>
             ) : (
@@ -264,7 +264,7 @@ export const CampaignScheduler: React.FC<CampaignSchedulerProps> = ({
                 {formData.recipientEmails.map((email) => (
                   <div
                     key={email}
-                    className="flex items-center justify-between bg-white p-2 rounded border border-gray-200"
+                    className="flex items-center justify-between bg-white dark:bg-slate-900 p-2 rounded border border-gray-200"
                   >
                     <span className="text-sm text-gray-900">{email}</span>
                     <button

@@ -80,10 +80,10 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ shopId }) => {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <p className="text-gray-600 mb-2">Cost Per Appointment</p>
+            <p className="text-gray-600 dark:text-slate-400 mb-2">Cost Per Appointment</p>
             <p className="text-4xl font-bold text-purple-600">
               ${costPerAppointment?.toFixed(2) || '0.00'}
             </p>
@@ -92,7 +92,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ shopId }) => {
             </p>
           </div>
 
-          <div className="bg-purple-50 p-4 rounded">
+          <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded">
             <h4 className="font-semibold mb-3">Insights</h4>
             <ul className="text-sm space-y-2 text-gray-700">
               <li>

@@ -1,0 +1,327 @@
+{
+  "providers": {
+    "google_calendar": {
+      "name": "Google Calendar",
+      "display_name": "Google Calendar",
+      "description": "Sync appointments to Google Calendar with bi-directional sync",
+      "icon": "📅",
+      "category": "calendar",
+      "status": "production",
+      "auth_type": "oauth2",
+      "features": [
+        "auto_sync_appointments",
+        "sync_cancellations",
+        "bidirectional_availability_sync",
+        "real_time_updates",
+        "calendar_watch",
+        "event_reminders"
+      ],
+      "triggers": [
+        "appointment_created",
+        "appointment_cancelled",
+        "appointment_updated",
+        "appointment_completed"
+      ],
+      "actions": [],
+      "scopes": [
+        "https://www.googleapis.com/auth/calendar",
+        "https://www.googleapis.com/auth/calendar.readonly",
+        "openid",
+        "email",
+        "profile"
+      ],
+      "config_fields": [
+        {
+          "key": "calendar_id",
+          "label": "Calendar ID",
+          "type": "string",
+          "required": false,
+          "default": "primary",
+          "help": "Leave blank to use primary calendar"
+        },
+        {
+          "key": "timezone",
+          "label": "Timezone",
+          "type": "string",
+          "required": false,
+          "default": "UTC"
+        }
+      ],
+      "retry_config": {
+        "max_retries": 5,
+        "retry_delays": [1000, 5000, 30000, 300000, 3600000]
+      }
+    },
+    "outlook_calendar": {
+      "name": "Outlook Calendar",
+      "display_name": "Outlook / Office 365",
+      "description": "Integrate with Outlook & Office 365 Calendar",
+      "icon": "📧",
+      "category": "calendar",
+      "status": "production",
+      "auth_type": "oauth2",
+      "features": [
+        "office_365_support",
+        "auto_sync_appointments",
+        "bidirectional_sync",
+        "calendar_subscriptions",
+        "event_reminders"
+      ],
+      "triggers": [
+        "appointment_created",
+        "appointment_cancelled",
+        "appointment_updated"
+      ],
+      "actions": [],
+      "scopes": [
+        "Calendars.ReadWrite",
+        "offline_access",
+        "email",
+        "profile",
+        "openid"
+      ],
+      "config_fields": [
+        {
+          "key": "calendar_id",
+          "label": "Calendar ID",
+          "type": "string",
+          "required": false,
+          "default": "primary"
+        }
+      ],
+      "retry_config": {
+        "max_retries": 5,
+        "retry_delays": [1000, 5000, 30000, 300000, 3600000]
+      }
+    },
+    "shopify": {
+      "name": "Shopify POS",
+      "display_name": "Shopify",
+      "description": "Track product sales and revenue per barber",
+      "icon": "🛍️",
+      "category": "payments",
+      "status": "production",
+      "auth_type": "oauth2",
+      "features": [
+        "product_sales_sync",
+        "revenue_tracking_per_barber",
+        "bundle_offers",
+        "inventory_sync",
+        "order_tracking"
+      ],
+      "triggers": [
+        "order_created",
+        "order_updated",
+        "product_updated",
+        "inventory_changed"
+      ],
+      "actions": [
+        "create_order",
+        "update_order"
+      ],
+      "scopes": [
+        "write_products",
+        "read_products",
+        "write_orders",
+        "read_orders",
+        "write_inventory",
+        "read_inventory"
+      ],
+      "config_fields": [
+        {
+          "key": "shop_domain",
+          "label": "Shop Domain",
+          "type": "string",
+          "required": true,
+          "help": "Your Shopify store domain (e.g., mystore.myshopify.com)"
+        }
+      ],
+      "retry_config": {
+        "max_retries": 5,
+        "retry_delays": [2000, 10000, 60000, 600000, 3600000]
+      }
+    },
+    "zapier": {
+      "name": "Zapier",
+      "display_name": "Zapier",
+      "description": "Connect to 5000+ apps (Slack, Discord, Twilio, etc.)",
+      "icon": "⚡",
+      "category": "automation",
+      "status": "production",
+      "auth_type": "oauth2",
+      "features": [
+        "slack_notifications",
+        "discord_notifications",
+        "sms_via_twilio",
+        "email_integrations",
+        "custom_webhooks",
+        "5000_plus_app_support"
+      ],
+      "triggers": [
+        "appointment_created",
+        "appointment_cancelled",
+        "appointment_completed",
+        "payment_completed",
+        "customer_created",
+        "review_submitted",
+        "commission_payout"
+      ],
+      "actions": [
+        "create_appointment",
+        "send_sms",
+        "send_email",
+        "create_customer"
+      ],
+      "scopes": [
+        "read",
+        "write"
+      ],
+      "config_fields": [],
+      "retry_config": {
+        "max_retries": 5,
+        "retry_delays": [1000, 5000, 30000, 300000, 3600000]
+      }
+    }
+  },
+  "webhook_events": [
+    {
+      "key": "appointment_created",
+      "noun": "Appointment",
+      "description": "Triggers when a new appointment is created",
+      "sample_data": {
+        "id": "appt-123",
+        "customer_id": "cust-456",
+        "customer_name": "John Doe",
+        "customer_email": "john@example.com",
+        "customer_phone": "+1-555-0123",
+        "service": "Haircut",
+        "barber_id": "barber-789",
+        "barber_name": "Bob Smith",
+        "start_time": "2024-01-15T10:00:00Z",
+        "end_time": "2024-01-15T10:30:00Z",
+        "duration_minutes": 30,
+        "price": 25.00,
+        "status": "confirmed",
+        "notes": "New customer",
+        "created_at": "2024-01-14T15:30:00Z"
+      }
+    },
+    {
+      "key": "appointment_cancelled",
+      "noun": "Appointment",
+      "description": "Triggers when an appointment is cancelled",
+      "sample_data": {
+        "id": "appt-123",
+        "customer_name": "John Doe",
+        "cancel_reason": "Customer requested",
+        "cancelled_at": "2024-01-14T14:00:00Z"
+      }
+    },
+    {
+      "key": "appointment_completed",
+      "noun": "Appointment",
+      "description": "Triggers when an appointment is completed",
+      "sample_data": {
+        "id": "appt-123",
+        "customer_name": "John Doe",
+        "completed_at": "2024-01-15T10:30:00Z"
+      }
+    },
+    {
+      "key": "payment_completed",
+      "noun": "Payment",
+      "description": "Triggers when a payment is received",
+      "sample_data": {
+        "id": "payment-123",
+        "appointment_id": "appt-123",
+        "customer_name": "John Doe",
+        "amount": 25.00,
+        "payment_method": "card",
+        "status": "completed",
+        "timestamp": "2024-01-15T10:30:00Z"
+      }
+    },
+    {
+      "key": "customer_created",
+      "noun": "Customer",
+      "description": "Triggers when a new customer is added",
+      "sample_data": {
+        "id": "cust-456",
+        "name": "John Doe",
+        "email": "john@example.com",
+        "phone": "+1-555-0123",
+        "address": "123 Main St",
+        "created_at": "2024-01-14T15:30:00Z"
+      }
+    },
+    {
+      "key": "review_submitted",
+      "noun": "Review",
+      "description": "Triggers when a customer submits a review",
+      "sample_data": {
+        "id": "review-789",
+        "appointment_id": "appt-123",
+        "customer_name": "John Doe",
+        "rating": 5,
+        "comment": "Great service!",
+        "submitted_at": "2024-01-16T10:00:00Z"
+      }
+    },
+    {
+      "key": "commission_payout",
+      "noun": "Payout",
+      "description": "Triggers when a commission payout is processed",
+      "sample_data": {
+        "id": "payout-abc",
+        "barber_id": "barber-789",
+        "barber_name": "Bob Smith",
+        "amount": 500.00,
+        "period": "weekly",
+        "status": "processed",
+        "processed_at": "2024-01-15T09:00:00Z"
+      }
+    }
+  ],
+  "sync_intervals": {
+    "google_calendar": {
+      "type": "event_based",
+      "fallback_interval_minutes": 60,
+      "description": "Syncs immediately on changes, fallback to hourly"
+    },
+    "outlook_calendar": {
+      "type": "subscription",
+      "fallback_interval_minutes": 120,
+      "description": "Uses Microsoft Graph subscriptions with 24h expiry"
+    },
+    "shopify": {
+      "type": "webhook",
+      "fallback_interval_minutes": 300,
+      "description": "Real-time webhooks from Shopify"
+    },
+    "zapier": {
+      "type": "webhook",
+      "fallback_interval_minutes": null,
+      "description": "Event-based triggers via webhooks"
+    }
+  },
+  "error_handling": {
+    "max_retries": 5,
+    "retry_delays_ms": [1000, 5000, 30000, 300000, 3600000],
+    "timeout_ms": 30000,
+    "log_all_events": true,
+    "notify_on_failure": true,
+    "failure_notification_channels": ["email", "webhook"]
+  },
+  "rate_limits": {
+    "api_calls_per_minute": 100,
+    "sync_operations_per_minute": 10,
+    "webhook_deliveries_per_minute": 30,
+    "oauth_requests_per_hour": 100
+  },
+  "data_retention": {
+    "logs_retention_days": 90,
+    "webhooks_retention_days": 30,
+    "sync_tracking_retention_days": 365,
+    "oauth_tokens_encryption": true
+  }
+}

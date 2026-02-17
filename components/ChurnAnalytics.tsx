@@ -96,25 +96,25 @@ export default function ChurnAnalytics({ shopId }: ChurnAnalyticsProps) {
   };
 
   return (
-    <div className="p-8 bg-gray-50 rounded-lg">
+    <div className="p-8 bg-gray-50 dark:bg-slate-900 rounded-lg">
       <h1 className="text-3xl font-bold mb-8">Churn Analysis</h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">At Risk Customers</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">At Risk Customers</h3>
           <p className="text-4xl font-bold mt-2">{data.length}</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Critical Risk</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Critical Risk</h3>
           <p className="text-4xl font-bold mt-2 text-red-600">{riskCounts.critical || 0}</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">High Risk</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">High Risk</h3>
           <p className="text-4xl font-bold mt-2 text-yellow-600">{riskCounts.high || 0}</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Avg Churn Score</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Avg Churn Score</h3>
           <p className="text-4xl font-bold mt-2">{avgChurnScore.toFixed(1)}</p>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function ChurnAnalytics({ shopId }: ChurnAnalyticsProps) {
       {/* Charts */}
       <div className="grid grid-cols-2 gap-8 mb-8">
         {/* Risk Level Distribution */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Customers by Risk Level</h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -146,7 +146,7 @@ export default function ChurnAnalytics({ shopId }: ChurnAnalyticsProps) {
         </div>
 
         {/* Days Since Visit Distribution */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Days Since Last Visit</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={daysDistribution}>
@@ -160,7 +160,7 @@ export default function ChurnAnalytics({ shopId }: ChurnAnalyticsProps) {
         </div>
 
         {/* Churn Score Distribution */}
-        <div className="bg-white p-6 rounded-lg shadow col-span-2">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow col-span-2">
           <h2 className="text-lg font-semibold mb-4">Churn Score Distribution</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart
@@ -183,7 +183,7 @@ export default function ChurnAnalytics({ shopId }: ChurnAnalyticsProps) {
       </div>
 
       {/* At-Risk Customers Table */}
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
         <h2 className="text-lg font-semibold mb-4">Customers at Risk (Sorted by Risk Score)</h2>
         <table className="w-full">
           <thead>

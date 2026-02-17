@@ -53,15 +53,15 @@ export const CustomerNotes: React.FC<CustomerNotesProps> = ({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
         <div className="h-8 bg-gray-200 rounded w-1/4 mb-4 animate-pulse"></div>
-        <div className="h-32 bg-gray-100 rounded animate-pulse"></div>
+        <div className="h-32 bg-gray-100 dark:bg-slate-800 rounded animate-pulse"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold text-gray-900">Internal Notes</h2>
         {saveStatus === 'success' && (
@@ -83,7 +83,7 @@ export const CustomerNotes: React.FC<CustomerNotesProps> = ({
       </div>
 
       <div className="mb-4">
-        <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
           Add or edit notes about this customer (visible only to barbers)
         </label>
         <textarea
@@ -92,7 +92,7 @@ export const CustomerNotes: React.FC<CustomerNotesProps> = ({
           onChange={handleNotesChange}
           disabled={isSaving}
           placeholder="Enter internal notes here... e.g., preferred cutting style, frequent requests, behavioral notes, etc."
-          className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:bg-gray-50 disabled:text-gray-500"
+          className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:bg-gray-50 dark:bg-slate-900 disabled:text-gray-500"
         />
       </div>
 
@@ -104,7 +104,7 @@ export const CustomerNotes: React.FC<CustomerNotesProps> = ({
           <button
             onClick={handleReset}
             disabled={!hasChanges || isSaving}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-slate-300 font-medium hover:bg-gray-50 dark:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Reset
           </button>

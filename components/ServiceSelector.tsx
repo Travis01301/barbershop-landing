@@ -85,10 +85,10 @@ export function ServiceSelector({
   if (externalLoading || isLoading) {
     return (
       <div>
-        <label className="block text-sm font-medium text-slate-900 mb-2">
+        <label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
           {label}
         </label>
-        <div className="w-full px-4 py-2 rounded border border-slate-300 bg-slate-50 text-slate-500">
+        <div className="w-full px-4 py-2 rounded border border-slate-300 bg-slate-50 dark:bg-slate-900 text-slate-500">
           Loading services...
         </div>
       </div>
@@ -98,10 +98,10 @@ export function ServiceSelector({
   if (error) {
     return (
       <div>
-        <label className="block text-sm font-medium text-slate-900 mb-2">
+        <label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
           {label}
         </label>
-        <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded text-red-700 text-sm">
           {error}
         </div>
       </div>
@@ -111,10 +111,10 @@ export function ServiceSelector({
   if (services.length === 0) {
     return (
       <div>
-        <label className="block text-sm font-medium text-slate-900 mb-2">
+        <label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
           {label}
         </label>
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-700 text-sm">
+        <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 rounded text-yellow-700 text-sm">
           No services available
         </div>
       </div>
@@ -123,7 +123,7 @@ export function ServiceSelector({
 
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-900 mb-2">
+      <label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
         {label}
         {required && <span className="text-red-600"> *</span>}
       </label>
@@ -145,12 +145,12 @@ export function ServiceSelector({
       </select>
 
       {selectedService && (
-        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded">
           <div className="flex justify-between items-start">
             <div>
               <p className="font-semibold text-slate-900">{selectedService.name}</p>
               {selectedService.description && (
-                <p className="text-sm text-slate-600 mt-1">{selectedService.description}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{selectedService.description}</p>
               )}
             </div>
           </div>

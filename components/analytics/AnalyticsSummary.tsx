@@ -18,10 +18,10 @@ interface MetricCardProps {
 
 function MetricCard({ label, value, subtext, icon, trend }: MetricCardProps) {
   return (
-    <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-1">
+          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
             {label}
           </p>
           <p className="text-3xl font-bold text-slate-900">{value}</p>

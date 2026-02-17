@@ -70,7 +70,7 @@ export function CustomerProfile({ customerId, token }: CustomerProfileProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6 animate-pulse">
         <div className="h-8 bg-gray-200 rounded mb-4"></div>
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
@@ -83,7 +83,7 @@ export function CustomerProfile({ customerId, token }: CustomerProfileProps) {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-6">
         <p className="text-red-800 font-semibold">Error loading customer</p>
         <p className="text-red-600 text-sm mt-1">{error}</p>
       </div>
@@ -92,20 +92,20 @@ export function CustomerProfile({ customerId, token }: CustomerProfileProps) {
 
   if (!customer) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 rounded-lg p-6">
         <p className="text-yellow-800">Customer not found</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Profile</h2>
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-6">Customer Profile</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Basic Info */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-600 uppercase mb-4">
+          <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 uppercase mb-4">
             Contact Information
           </h3>
           <div className="space-y-4">
@@ -115,7 +115,7 @@ export function CustomerProfile({ customerId, token }: CustomerProfileProps) {
             </div>
             <div>
               <p className="text-xs font-medium text-gray-500 uppercase">Email</p>
-              <p className="text-sm text-gray-700 break-all">{customer.email}</p>
+              <p className="text-sm text-gray-700 dark:text-slate-300 break-all">{customer.email}</p>
             </div>
             {customer.phone && (
               <div>
@@ -134,18 +134,18 @@ export function CustomerProfile({ customerId, token }: CustomerProfileProps) {
 
         {/* Appointment Stats */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-600 uppercase mb-4">
+          <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 uppercase mb-4">
             Appointment History
           </h3>
           <div className="space-y-4">
-            <div className="bg-blue-50 rounded-lg p-4">
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
               <p className="text-xs font-medium text-blue-600 uppercase">Total Appointments</p>
               <p className="text-3xl font-bold text-blue-900">
                 {customer.total_appointments || 0}
               </p>
             </div>
             {customer.last_visit_date && (
-              <div className="bg-green-50 rounded-lg p-4">
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
                 <p className="text-xs font-medium text-green-600 uppercase">Last Visit</p>
                 <p className="text-lg font-semibold text-green-900">
                   {formatDate(customer.last_visit_date)}
@@ -157,7 +157,7 @@ export function CustomerProfile({ customerId, token }: CustomerProfileProps) {
                 <p className="text-xs font-medium text-gray-500 uppercase">
                   Preferred Contact
                 </p>
-                <p className="text-sm text-gray-700 capitalize">
+                <p className="text-sm text-gray-700 dark:text-slate-300 capitalize">
                   {customer.preferred_contact_method}
                 </p>
               </div>
@@ -168,26 +168,26 @@ export function CustomerProfile({ customerId, token }: CustomerProfileProps) {
 
       {/* Customer Preferences */}
       <div className="mt-8 border-t pt-6">
-        <h3 className="text-sm font-semibold text-gray-600 uppercase mb-4">
+        <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 uppercase mb-4">
           Customer Preferences
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {customer.styling_notes && (
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-xs font-medium text-gray-600 uppercase mb-2">
+            <div className="bg-gray-50 dark:bg-slate-900 rounded-lg p-4">
+              <p className="text-xs font-medium text-gray-600 dark:text-slate-400 uppercase mb-2">
                 Styling Notes
               </p>
               <p className="text-sm text-gray-700">{customer.styling_notes}</p>
             </div>
           )}
           {customer.allergies && (
-            <div className="bg-red-50 rounded-lg p-4">
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
               <p className="text-xs font-medium text-red-600 uppercase mb-2">Allergies</p>
               <p className="text-sm text-red-700">{customer.allergies}</p>
             </div>
           )}
           {customer.health_notes && (
-            <div className="bg-yellow-50 rounded-lg p-4">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
               <p className="text-xs font-medium text-yellow-600 uppercase mb-2">
                 Health Notes
               </p>
@@ -195,7 +195,7 @@ export function CustomerProfile({ customerId, token }: CustomerProfileProps) {
             </div>
           )}
           {customer.do_not_disturb_time && (
-            <div className="bg-purple-50 rounded-lg p-4">
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
               <p className="text-xs font-medium text-purple-600 uppercase mb-2">
                 Do Not Disturb
               </p>

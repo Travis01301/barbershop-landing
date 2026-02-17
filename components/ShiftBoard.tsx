@@ -117,7 +117,7 @@ export function ShiftBoard({
       case 'cancelled':
         return 'bg-red-100 border-red-300'
       default:
-        return 'bg-gray-100 border-gray-300'
+        return 'bg-gray-100 dark:bg-slate-800 border-gray-300'
     }
   }
 
@@ -162,7 +162,7 @@ export function ShiftBoard({
   }
 
   if (error) {
-    return <div className="bg-red-50 border border-red-200 rounded p-4 text-red-700">{error}</div>
+    return <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded p-4 text-red-700">{error}</div>
   }
 
   const shiftsByDate = groupShiftsByDate()
@@ -172,17 +172,17 @@ export function ShiftBoard({
     <div className="space-y-6">
       {/* Summary Stats */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white border rounded p-4">
+        <div className="bg-white dark:bg-slate-900 border rounded p-4">
           <div className="text-sm text-gray-600">Total Shifts</div>
           <div className="text-2xl font-bold">{coverage.length}</div>
         </div>
-        <div className="bg-green-50 border border-green-200 rounded p-4">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 rounded p-4">
           <div className="text-sm text-green-600">Covered</div>
           <div className="text-2xl font-bold text-green-700">
             {coverage.filter((c) => c.status === 'covered').length}
           </div>
         </div>
-        <div className="bg-red-50 border border-red-200 rounded p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded p-4">
           <div className="text-sm text-red-600">Understaffed</div>
           <div className="text-2xl font-bold text-red-700">
             {coverage.filter((c) => c.status === 'understaffed').length}
@@ -197,14 +197,14 @@ export function ShiftBoard({
       </div>
 
       {/* Shift Calendar */}
-      <div className="bg-white border rounded overflow-hidden">
-        <div className="px-6 py-4 bg-gray-50 border-b">
+      <div className="bg-white dark:bg-slate-900 border rounded overflow-hidden">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-900 border-b">
           <h2 className="text-lg font-semibold">Shift Schedule</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-100 border-b">
+              <tr className="bg-gray-100 dark:bg-slate-800 border-b">
                 <th className="px-4 py-2 text-left text-sm font-semibold">Date</th>
                 <th className="px-4 py-2 text-left text-sm font-semibold">Time</th>
                 <th className="px-4 py-2 text-left text-sm font-semibold">Barber</th>
@@ -218,7 +218,7 @@ export function ShiftBoard({
                   {dayShifts.map((shift, index) => (
                     <tr
                       key={shift.id}
-                      className={`border-b hover:bg-gray-50 cursor-pointer ${getShiftColor(shift)}`}
+                      className={`border-b hover:bg-gray-50 dark:bg-slate-900 cursor-pointer ${getShiftColor(shift)}`}
                       onClick={() => onShiftClick?.(shift)}
                     >
                       <td className="px-4 py-3 text-sm">{index === 0 ? date : ''}</td>
@@ -270,8 +270,8 @@ export function ShiftBoard({
       </div>
 
       {/* Coverage Timeline */}
-      <div className="bg-white border rounded overflow-hidden">
-        <div className="px-6 py-4 bg-gray-50 border-b">
+      <div className="bg-white dark:bg-slate-900 border rounded overflow-hidden">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-900 border-b">
           <h2 className="text-lg font-semibold">Coverage by Time Slot</h2>
         </div>
         <div className="p-4">

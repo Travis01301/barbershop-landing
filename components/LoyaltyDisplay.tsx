@@ -105,7 +105,7 @@ export default function LoyaltyDisplay({ customerId }: LoyaltyDisplayProps) {
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+      <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg text-red-800">
         {error}
       </div>
     );
@@ -118,16 +118,16 @@ export default function LoyaltyDisplay({ customerId }: LoyaltyDisplayProps) {
         <h3 className="text-lg font-semibold text-blue-900 mb-4">💳 Loyalty Points</h3>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-white rounded-lg p-4 text-center">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold text-blue-600">{balance?.points || 0}</div>
-            <div className="text-sm text-gray-600 mt-1">Points</div>
+            <div className="text-sm text-gray-600 dark:text-slate-400 mt-1">Points</div>
           </div>
 
-          <div className="bg-white rounded-lg p-4 text-center">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold text-green-600">
               ${(balance?.redeemedValue || 0).toFixed(2)}
             </div>
-            <div className="text-sm text-gray-600 mt-1">Redeemable Value</div>
+            <div className="text-sm text-gray-600 dark:text-slate-400 mt-1">Redeemable Value</div>
           </div>
         </div>
 
@@ -142,10 +142,10 @@ export default function LoyaltyDisplay({ customerId }: LoyaltyDisplayProps) {
 
         {stats?.referralCode ? (
           <>
-            <div className="bg-white rounded-lg p-4 mb-4">
-              <div className="text-sm text-gray-600 mb-2">Your Referral Code</div>
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-4 mb-4">
+              <div className="text-sm text-gray-600 dark:text-slate-400 mb-2">Your Referral Code</div>
               <div className="flex items-center gap-3">
-                <code className="flex-1 bg-gray-100 p-3 rounded font-mono text-lg font-bold text-gray-800">
+                <code className="flex-1 bg-gray-100 dark:bg-slate-800 p-3 rounded font-mono text-lg font-bold text-gray-800">
                   {stats.referralCode}
                 </code>
                 <button
@@ -161,27 +161,27 @@ export default function LoyaltyDisplay({ customerId }: LoyaltyDisplayProps) {
             </div>
 
             <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="bg-white rounded-lg p-4 text-center">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-4 text-center">
                 <div className="text-2xl font-bold text-green-600">{stats.totalReferrals}</div>
-                <div className="text-xs text-gray-600 mt-1">Total Referrals</div>
+                <div className="text-xs text-gray-600 dark:text-slate-400 mt-1">Total Referrals</div>
               </div>
 
-              <div className="bg-white rounded-lg p-4 text-center">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-4 text-center">
                 <div className="text-2xl font-bold text-yellow-600">{stats.activeReferrals}</div>
-                <div className="text-xs text-gray-600 mt-1">Pending</div>
+                <div className="text-xs text-gray-600 dark:text-slate-400 mt-1">Pending</div>
               </div>
 
-              <div className="bg-white rounded-lg p-4 text-center">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-4 text-center">
                 <div className="text-2xl font-bold text-blue-600">
                   ${stats.totalRewardEarned.toFixed(2)}
                 </div>
-                <div className="text-xs text-gray-600 mt-1">Rewards Earned</div>
+                <div className="text-xs text-gray-600 dark:text-slate-400 mt-1">Rewards Earned</div>
               </div>
             </div>
           </>
         ) : (
           <div className="text-center">
-            <p className="text-gray-700 mb-4">Generate your referral code and start earning rewards!</p>
+            <p className="text-gray-700 dark:text-slate-300 mb-4">Generate your referral code and start earning rewards!</p>
             <button
               onClick={generateReferralCode}
               className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
@@ -198,7 +198,7 @@ export default function LoyaltyDisplay({ customerId }: LoyaltyDisplayProps) {
 
       {/* Share Section */}
       {stats?.referralCode && (
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+        <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-purple-900 mb-4">📢 Share Your Code</h3>
 
           <div className="space-y-3">

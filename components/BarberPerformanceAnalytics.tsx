@@ -95,29 +95,29 @@ export default function BarberPerformanceAnalytics({ shopId }: BarberPerformance
   }, []);
 
   return (
-    <div className="p-8 bg-gray-50 rounded-lg">
+    <div className="p-8 bg-gray-50 dark:bg-slate-900 rounded-lg">
       <h1 className="text-3xl font-bold mb-8">Barber Performance Analytics</h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Total Barbers</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Total Barbers</h3>
           <p className="text-4xl font-bold mt-2">{barberData.length}</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Total Revenue</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Total Revenue</h3>
           <p className="text-4xl font-bold mt-2">
             ${barberData.reduce((sum: number, b: any) => sum + b.totalRevenue, 0).toFixed(2)}
           </p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Total Appointments</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Total Appointments</h3>
           <p className="text-4xl font-bold mt-2">
             {barberData.reduce((sum: number, b: any) => sum + b.appointmentCount, 0)}
           </p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Avg per Barber</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Avg per Barber</h3>
           <p className="text-4xl font-bold mt-2">
             ${(barberData.reduce((sum: number, b: any) => sum + b.totalRevenue, 0) / Math.max(1, barberData.length)).toFixed(0)}
           </p>
@@ -127,7 +127,7 @@ export default function BarberPerformanceAnalytics({ shopId }: BarberPerformance
       {/* Charts */}
       <div className="grid grid-cols-2 gap-8 mb-8">
         {/* Revenue by Barber */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Revenue by Barber</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={barberData}>
@@ -141,7 +141,7 @@ export default function BarberPerformanceAnalytics({ shopId }: BarberPerformance
         </div>
 
         {/* Appointments by Barber */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Appointments by Barber</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={barberData}>
@@ -155,7 +155,7 @@ export default function BarberPerformanceAnalytics({ shopId }: BarberPerformance
         </div>
 
         {/* Revenue Trend */}
-        <div className="bg-white p-6 rounded-lg shadow col-span-2">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow col-span-2">
           <h2 className="text-lg font-semibold mb-4">Revenue Trend</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={timelineData}>
@@ -171,7 +171,7 @@ export default function BarberPerformanceAnalytics({ shopId }: BarberPerformance
       </div>
 
       {/* Barber Details Table */}
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
         <h2 className="text-lg font-semibold mb-4">Barber Details</h2>
         <table className="w-full">
           <thead>

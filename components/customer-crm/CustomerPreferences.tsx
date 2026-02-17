@@ -148,7 +148,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6 animate-pulse">
         <div className="h-8 bg-gray-200 rounded mb-4"></div>
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
@@ -160,7 +160,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Customer Preferences</h2>
         {!editMode && (
@@ -175,14 +175,14 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
 
       {/* Success Message */}
       {successMessage && (
-        <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-lg p-4">
           <p className="text-green-800 font-medium">{successMessage}</p>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-4">
           <p className="text-red-800 font-semibold">Error</p>
           <p className="text-red-600 text-sm mt-1">{error}</p>
         </div>
@@ -192,7 +192,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
         <form onSubmit={handleSave} className="space-y-6">
           {/* Service Preferences */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
               Service Preferences
             </label>
             <textarea
@@ -201,7 +201,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
                 setPreferences({ ...preferences, styling_notes: e.target.value })
               }
               placeholder="e.g., Prefers fades, likes tight lines, dislikes razors..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-slate-100 placeholder-gray-500"
               rows={4}
               data-testid="styling-notes-textarea"
             />
@@ -210,7 +210,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
 
           {/* Hairstyle Notes */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
               Hairstyle Notes
             </label>
             <textarea
@@ -219,7 +219,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
                 setPreferences({ ...preferences, health_notes: e.target.value })
               }
               placeholder="e.g., Cowlick on back, hair naturally curls to left..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-slate-100 placeholder-gray-500"
               rows={4}
               data-testid="hairstyle-notes-textarea"
             />
@@ -228,7 +228,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
 
           {/* Allergies & Sensitivities */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
               ⚠️ Allergies & Sensitivities
             </label>
             <textarea
@@ -237,7 +237,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
                 setPreferences({ ...preferences, allergies: e.target.value })
               }
               placeholder="e.g., Allergic to lavender, sensitive to alcohol-based products..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-slate-100 placeholder-gray-500"
               rows={4}
               data-testid="allergies-textarea"
             />
@@ -246,7 +246,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
 
           {/* Barber Preference */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
               Preferred Barber
             </label>
             <select
@@ -273,7 +273,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
           {/* Contact Preferences */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
                 Preferred Contact Method
               </label>
               <select
@@ -294,7 +294,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
                 Do Not Disturb Times
               </label>
               <input
@@ -307,7 +307,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
                   })
                 }
                 placeholder="e.g., 9am-11am, after 6pm"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-slate-100 placeholder-gray-500"
                 data-testid="dnd-input"
               />
             </div>
@@ -326,7 +326,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
             <button
               type="button"
               onClick={handleCancel}
-              className="flex-1 px-4 py-3 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
+              className="flex-1 px-4 py-3 bg-gray-200 text-gray-900 dark:text-slate-100 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
               data-testid="cancel-button"
             >
               Cancel
@@ -337,7 +337,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
         // Display Mode
         <div className="space-y-6">
           {/* Service Preferences */}
-          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200">
             <h3 className="text-sm font-semibold text-blue-900 mb-2">Service Preferences</h3>
             <p className="text-sm text-blue-800" data-testid="styling-notes-display">
               {preferences.styling_notes || (
@@ -347,7 +347,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
           </div>
 
           {/* Hairstyle Notes */}
-          <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200">
             <h3 className="text-sm font-semibold text-green-900 mb-2">Hairstyle Notes</h3>
             <p className="text-sm text-green-800" data-testid="hairstyle-notes-display">
               {preferences.health_notes || (
@@ -357,7 +357,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
           </div>
 
           {/* Allergies */}
-          <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+          <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200">
             <h3 className="text-sm font-semibold text-red-900 mb-2 flex items-center gap-2">
               ⚠️ Allergies & Sensitivities
             </h3>
@@ -370,7 +370,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
 
           {/* Barber & Contact */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200">
               <h3 className="text-sm font-semibold text-purple-900 mb-2">Preferred Barber</h3>
               <p className="text-sm text-purple-800" data-testid="preferred-barber-display">
                 {preferences.preferred_barber_id
@@ -380,7 +380,7 @@ export function CustomerPreferences({ customerId, token }: CustomerPreferencesPr
               </p>
             </div>
 
-            <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200">
               <h3 className="text-sm font-semibold text-yellow-900 mb-2">Contact Method</h3>
               <p className="text-sm text-yellow-800 capitalize" data-testid="contact-method-display">
                 {preferences.preferred_contact_method}

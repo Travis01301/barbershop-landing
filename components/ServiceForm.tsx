@@ -89,13 +89,13 @@ export function ServiceForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6 border border-slate-200">
-      <h2 className="text-xl font-bold text-slate-900 mb-6">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200">
+      <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">
         {service ? 'Edit Service' : 'Create New Service'}
       </h2>
 
       {errors.submit && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded text-red-800 text-sm">
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded text-red-800 text-sm">
           {errors.submit}
         </div>
       )}
@@ -103,7 +103,7 @@ export function ServiceForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-slate-900 mb-2">
+          <label htmlFor="name" className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
             Service Name *
           </label>
           <input
@@ -123,7 +123,7 @@ export function ServiceForm({
 
         {/* Category */}
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-slate-900 mb-2">
+          <label htmlFor="category" className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
             Category
           </label>
           <select
@@ -144,7 +144,7 @@ export function ServiceForm({
 
         {/* Price */}
         <div>
-          <label htmlFor="price" className="block text-sm font-medium text-slate-900 mb-2">
+          <label htmlFor="price" className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
             Price ($) *
           </label>
           <input
@@ -166,7 +166,7 @@ export function ServiceForm({
 
         {/* Duration */}
         <div>
-          <label htmlFor="duration" className="block text-sm font-medium text-slate-900 mb-2">
+          <label htmlFor="duration" className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
             Duration (minutes) *
           </label>
           <input
@@ -189,7 +189,7 @@ export function ServiceForm({
 
       {/* Description */}
       <div className="mb-6">
-        <label htmlFor="description" className="block text-sm font-medium text-slate-900 mb-2">
+        <label htmlFor="description" className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
           Description
         </label>
         <textarea
@@ -224,7 +224,7 @@ export function ServiceForm({
           type="button"
           onClick={onCancel}
           disabled={submitting || isLoading}
-          className="px-6 py-2 rounded border border-slate-300 font-medium text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+          className="px-6 py-2 rounded border border-slate-300 font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-900 transition-colors disabled:opacity-50"
         >
           Cancel
         </button>

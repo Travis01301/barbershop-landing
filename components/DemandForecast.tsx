@@ -101,25 +101,25 @@ export default function DemandForecastComponent({ shopId }: DemandForecastProps)
   const maxStaffNeeded = Math.max(...data.map((f) => f.recommendedStaffCount));
 
   return (
-    <div className="p-8 bg-gray-50 rounded-lg">
+    <div className="p-8 bg-gray-50 dark:bg-slate-900 rounded-lg">
       <h1 className="text-3xl font-bold mb-8">Demand Forecast (Next 7 Days)</h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Total Expected Bookings</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Total Expected Bookings</h3>
           <p className="text-4xl font-bold mt-2">{Math.round(totalExpectedDemand)}</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Peak Hours</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Peak Hours</h3>
           <p className="text-4xl font-bold mt-2">{peakHours}</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Max Staff Needed</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Max Staff Needed</h3>
           <p className="text-4xl font-bold mt-2">{maxStaffNeeded}</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-gray-600 text-sm font-semibold">Busiest Day</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <h3 className="text-gray-600 dark:text-slate-400 text-sm font-semibold">Busiest Day</h3>
           <p className="text-4xl font-bold mt-2">
             {dailyData.length > 0
               ? dayOfWeekNames[new Date(dailyData.reduce((max, d) => (d.totalExpectedDemand > max.totalExpectedDemand ? d : max)).date).getDay()]
@@ -131,7 +131,7 @@ export default function DemandForecastComponent({ shopId }: DemandForecastProps)
       {/* Charts */}
       <div className="grid grid-cols-2 gap-8 mb-8">
         {/* Daily Demand */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Daily Demand Forecast</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={dailyData}>
@@ -146,7 +146,7 @@ export default function DemandForecastComponent({ shopId }: DemandForecastProps)
         </div>
 
         {/* Hourly Pattern */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Hourly Demand Pattern</h2>
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart data={hourlyPattern}>
@@ -162,7 +162,7 @@ export default function DemandForecastComponent({ shopId }: DemandForecastProps)
         </div>
 
         {/* Day of Week Pattern */}
-        <div className="bg-white p-6 rounded-lg shadow col-span-2">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow col-span-2">
           <h2 className="text-lg font-semibold mb-4">Day of Week Pattern</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={dayOfWeekPattern}>
@@ -178,7 +178,7 @@ export default function DemandForecastComponent({ shopId }: DemandForecastProps)
       </div>
 
       {/* Daily Schedule Table */}
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
         <h2 className="text-lg font-semibold mb-4">Daily Schedule & Staffing Recommendations</h2>
         <table className="w-full">
           <thead>
@@ -196,7 +196,7 @@ export default function DemandForecastComponent({ shopId }: DemandForecastProps)
                 <td className="py-2 font-medium">{new Date(day.date).toLocaleDateString()} ({dayOfWeekNames[new Date(day.date).getDay()]})</td>
                 <td className="py-2 text-right font-semibold">{Math.round(day.totalExpectedDemand)} bookings</td>
                 <td className="py-2 text-right">{day.peakHours} hours</td>
-                <td className="py-2 text-right bg-blue-50 font-bold">{day.maxStaff} staff</td>
+                <td className="py-2 text-right bg-blue-50 dark:bg-blue-900/20 font-bold">{day.maxStaff} staff</td>
                 <td className="py-2 text-right">{(day.avgConfidence * 100).toFixed(0)}%</td>
               </tr>
             ))}
@@ -206,7 +206,7 @@ export default function DemandForecastComponent({ shopId }: DemandForecastProps)
 
       {/* Hourly Detail for First Day */}
       {dailyData.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow mt-8">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow mt-8">
           <h2 className="text-lg font-semibold mb-4">Hourly Schedule - {new Date(dailyData[0].date).toLocaleDateString()}</h2>
           <table className="w-full">
             <thead>
@@ -229,7 +229,7 @@ export default function DemandForecastComponent({ shopId }: DemandForecastProps)
                         {forecast.peakHour ? '⭐ Peak' : 'Regular'}
                       </span>
                     </td>
-                    <td className="py-2 text-right bg-blue-50 font-bold">{forecast.recommendedStaffCount}</td>
+                    <td className="py-2 text-right bg-blue-50 dark:bg-blue-900/20 font-bold">{forecast.recommendedStaffCount}</td>
                   </tr>
                 ))}
             </tbody>

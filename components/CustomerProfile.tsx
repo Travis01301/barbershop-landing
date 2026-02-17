@@ -12,7 +12,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6 animate-pulse">
         <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
         <div className="space-y-3">
           <div className="h-4 bg-gray-200 rounded w-2/3"></div>
@@ -23,7 +23,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{customer.name}</h1>
@@ -33,7 +33,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = ({
           <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
             customer.status === 'active' 
               ? 'bg-green-100 text-green-800' 
-              : 'bg-gray-100 text-gray-800'
+              : 'bg-gray-100 dark:bg-slate-800 text-gray-800'
           }`}>
             {customer.status}
           </span>
@@ -43,7 +43,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Contact Information */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-4">Contact Information</h2>
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-600">Email</label>
@@ -68,7 +68,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = ({
 
         {/* Preferences Summary */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Info</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-4">Quick Info</h2>
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-600">Total Appointments</label>
@@ -95,7 +95,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = ({
       {/* Preferred Services */}
       {customer.preferredServices && customer.preferredServices.length > 0 && (
         <div className="mt-6 pt-6 border-t">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Preferred Services</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-3">Preferred Services</h2>
           <div className="flex flex-wrap gap-2">
             {customer.preferredServices.map((service) => (
               <span 
@@ -112,7 +112,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = ({
       {/* Last Appointment */}
       {customer.lastAppointmentDate && (
         <div className="mt-6 pt-6 border-t">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Last Appointment</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-3">Last Appointment</h2>
           <p className="text-gray-600">
             {new Date(customer.lastAppointmentDate).toLocaleDateString()} at{' '}
             {new Date(customer.lastAppointmentDate).toLocaleTimeString([], { 

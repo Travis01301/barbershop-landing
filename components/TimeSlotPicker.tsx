@@ -71,13 +71,13 @@ export function TimeSlotPicker({
         ← Back
       </button>
 
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">Select a Date & Time</h2>
-        <p className="text-slate-600 mb-8">Choose from available slots</p>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 p-8">
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Select a Date & Time</h2>
+        <p className="text-slate-600 dark:text-slate-400 mb-8">Choose from available slots</p>
 
         {/* Date Picker */}
         <div className="mb-8">
-          <label className="block text-sm font-semibold text-slate-900 mb-4">Date</label>
+          <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">Date</label>
           <input
             type="date"
             value={selectedDate}
@@ -91,7 +91,7 @@ export function TimeSlotPicker({
         {/* Time Slots */}
         {selectedDate && (
           <div>
-            <label className="block text-sm font-semibold text-slate-900 mb-4">Time</label>
+            <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">Time</label>
             {loading && (
               <div className="flex justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
@@ -99,7 +99,7 @@ export function TimeSlotPicker({
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-4 text-red-700">
                 {error}
               </div>
             )}
@@ -116,7 +116,7 @@ export function TimeSlotPicker({
                   <button
                     key={slot.startTime}
                     onClick={() => handleSlotSelect(slot)}
-                    className="py-3 px-3 border-2 border-slate-300 rounded-lg text-sm font-semibold hover:border-blue-500 hover:bg-blue-50 transition-all"
+                    className="py-3 px-3 border-2 border-slate-300 rounded-lg text-sm font-semibold hover:border-blue-500 hover:bg-blue-50 dark:bg-blue-900/20 transition-all"
                   >
                     {slot.display}
                   </button>

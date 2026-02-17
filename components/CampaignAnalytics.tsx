@@ -55,7 +55,7 @@ export const CampaignAnalytics: React.FC<CampaignAnalyticsProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 max-w-6xl mx-auto">
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6 max-w-6xl mx-auto">
       <div className="mb-8">
         <h2 className="text-3xl font-bold mb-2">{campaignName} Analytics</h2>
         <p className="text-gray-600">Updated: {new Date(analytics.updated_at).toLocaleString()}</p>
@@ -63,24 +63,24 @@ export const CampaignAnalytics: React.FC<CampaignAnalyticsProps> = ({
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-          <div className="text-sm text-gray-600 mb-1">Delivery Rate</div>
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200">
+          <div className="text-sm text-gray-600 dark:text-slate-400 mb-1">Delivery Rate</div>
           <div className="text-3xl font-bold text-blue-600">{getDeliveryRate()}%</div>
           <div className="text-xs text-gray-500 mt-2">
             {analytics.total_delivered} of {analytics.total_recipients} sent
           </div>
         </div>
 
-        <div className="bg-green-50 p-6 rounded-lg border border-green-200">
-          <div className="text-sm text-gray-600 mb-1">Open Rate</div>
+        <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200">
+          <div className="text-sm text-gray-600 dark:text-slate-400 mb-1">Open Rate</div>
           <div className="text-3xl font-bold text-green-600">{analytics.open_rate.toFixed(1)}%</div>
           <div className="text-xs text-gray-500 mt-2">
             {analytics.unique_opens} unique opens
           </div>
         </div>
 
-        <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
-          <div className="text-sm text-gray-600 mb-1">Click Rate</div>
+        <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg border border-purple-200">
+          <div className="text-sm text-gray-600 dark:text-slate-400 mb-1">Click Rate</div>
           <div className="text-3xl font-bold text-purple-600">{analytics.click_rate.toFixed(1)}%</div>
           <div className="text-xs text-gray-500 mt-2">
             {analytics.unique_clicks} unique clicks
@@ -88,7 +88,7 @@ export const CampaignAnalytics: React.FC<CampaignAnalyticsProps> = ({
         </div>
 
         <div className="bg-orange-50 p-6 rounded-lg border border-orange-200">
-          <div className="text-sm text-gray-600 mb-1">Revenue Generated</div>
+          <div className="text-sm text-gray-600 dark:text-slate-400 mb-1">Revenue Generated</div>
           <div className="text-3xl font-bold text-orange-600">
             {formatCurrency(analytics.revenue_generated)}
           </div>
@@ -101,7 +101,7 @@ export const CampaignAnalytics: React.FC<CampaignAnalyticsProps> = ({
       {/* Detailed Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Email Performance */}
-        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+        <div className="bg-gray-50 dark:bg-slate-900 p-6 rounded-lg border border-gray-200">
           <h3 className="text-lg font-semibold mb-4">Email Performance</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -148,7 +148,7 @@ export const CampaignAnalytics: React.FC<CampaignAnalyticsProps> = ({
         </div>
 
         {/* Engagement Metrics */}
-        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+        <div className="bg-gray-50 dark:bg-slate-900 p-6 rounded-lg border border-gray-200">
           <h3 className="text-lg font-semibold mb-4">Engagement Metrics</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -183,12 +183,12 @@ export const CampaignAnalytics: React.FC<CampaignAnalyticsProps> = ({
       </div>
 
       {/* Conversion Metrics */}
-      <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+      <div className="bg-gray-50 dark:bg-slate-900 p-6 rounded-lg border border-gray-200 dark:border-slate-700 mb-8">
         <h3 className="text-lg font-semibold mb-4">Conversion & ROI</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <div className="text-sm text-gray-600">Conversions</div>
-            <div className="text-2xl font-bold text-gray-900 mt-2">
+            <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mt-2">
               {analytics.conversion_count}
             </div>
             <div className="text-xs text-gray-500 mt-1">
@@ -200,7 +200,7 @@ export const CampaignAnalytics: React.FC<CampaignAnalyticsProps> = ({
 
           <div>
             <div className="text-sm text-gray-600">Conversion Value</div>
-            <div className="text-2xl font-bold text-gray-900 mt-2">
+            <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mt-2">
               {formatCurrency(analytics.conversion_value)}
             </div>
             <div className="text-xs text-gray-500 mt-1">Average per conversion</div>
@@ -208,7 +208,7 @@ export const CampaignAnalytics: React.FC<CampaignAnalyticsProps> = ({
 
           <div>
             <div className="text-sm text-gray-600">Revenue Generated</div>
-            <div className="text-2xl font-bold text-gray-900 mt-2">
+            <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mt-2">
               {formatCurrency(analytics.revenue_generated)}
             </div>
             <div className="text-xs text-gray-500 mt-1">Total campaign value</div>
@@ -217,7 +217,7 @@ export const CampaignAnalytics: React.FC<CampaignAnalyticsProps> = ({
       </div>
 
       {/* Recommendations */}
-      <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200">
         <h3 className="text-lg font-semibold mb-4">Insights & Recommendations</h3>
         <ul className="space-y-2 text-sm text-gray-700">
           {analytics.open_rate < 20 && (

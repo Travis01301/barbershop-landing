@@ -9,8 +9,8 @@ interface BarberPerformanceProps {
 
 export function BarberPerformanceTable({ barberPerformance }: BarberPerformanceProps) {
   return (
-    <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-      <h2 className="text-lg font-bold text-slate-900 mb-4">Barber Performance</h2>
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">Barber Performance</h2>
 
       {barberPerformance.length === 0 ? (
         <p className="text-slate-500 text-center py-8">No barber data available</p>
@@ -18,7 +18,7 @@ export function BarberPerformanceTable({ barberPerformance }: BarberPerformanceP
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
+              <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50">
                 <th className="text-left px-4 py-3 font-semibold text-slate-900">Barber</th>
                 <th className="text-center px-4 py-3 font-semibold text-slate-900">
                   Appointments
@@ -37,7 +37,7 @@ export function BarberPerformanceTable({ barberPerformance }: BarberPerformanceP
               {barberPerformance.map((barber, idx) => (
                 <tr
                   key={idx}
-                  className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:bg-slate-900 transition-colors"
                 >
                   <td className="px-4 py-3 font-semibold text-slate-900">
                     {barber.barberName}

@@ -107,12 +107,12 @@ function CheckoutForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-sm font-semibold text-slate-900 mb-2">
+        <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
           Deposit Amount
         </label>
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg">
           <p className="text-2xl font-bold text-blue-600">$10.00</p>
-          <p className="text-xs text-slate-600 mt-2">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">
             This deposit will secure your booking. Remaining balance due at the appointment.
           </p>
         </div>
@@ -120,7 +120,7 @@ function CheckoutForm({
 
       {/* Promo Code */}
       <div>
-        <label className="block text-sm font-semibold text-slate-900 mb-2">
+        <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
           Promo Code (Optional)
         </label>
         <div className="flex gap-2">
@@ -135,7 +135,7 @@ function CheckoutForm({
           {!promoValidated && promoCode && (
             <button
               type="button"
-              className="px-4 py-3 bg-slate-200 text-slate-700 rounded-lg font-semibold"
+              className="px-4 py-3 bg-slate-200 text-slate-700 dark:text-slate-300 rounded-lg font-semibold"
               onClick={() => setPromoValidated(true)}
             >
               Apply
@@ -143,7 +143,7 @@ function CheckoutForm({
           )}
         </div>
         {promoValidated && promoCode && (
-          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-lg">
             <p className="text-sm text-green-700">✓ Promo code applied</p>
           </div>
         )}
@@ -151,7 +151,7 @@ function CheckoutForm({
 
       {/* Card Element */}
       <div>
-        <label className="block text-sm font-semibold text-slate-900 mb-2">
+        <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
           Card Information
         </label>
         <div className="p-4 border border-slate-300 rounded-lg bg-white">
@@ -169,13 +169,13 @@ function CheckoutForm({
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg">
           <p className="text-red-700">{error}</p>
         </div>
       )}
 
       {/* Disclaimer */}
-      <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg">
+      <div className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
         <p className="text-xs text-slate-600">
           <strong>Cancellation Policy:</strong> Free cancellation up to 48 hours before appointment.
           Cancellations within 48 hours will incur a $15 fee.
@@ -186,7 +186,7 @@ function CheckoutForm({
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 px-4 py-3 border border-slate-300 text-slate-900 rounded-lg font-bold hover:bg-slate-50 transition-all"
+          className="flex-1 px-4 py-3 border border-slate-300 text-slate-900 dark:text-slate-100 rounded-lg font-bold hover:bg-slate-50 dark:bg-slate-900 transition-all"
         >
           Back
         </button>
@@ -205,9 +205,9 @@ function CheckoutForm({
 export function PaymentForm(props: PaymentFormProps) {
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">Secure Payment</h2>
-        <p className="text-slate-600 mb-8">Complete your booking by paying the deposit</p>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 p-8">
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Secure Payment</h2>
+        <p className="text-slate-600 dark:text-slate-400 mb-8">Complete your booking by paying the deposit</p>
 
         <Elements stripe={stripePromise}>
           <CheckoutForm {...props} />

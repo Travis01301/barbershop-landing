@@ -167,29 +167,29 @@ export function ShiftTemplateBuilder({
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white border rounded overflow-hidden">
-      <div className="px-6 py-4 bg-gray-50 border-b">
+    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border rounded overflow-hidden">
+      <div className="px-6 py-4 bg-gray-50 dark:bg-slate-900 border-b">
         <h2 className="text-lg font-semibold">
           {isEditing ? 'Edit Shift Template' : 'Create Shift Template'}
         </h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
           Define a recurring shift pattern that can be assigned to barbers
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded p-4 text-red-700">{error}</div>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded p-4 text-red-700">{error}</div>
         )}
         {success && (
-          <div className="bg-green-50 border border-green-200 rounded p-4 text-green-700">
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 rounded p-4 text-green-700">
             {success}
           </div>
         )}
 
         {/* Template Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
             Template Name *
           </label>
           <input
@@ -203,7 +203,7 @@ export function ShiftTemplateBuilder({
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -216,7 +216,7 @@ export function ShiftTemplateBuilder({
         {/* Time Configuration */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
               Start Time *
             </label>
             <input
@@ -227,7 +227,7 @@ export function ShiftTemplateBuilder({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
               End Time *
             </label>
             <input
@@ -242,7 +242,7 @@ export function ShiftTemplateBuilder({
         {/* Barber Requirements */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
               Minimum Barbers *
             </label>
             <input
@@ -254,7 +254,7 @@ export function ShiftTemplateBuilder({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
               Maximum Barbers *
             </label>
             <input
@@ -269,7 +269,7 @@ export function ShiftTemplateBuilder({
 
         {/* Recurring Pattern */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
             Recurring Pattern *
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -292,7 +292,7 @@ export function ShiftTemplateBuilder({
         {/* Day Selection (for weekly/custom patterns) */}
         {(recurringPattern === 'weekly' || recurringPattern === 'custom') && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Select Days
             </label>
             <div className="grid grid-cols-4 gap-2">
@@ -312,7 +312,7 @@ export function ShiftTemplateBuilder({
         )}
 
         {/* Summary Preview */}
-        <div className="bg-blue-50 border border-blue-200 rounded p-4">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded p-4">
           <h3 className="font-semibold text-blue-900 mb-2">Preview</h3>
           <div className="text-sm text-blue-800 space-y-1">
             <p>
@@ -347,7 +347,7 @@ export function ShiftTemplateBuilder({
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 font-medium"
+              className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 dark:text-slate-300 rounded hover:bg-gray-300 font-medium"
             >
               Cancel
             </button>

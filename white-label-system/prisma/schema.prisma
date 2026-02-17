@@ -1,0 +1,270 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Organization Tiers
+enum OrganizationType {
+  SINGLE_SHOP
+  AGENCY
+  CHAIN
+  FRANCHISE
+}
+
+enum BillingPlan {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum StaffRole {
+  OWNER
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+// Organizations - Parent org (agency/chain/franchise)
+model Organization {
+  id                String   @id @default(cuid())
+  type              OrganizationType
+  name              String
+  email             String   @unique
+  phone             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relationships
+  settings          OrganizationSettings?
+  shops             OrganizationShop[]
+  staff             OrganizationStaff[]
+  billing           OrganizationBilling?
+  users             User[]
+  invitations       OrganizationInvitation[]
+  activityLogs      ActivityLog[]
+  
+  @@map("organizations")
+}
+
+// Organization Settings - Branding, colors, domain
+model OrganizationSettings {
+  id                String   @id @default(cuid())
+  organizationId    String   @unique
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  // Branding
+  appName           String   @default("BarberFlow")
+  logoUrl           String?
+  logoUploadedAt    DateTime?
+  primaryColor      String   @default("#0066CC")
+  secondaryColor    String   @default("#FF6B35")
+  accentColor       String   @default("#FFC300")
+  fontFamily        String   @default("Inter")
+  
+  // Domain & Email
+  customDomain      String?  @unique
+  emailDomain       String?  @unique
+  supportEmail      String?
+  
+  // Content
+  welcomeMessage    String   @default("Welcome to BarberFlow")
+  helpText          String?
+  
+  // Feature Flags
+  enableShopCustomization Boolean @default(true)
+  enableStaffManagement   Boolean @default(true)
+  enableAdvancedAnalytics Boolean @default(false)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("organization_settings")
+}
+
+// Shops under organization
+model OrganizationShop {
+  id                String   @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  name              String
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?
+  phone             String?
+  email             String?
+  
+  // Shop specific branding (overrides org defaults)
+  logoUrl           String?
+  primaryColor      String?
+  secondaryColor    String?
+  
+  capacity          Int      @default(5)
+  isActive          Boolean  @default(true)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@map("organization_shops")
+}
+
+// Team members managing shops
+model OrganizationStaff {
+  id                String   @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId            String   @unique
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  role              StaffRole
+  shopIds           String[] // JSON array of shop IDs they manage
+  
+  joinedAt          DateTime @default(now())
+  lastActiveAt      DateTime @default(now())
+  
+  @@index([organizationId])
+  @@map("organization_staff")
+}
+
+// Organization Billing
+model OrganizationBilling {
+  id                String   @id @default(cuid())
+  organizationId    String   @unique
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  plan              BillingPlan @default(STARTER)
+  stripeCustomerId  String?
+  
+  monthlyCharge     Float    @default(99.0)
+  billingEmail      String
+  
+  nextBillingDate   DateTime
+  lastBilledAt      DateTime?
+  
+  isActive          Boolean  @default(true)
+  
+  invoices          Invoice[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("organization_billing")
+}
+
+// Invoices
+model Invoice {
+  id                String   @id @default(cuid())
+  billingId         String
+  billing           OrganizationBilling @relation(fields: [billingId], references: [id], onDelete: Cascade)
+  
+  invoiceNumber     String   @unique
+  amount            Float
+  status            String   @default("pending") // pending, paid, failed
+  dueDate           DateTime
+  paidAt            DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([billingId])
+  @@map("invoices")
+}
+
+// Users
+model User {
+  id                String   @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  email             String   @unique
+  name              String
+  passwordHash      String
+  
+  avatar            String?
+  
+  isActive          Boolean  @default(true)
+  emailVerified     Boolean  @default(false)
+  verificationToken String?
+  
+  lastLoginAt       DateTime?
+  
+  staff             OrganizationStaff?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([organizationId])
+  @@map("users")
+}
+
+// Organization Invitations
+model OrganizationInvitation {
+  id                String   @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  email             String
+  role              StaffRole
+  token             String   @unique
+  
+  isAccepted        Boolean  @default(false)
+  acceptedAt        DateTime?
+  expiresAt         DateTime
+  
+  createdAt         DateTime @default(now())
+  
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@map("organization_invitations")
+}
+
+// Activity Logs
+model ActivityLog {
+  id                String   @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  action            String
+  resource          String
+  resourceId        String?
+  details           String? // JSON
+  ipAddress         String?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([organizationId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// Usage Analytics
+model UsageAnalytics {
+  id                String   @id @default(cuid())
+  organizationId    String
+  
+  // Metrics
+  totalAppointments Int      @default(0)
+  totalRevenue      Float    @default(0)
+  activeCustomers   Int      @default(0)
+  activeStaff       Int      @default(0)
+  
+  // Time period
+  period            String   // daily, weekly, monthly
+  date              DateTime
+  
+  createdAt         DateTime @default(now())
+  
+  @@unique([organizationId, date, period])
+  @@index([organizationId])
+  @@map("usage_analytics")
+}

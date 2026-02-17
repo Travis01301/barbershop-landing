@@ -116,13 +116,13 @@ export const SMSScheduler: React.FC<SMSSchedulerProps> = ({ shopId, campaignId }
       <h2 className="text-2xl font-bold mb-6">Schedule & Send Campaigns</h2>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 text-red-700 rounded">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded">
+        <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 text-green-700 rounded">
           ✓ Operation completed successfully!
         </div>
       )}
@@ -138,8 +138,8 @@ export const SMSScheduler: React.FC<SMSSchedulerProps> = ({ shopId, campaignId }
                 onClick={() => setSelectedCampaign(campaign)}
                 className={`p-3 border rounded cursor-pointer transition ${
                   selectedCampaign?.id === campaign.id
-                    ? 'bg-blue-50 border-blue-500'
-                    : 'bg-white hover:bg-gray-50'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500'
+                    : 'bg-white dark:bg-slate-900 hover:bg-gray-50'
                 }`}
               >
                 <p className="font-medium text-sm">{campaign.campaign_name}</p>
@@ -153,14 +153,14 @@ export const SMSScheduler: React.FC<SMSSchedulerProps> = ({ shopId, campaignId }
 
         {/* Schedule Form */}
         {selectedCampaign && (
-          <div className="bg-gray-50 p-4 rounded">
+          <div className="bg-gray-50 dark:bg-slate-900 p-4 rounded">
             <h3 className="font-semibold mb-4">Schedule Campaign</h3>
 
             <div className="mb-4">
               <h4 className="text-sm font-medium mb-2">Campaign Details</h4>
-              <div className="bg-white p-3 rounded border text-sm">
+              <div className="bg-white dark:bg-slate-900 p-3 rounded border text-sm">
                 <p className="font-medium">{selectedCampaign.campaign_name}</p>
-                <p className="text-gray-600 text-xs mt-1">{selectedCampaign.message_content}</p>
+                <p className="text-gray-600 dark:text-slate-400 text-xs mt-1">{selectedCampaign.message_content}</p>
               </div>
             </div>
 
